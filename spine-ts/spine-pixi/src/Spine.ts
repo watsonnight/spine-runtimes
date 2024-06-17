@@ -403,15 +403,20 @@ export class Spine extends Container {
 				const slotColor = slot.color;
 				const alpha = skeletonColor.a * slotColor.a * attachmentColor.a;
 				this.lightColor.set(
-					skeletonColor.r * slotColor.r * attachmentColor.r,
-					skeletonColor.g * slotColor.g * attachmentColor.g,
-					skeletonColor.b * slotColor.b * attachmentColor.b,
+					skeletonColor.r * slotColor.r * attachmentColor.r * alpha,
+					skeletonColor.g * slotColor.g * attachmentColor.g * alpha,
+					skeletonColor.b * slotColor.b * attachmentColor.b * alpha,
 					alpha
 				);
 				if (slot.darkColor != null) {
-					this.darkColor.setFromColor(slot.darkColor);
+					this.darkColor.set(
+						slot.darkColor.r * alpha,
+						slot.darkColor.g * alpha,
+						slot.darkColor.b * alpha,
+						1,
+					);
 				} else {
-					this.darkColor.set(0, 0, 0, 0);
+					this.darkColor.set(0, 0, 0, 1);
 				}
 
 				let finalVertices: NumberArrayLike;
@@ -443,6 +448,7 @@ export class Spine extends Container {
 							verts[tempV++] = this.darkColor.r;
 							verts[tempV++] = this.darkColor.g;
 							verts[tempV++] = this.darkColor.b;
+							verts[tempV++] = this.darkColor.a;
 						}
 					}
 					finalVertices = this.verticesCache;

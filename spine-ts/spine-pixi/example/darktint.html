@@ -1,0 +1,85 @@
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>spine-pixi</title>
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.2.4/dist/pixi.min.js"></script>
+  <script src="../dist/iife/spine-pixi.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tweakpane@3.1.9/dist/tweakpane.min.js"></script>
+  <link rel="stylesheet" href="../../index.css">
+</head>
+
+<body>
+  <script>
+    (async function () {
+      var app = new PIXI.Application({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+        resizeTo: window,
+        backgroundColor: 0x706f77,
+        hello: true,
+      });
+
+      window.__PIXI_DEVTOOLS__ = {
+        app: app,
+        pixi: PIXI,
+      };
+
+      document.body.appendChild(app.view);
+
+      await PIXI.Assets.add("orangeData", "./assets/orange.json");
+      await PIXI.Assets.add("orangeAtlas", "./assets/orange.atlas");
+      await PIXI.Assets.add("orangeDataPma", "./assets/orange-pma.json");
+      await PIXI.Assets.add("orangeAtlasPma", "./assets/orange-pma.atlas");
+
+      await PIXI.Assets.add("spineboyData", "./assets/spineboy-pro.json");
+      await PIXI.Assets.add("spineboyAtlas", "./assets/spineboy.atlas");
+      await PIXI.Assets.add("spineboyDataPma", "./assets/spineboy-pro.json");
+      await PIXI.Assets.add("spineboyAtlasPma", "./assets/spineboy-pma.atlas");
+
+      await PIXI.Assets.add("coinData", "./assets/coin-pro.skel");
+      await PIXI.Assets.add("coinAtlas", "./assets/coin.atlas");
+      await PIXI.Assets.add("coinDataPma", "./assets/coin-pro.skel");
+      await PIXI.Assets.add("coinAtlasPma", "./assets/coin-pma.atlas");
+
+      await PIXI.Assets.load(["orangeAtlas", "orangeData", "orangeAtlasPma", "orangeDataPma"]);
+      await PIXI.Assets.load(["spineboyAtlas", "spineboyData", "spineboyAtlasPma", "spineboyDataPma"]);
+      await PIXI.Assets.load(["coinData", "coinAtlas", "coinDataPma", "coinAtlasPma"]);
+
+      const orangeNPM = spine.Spine.from("orangeData", "orangeAtlas", { scale: 4 });
+      const orangePMA = spine.Spine.from("orangeDataPma", "orangeAtlasPma", { scale: 4 });
+      const spineboyNPM = spine.Spine.from("spineboyData", "spineboyAtlas", { scale: .5 });
+      const spineboyPMA = spine.Spine.from("spineboyDataPma", "spineboyAtlasPma", { scale: .5 });
+      const coinNPM = spine.Spine.from("coinDataPma", "coinAtlasPma", { scale: .5 });
+      const coinPMA = spine.Spine.from("coinDataPma", "coinAtlasPma", { scale: .5 });
+
+      const xQuarter = window.innerWidth / 4;
+      const yQuarter = window.innerHeight / 4;
+
+      orangeNPM.position.set(xQuarter * .5, yQuarter)
+      orangeNPM.state.setAnimation(0, "animation", true);
+
+      orangePMA.position.set(xQuarter * 2.5, yQuarter * 3)
+      orangePMA.state.setAnimation(0, "animation", true);
+
+      spineboyNPM.position.set(xQuarter * .5, yQuarter * 4)
+      spineboyNPM.state.setAnimation(0, "run", true);
+
+      spineboyPMA.position.set(xQuarter * 1, yQuarter * 4)
+      spineboyPMA.state.setAnimation(0, "run", true);
+
+      coinNPM.position.set(xQuarter * 3, yQuarter)
+      coinNPM.state.setAnimation(0, "animation", true);
+
+      coinPMA.position.set(xQuarter * 2.5, yQuarter)
+      coinPMA.state.setAnimation(0, "animation", true);
+
+      // Add the display object to the stage.
+      app.stage.addChild(orangeNPM, orangePMA, spineboyNPM, spineboyPMA, coinNPM, coinPMA);
+    })();
+  </script>
+</body>
+
+</html>

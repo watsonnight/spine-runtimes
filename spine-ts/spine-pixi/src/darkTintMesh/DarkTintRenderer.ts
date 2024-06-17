@@ -99,8 +99,27 @@ export class DarkTintRenderer extends BatchRenderer {
 		const vertexData = element.vertexData;
 		const textureId = element._texture.baseTexture._batchLocation;
 		const alpha = Math.min(element.worldAlpha, 1.0);
-		const argb = Color.shared.setValue(element._tintRGB).toPremultiplied(alpha, (element._texture.baseTexture.alphaMode ?? 0) > 0);
-		const darkargb = Color.shared.setValue(element._darkTintRGB).toPremultiplied(alpha, (element._texture.baseTexture.alphaMode ?? 0) > 0);
+
+		const alphaInt = Math.round(alpha * 255) & 0xFF;
+		const tintRGB = element._tintRGB & 0xFFFFFF;
+		const argb = (alphaInt << 24) | tintRGB;
+
+		const darkTintRGB = element._darkTintRGB & 0xFFFFFF;
+		/* 
+		 * Colors in pixi are premultiplied.
+		 * Pixi blending modes are modified to work with premultiplied colors. We cannot create custom blending modes.
+		 * Textures are loaded as premultiplied (see assers/atlasLoader.ts: alphaMode: `page.pma ? ALPHA_MODES.PMA : ALPHA_MODES.UNPACK`):
+		 * - textures non premultiplied are premultiplied on GPU on upload
+		 * - textures premultiplied are uploaded on GPU as is since they are already premultiplied
+		 * 
+		 * We need to take this into consideration and calculates final colors for both light and dark color as if textures were always premultiplied.
+		 * This implies for example that alpha for dark tint is always 1. This is way in DarkTintRenderer we have only the alpha of the light color.
+		 * We implies alpha of dark color as 1 and just respective alpha byte to 1.
+		 * (see DarkTintRenderer: const darkargb = (0xFF << 24) | darkTintRGB;)
+		 * If we ever want to load texture as non premultiplied on GPU, we must add a new dark alpha parameter to the TintMaterial and set the alpha.
+		 */
+
+		const darkargb = (0xFF << 24) | darkTintRGB;
 
 		// lets not worry about tint! for now..
 		for (let i = 0; i < vertexData.length; i += 2) {

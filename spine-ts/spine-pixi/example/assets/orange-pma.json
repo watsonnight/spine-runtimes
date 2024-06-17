@@ -1,0 +1,63 @@
+{
+"skeleton": {
+	"hash": "AOB1QE4hm2Q",
+	"spine": "4.2.29",
+	"x": -117.3,
+	"y": -80.23,
+	"width": 332.42,
+	"height": 181.66,
+	"referenceScale": 30
+},
+"bones": [
+	{ "name": "root" },
+	{ "name": "orangeball", "parent": "root", "x": -42.3, "y": 3.67 },
+	{ "name": "orangeball2", "parent": "root", "x": 128.31, "y": 10.6, "scaleX": 1.6076, "scaleY": 1.6076 },
+	{ "name": "orangeball3", "parent": "root", "x": 71.02, "y": 10.81 }
+],
+"slots": [
+	{ "name": "orangeball", "bone": "orangeball", "color": "ffffff00", "dark": "000000", "attachment": "orangeball" },
+	{ "name": "orangeball2", "bone": "orangeball2", "attachment": "orangeball" },
+	{ "name": "orangeball3", "bone": "orangeball3", "dark": "000000", "attachment": "orangeball", "blend": "additive" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"orangeball": {
+				"orangeball": { "width": 108, "height": 113 }
+			},
+			"orangeball2": {
+				"orangeball": { "width": 108, "height": 113 }
+			},
+			"orangeball3": {
+				"orangeball": { "width": 108, "height": 113 }
+			}
+		}
+	}
+],
+"animations": {
+	"animation": {
+		"slots": {
+			"orangeball": {
+				"rgb2": [
+					{ "light": "ffffff", "dark": "000000" },
+					{ "time": 0.8667, "light": "ffffff", "dark": "ffffff" },
+					{ "time": 1.6667, "light": "ffffff", "dark": "585858" }
+				],
+				"alpha": [
+					{ "value": 1 },
+					{ "time": 1.6667, "value": 0 }
+				]
+			},
+			"orangeball3": {
+				"rgba2": [
+					{ "light": "ffffffff", "dark": "000000" },
+					{ "time": 0.8333, "light": "ffffffff", "dark": "ffffff" },
+					{ "time": 1.6667, "light": "ffffff00", "dark": "000000" }
+				]
+			}
+		}
+	},
+	"idle": {}
+}
+}
