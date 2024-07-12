@@ -256,6 +256,16 @@ spine::Color &RegionAttachment::getColor() {
 	return _color;
 }
 
+void RegionAttachment::setHashCode(int hashCode)
+{
+	_hashCode = hashCode;
+}
+
+int RegionAttachment::getHashCode()
+{
+	return _hashCode;
+}
+
 Attachment *RegionAttachment::copy() {
 	RegionAttachment *copy = new (__FILE__, __LINE__) RegionAttachment(getName());
 	copy->_region = _region;
@@ -271,5 +281,6 @@ Attachment *RegionAttachment::copy() {
 	copy->_vertexOffset.clearAndAddAll(_vertexOffset);
 	copy->_color.set(_color);
 	copy->_sequence = _sequence != NULL ? _sequence->copy() : NULL;
+	copy->_hashCode = _hashCode;
 	return copy;
 }

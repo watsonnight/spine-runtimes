@@ -1,0 +1,17 @@
+{
+    "name": "spine-unity",
+    "rootNamespace": "",
+    "references": [
+        "spine-csharp",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

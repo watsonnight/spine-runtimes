@@ -41,7 +41,8 @@ MeshAttachment::MeshAttachment(const String &name) : VertexAttachment(name),
 													 _width(0),
 													 _height(0),
 													 _region(NULL),
-													 _sequence(NULL) {}
+													 _sequence(NULL),
+													 _hashCode(-1){}
 
 MeshAttachment::~MeshAttachment() {
 	if (_sequence) delete _sequence;
@@ -201,6 +202,16 @@ spine::Color &MeshAttachment::getColor() {
 	return _color;
 }
 
+void MeshAttachment::setHashCode(int hashCode)
+{
+	_hashCode = hashCode;
+}
+
+int MeshAttachment::getHashCode()
+{
+	return _hashCode;
+}
+
 Attachment *MeshAttachment::copy() {
 	if (_parentMesh) return newLinkedMesh();
 
@@ -220,6 +231,8 @@ Attachment *MeshAttachment::copy() {
 	copy->_edges.clearAndAddAll(copy->_edges);
 	copy->_width = _width;
 	copy->_height = _height;
+
+	copy->_hashCode = _hashCode;
 	return copy;
 }
 

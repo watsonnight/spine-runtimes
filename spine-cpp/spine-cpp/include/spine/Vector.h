@@ -88,6 +88,17 @@ namespace spine {
 			}
 		}
 
+		inline void setSizeWithoutConstruct(size_t newSize) {
+			assert(newSize >= 0);
+			size_t oldSize = _size;
+			_size = newSize;
+			if (_capacity < newSize) {
+				_capacity = (int)(_size * 1.75f);
+				if (_capacity < 8) _capacity = 8;
+				_buffer = spine::SpineExtension::realloc<T>(_buffer, _capacity, __FILE__, __LINE__);
+			}
+		}
+
 		inline void ensureCapacity(size_t newCapacity = 0) {
 			if (_capacity >= newCapacity) return;
 			_capacity = newCapacity;

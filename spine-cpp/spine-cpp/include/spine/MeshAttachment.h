@@ -104,6 +104,10 @@ namespace spine {
 
 		MeshAttachment *newLinkedMesh();
 
+		void setHashCode(int hashCode);
+
+		int getHashCode();
+
 	private:
 		MeshAttachment *_parentMesh;
 		Vector<float> _uvs;
@@ -116,6 +120,9 @@ namespace spine {
 		int _width, _height;
 		TextureRegion *_region;
 		Sequence *_sequence;
+
+		int _hashCode;
+
 	};
 }
 

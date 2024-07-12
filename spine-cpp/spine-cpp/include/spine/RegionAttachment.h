@@ -51,6 +51,8 @@ namespace spine {
 
 		friend class AtlasAttachmentLoader;
 
+		friend class MeshGenerator;
+
 	RTTI_DECL
 
 	public:
@@ -117,6 +119,10 @@ namespace spine {
 
 		virtual Attachment *copy();
 
+		void setHashCode(int hashCode);
+
+		int getHashCode();
+
 	private:
 		static const int BLX;
 		static const int BLY;
@@ -134,6 +140,8 @@ namespace spine {
 		Color _color;
 		TextureRegion *_region;
 		Sequence *_sequence;
+
+		int _hashCode = -1;
 	};
 }
 
