@@ -17,3 +17,8 @@ Spine Examples文件夹为使用修改后的例子，其中Gettting Started里�
 如果当前提供的接口未满足使用场景情况，可以在c++文件中添加需要的接口
 
 改动的逻辑参考c#的实现，并移到c++中，如果有更好的实现方式也可以改进
+
+
+使用说明
+将Assets下的Plugins和Spine目录拷贝到工程中即可
+从package Manager里安装mathematics库
