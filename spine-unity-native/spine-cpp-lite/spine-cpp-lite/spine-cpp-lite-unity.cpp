@@ -331,6 +331,12 @@ intptr_t spine_bone_get_parent_unity(intptr_t boneHandle)
 	Bone* bone = s_local_spine_bone_map[boneHandle];
 
 	Bone* parent = bone->getParent();
+
+	if (nullptr == parent)
+	{
+		return k_invalid;
+	}
+
 	intptr_t handle = (intptr_t)parent;
 
 	if (!s_local_spine_bone_map.containsKey(handle))
