@@ -1145,27 +1145,28 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 
 		if (noRender)
 		{
-			if (current->forceSeparate && generateMeshOverride)
-			{
-				current->endSlot = i;
-				current->preActiveClippingSlotSource = lastPreActiveClipping;
+			if (current->forceSeparate && generateMeshOverride){
+				{
+					current->endSlot = i;
+					current->preActiveClippingSlotSource = lastPreActiveClipping;
 
-				instruction->submeshInstructions.add(current);
-				submeshIndex++;
+					instruction->submeshInstructions.add(current);
+					submeshIndex++;
 
-				current = new SubmeshInstruction();
+					current = new SubmeshInstruction();
 
-				current->skeleton = skeleton;
-				current->preActiveClippingSlotSource = lastPreActiveClipping;
+					current->skeleton = skeleton;
+					current->preActiveClippingSlotSource = lastPreActiveClipping;
+				}
+
+				current->startSlot = i;
+				lastPreActiveClipping = clippingAttachmentSource;
+				current->rawTriangleCount = 0;
+				current->rawVertexCount = 0;
+				current->rawFirstVertexIndex = rawVertexCount;
+				current->hasClipping = clippingAttachmentSource >= 0;
+				current->atlasPage = pageIndex;
 			}
-
-			current->startSlot = i;
-			lastPreActiveClipping = clippingAttachmentSource;
-			current->rawTriangleCount = 0;
-			current->rawVertexCount = 0;
-			current->rawFirstVertexIndex = rawVertexCount;
-			current->hasClipping = clippingAttachmentSource >= 0;
-			current->atlasPage = pageIndex;
 		}
 		else
 		{
