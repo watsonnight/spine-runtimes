@@ -1583,7 +1583,7 @@ float* outVertex, float* outUv, UInt32* outColor, float[] outBounds, int[] outTr
 
         [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
         static extern void spine_mesh_generator_generate_multiple_instruction_results_unity(IntPtr skeletonHandle, IntPtr meshGeneratorHandle,
-			int[] outRegionIndex, int[] outEndSlotIndex, int[] outSubmeshTriangleCount, int[] outSubmeshVertexCount);
+			int[] outRegionIndex, int[] outEndSlotIndex, int[] outSubmeshTriangleCount, int[] outSubmeshVertexCount, int[] outRegionSlotIndex);
 
         public void GenerateSkeletonRendererInstructionNative(SkeletonRendererInstruction instructionOutput, Skeleton skeleton, Dictionary<Slot, Material> customSlotMaterials, List<Slot> separatorSlots, bool generateMeshOverride, bool immutableTriangles = false)
         {
@@ -1637,8 +1637,10 @@ float* outVertex, float* outUv, UInt32* outColor, float[] outBounds, int[] outTr
 			int[] endSlotIndex = new int[submeshCount];
 			int[] submeshTriangleCount = new int[submeshCount];
 			int[] submeshVertexCount = new int[submeshCount];
+			int[] outRegionSlotIndex = new int[submeshCount];
 
-			spine_mesh_generator_generate_multiple_instruction_results_unity(skeleton.skeletonHandle, meshGeneratorHandle, outRegionHashCode, endSlotIndex, submeshTriangleCount, submeshVertexCount);
+
+			spine_mesh_generator_generate_multiple_instruction_results_unity(skeleton.skeletonHandle, meshGeneratorHandle, outRegionHashCode, endSlotIndex, submeshTriangleCount, submeshVertexCount, outRegionSlotIndex);
 
 
             workingSubmeshInstructions.Resize(submeshCount);
@@ -1666,6 +1668,12 @@ float* outVertex, float* outUv, UInt32* outColor, float[] outBounds, int[] outTr
                         attachment0 = entry.Attachment;
                     }
                 }
+
+				if (attachment0 == null)
+				{
+					Slot slot = skeleton.Slots.Items[outRegionSlotIndex[i]];
+					attachment0 = slot.Attachment;
+				}
 
                 if ((attachment0 as RegionAttachment) != null)
                 {
