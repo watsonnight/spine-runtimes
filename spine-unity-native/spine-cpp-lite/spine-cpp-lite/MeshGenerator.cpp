@@ -1743,23 +1743,23 @@ void spine::MeshGenerator::EnsureVertexCapacity(int minimumVertexCount, bool inc
     }
 }
 
-void spine::MeshGenerator::getSubMeshes(int* dst)
+void spine::MeshGenerator::getSubMeshes(SkeletonRendererInstruction& instruction, int* dst)
 {
-    int total = subMeshes.size(), index = 0;
+    int total = instruction.submeshInstructions.size(), index = 0;
     for (int i = 0; i < total; i++)
     {
-        size_t sz = subMeshes[i].size();
+        size_t sz = instruction.submeshInstructions[i]->rawTriangleCount;
         memcpy(dst + index, subMeshes[i].buffer(), sizeof(int) * sz);
         index += sz;
     }
 }
 
-void spine::MeshGenerator::getSubMeshesSize(int* dst)
+void spine::MeshGenerator::getSubMeshesSize(SkeletonRendererInstruction& instruction, int* dst)
 {
-    int total = subMeshes.size();
+    int total = instruction.submeshInstructions.size();
     for (int i = 0; i < total; i++)
     {
-        dst[i] = subMeshes[i].size();
+        dst[i] = instruction.submeshInstructions[i]->rawTriangleCount;
     }
 }
 
@@ -1816,6 +1816,7 @@ void MeshGenerator::generateMeshRenderers(Skeleton* skeleton)
         int32_t indicesCount;
         Color* attachmentColor;
         int32_t pageIndex;
+        String texturePath;
 
         if (attachment->getRTTI().isExactly(RegionAttachment::rtti))
         {
@@ -1835,6 +1836,7 @@ void MeshGenerator::generateMeshRenderers(Skeleton* skeleton)
             indices = &quadIndices;
             indicesCount = 6;
             pageIndex = ((AtlasRegion*)regionAttachment->getRegion())->page->index;
+            texturePath = ((AtlasRegion*)regionAttachment->getRegion())->page->texturePath;
         }
         else if (attachment->getRTTI().isExactly(MeshAttachment::rtti))
         {
@@ -1854,6 +1856,8 @@ void MeshGenerator::generateMeshRenderers(Skeleton* skeleton)
             indices = &mesh->getTriangles();
             indicesCount = (int32_t)indices->size();
             pageIndex = ((AtlasRegion*)mesh->getRegion())->page->index;
+            texturePath = ((AtlasRegion*)mesh->getRegion())->page->texturePath;
+
         }
         else if (attachment->getRTTI().isExactly(ClippingAttachment::rtti))
         {
@@ -1893,6 +1897,7 @@ void MeshGenerator::generateMeshRenderers(Skeleton* skeleton)
         current->indices.setSize(indicesCount, 0);
         current->blendMode = slot.getData().getBlendMode();
         current->atlasPage = pageIndex;
+        current->texturePath = texturePath;
         memcpy(current->positions.buffer(), vertices->buffer(), (verticesCount << 1) * sizeof(float));
         memcpy(current->uvs.buffer(), uvs->buffer(), (verticesCount << 1) * sizeof(float));
         for (int ii = 0; ii < verticesCount; ii++) current->colors[ii] = color;
@@ -1923,7 +1928,8 @@ void MeshGenerator::generateMeshRenderers(Skeleton* skeleton)
         if (instruction != nullptr && instruction->atlasPage == first->atlasPage &&
             instruction->blendMode == first->blendMode &&
             instruction->colors[0] == first->colors[0] &&
-            numIndices + (instruction->positions.size() >> 1) < 0xffff
+            numIndices + (instruction->positions.size() >> 1) < 0xffff &&
+            instruction->texturePath == first->texturePath
             )
         {
             numVertices += (instruction->positions.size() >> 1);

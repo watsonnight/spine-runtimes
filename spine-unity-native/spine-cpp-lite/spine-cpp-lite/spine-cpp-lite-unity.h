@@ -90,6 +90,7 @@ SPINE_CPP_LITE_EXPORT float spine_skeleton_get_scale_y_unity(intptr_t skeletonHa
 SPINE_CPP_LITE_EXPORT void spine_skeleton_set_skin_unity(intptr_t skeletonHandle, const char* skinName);
 
 SPINE_CPP_LITE_EXPORT intptr_t spine_skeleton_find_bone_unity(intptr_t skeletonHandle, const char* name);
+SPINE_CPP_LITE_EXPORT intptr_t spine_skeleton_find_slot_unity(intptr_t skeletonHandle, const char* name);
 SPINE_CPP_LITE_EXPORT void spine_skeleton_sync_attachments_unity(intptr_t skeletonHandle, int* slotIndexes, const char** names, int* hashCode, int size);
 
 
@@ -115,10 +116,17 @@ SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_attachment_threshold_
 SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_mix_duration_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration);
 
 
+//Slot
+SPINE_CPP_LITE_EXPORT void spine_slot_dispose_local_unity(intptr_t slotHandle);
+SPINE_CPP_LITE_EXPORT void spine_slot_set_attachment_unity(intptr_t slotHandle, intptr_t attachmentHandle);
 
 SPINE_CPP_LITE_EXPORT intptr_t spine_event_get_event_data_handle_unity(intptr_t eventHandle);
 
 
+//Attachment
+
+SPINE_CPP_LITE_EXPORT intptr_t spine_region_attachment_create_from_atlas_region_unity(intptr_t atlasHandle, const char* regionName, const char* attachmentName, float scale, float rotation);
+SPINE_CPP_LITE_EXPORT void spine_region_attachment_dispose_unity(intptr_t regionAttachmentHandle, intptr_t slotHandle);
 
 SPINE_CPP_LITE_EXPORT intptr_t spine_mesh_generator_create_unity();
 SPINE_CPP_LITE_EXPORT void spine_mesh_generator_destroy_unity(intptr_t meshGeneratorHandle);
@@ -131,7 +139,7 @@ SPINE_CPP_LITE_EXPORT void spine_mesh_generator_generate_single_instruction_unit
 SPINE_CPP_LITE_EXPORT void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonHandle, intptr_t meshGeneratorHandle, 
     bool generateMeshOverride, bool immutableTriangles, int* separatorSlotIndex, int separatorSlotCount, int* outParams);
 SPINE_CPP_LITE_EXPORT void spine_mesh_generator_generate_multiple_instruction_results_unity(intptr_t skeletonHandle, intptr_t meshGeneratorHandle,
-    int* outRegionHashCode, int* outEndSlotIndex, int* outSubmeshTriangleCount, int* outSubmeshVertexCount);
+    int* outRegionHashCode, int* outEndSlotIndex, int* outSubmeshTriangleCount, int* outSubmeshVertexCount, int* outRegionIndex);
 
 SPINE_CPP_LITE_EXPORT bool spine_mesh_generator_generate_instruction_is_not_equal_unity(intptr_t meshGeneratorHandle);
 

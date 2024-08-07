@@ -49,8 +49,8 @@ public:
         int getColorBuffer(float* dst); 
         int getColorBufferVec4(Vector4* dst);
 
-        void getSubMeshes(int* dst);
-        void getSubMeshesSize(int * dst);
+        void getSubMeshes(SkeletonRendererInstruction& instruction, int* dst);
+        void getSubMeshesSize(SkeletonRendererInstruction& instruction, int * dst);
         void getMeshBounds(float* min, float* max);
         int getTangentBuffer(Vector4* dst);
 

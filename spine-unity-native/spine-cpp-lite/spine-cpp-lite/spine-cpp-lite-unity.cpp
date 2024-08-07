@@ -38,6 +38,8 @@ static HashMap<intptr_t, Skeleton*> s_global_spine_skeleton_map;
 
 static HashMap<intptr_t, Bone*> s_local_spine_bone_map;
 
+static HashMap<intptr_t, Slot*> s_local_spine_slot_map;
+
 static HashMap<intptr_t, AnimationState*> s_global_spine_animation_state_map;
 
 static HashMap<intptr_t, AnimationStateData*> s_global_spine_animation_state_data_map;
@@ -497,6 +499,13 @@ void spine_skeleton_destroy_unity(intptr_t skeletonHandle)
 		s_local_spine_bone_map.remove(handle);
 	}
 
+	auto& slots = skeleton->getSlots();
+	for (int i = 0; i < slots.size(); ++i)
+	{
+		intptr_t handle = (intptr_t)slots[i];
+		s_local_spine_slot_map.remove(handle);
+	}
+
 	delete skeleton;
 }
 
@@ -770,6 +779,24 @@ intptr_t spine_skeleton_find_bone_unity(intptr_t skeletonHandle, const char* nam
 	return handle;
 }
 
+intptr_t spine_skeleton_find_slot_unity(intptr_t skeletonHandle, const char* name)
+{
+	CHECK_SKELETON_RETURN(skeletonHandle, k_invalid);
+
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+
+	Slot* slot = skeleton->findSlot(name);
+	if (slot == nullptr)
+	{
+		return k_invalid;
+	}
+
+	intptr_t handle = (intptr_t)slot;
+	s_local_spine_slot_map.put(handle, slot);
+
+	return handle;
+}
+
 void spine_skeleton_sync_attachments_unity(intptr_t skeletonDataHandle, int* slotIndexes, const char** names, int* hashCode, int size)
 {
 	CHECK_SKELETON_DATA_RETURN(skeletonDataHandle, );
@@ -798,6 +825,28 @@ void spine_skeleton_sync_attachments_unity(intptr_t skeletonDataHandle, int* slo
 }
 
 
+
+void spine_slot_dispose_local_unity(intptr_t slotHandle)
+{
+	if (s_local_spine_slot_map.containsKey(slotHandle))
+	{
+		s_local_spine_slot_map.remove(slotHandle);
+	}
+}
+
+void spine_slot_set_attachment_unity(intptr_t slotHandle, intptr_t attachmentHandle)
+{
+	if (!s_local_spine_slot_map.containsKey(slotHandle))
+	{
+		return;
+	}
+
+	Slot* slot = s_local_spine_slot_map[slotHandle];
+	Attachment* attachment = (Attachment*)attachmentHandle;
+
+	slot->setAttachment(attachment);
+}
+
 SPINE_CPP_LITE_EXPORT intptr_t spine_event_get_event_data_handle_unity(intptr_t eventHandle)
 {
 	Event* event = (Event*)eventHandle;
@@ -812,6 +861,47 @@ SPINE_CPP_LITE_EXPORT intptr_t spine_event_get_event_data_handle_unity(intptr_t 
 	return dataHandle;
 }
 
+
+intptr_t spine_region_attachment_create_from_atlas_region_unity(intptr_t atlasHandle, const char* regionName, const char* attachmentName, float scale, float rotation)
+{
+	CHECK_GET_ATLAS_RETURN(atlasHandle, k_invalid);
+
+	AtlasAttachmentLoader loader(atlas);
+
+	Skin skin("unused");
+	RegionAttachment* attachment = loader.newRegionAttachment(skin, attachmentName, regionName, nullptr);
+	AtlasRegion* region = atlas->findRegion(regionName);
+	attachment->setPath(region->name);
+	attachment->setRotation(rotation);
+	float originalWidth = region->originalWidth;
+	float originalHeight = region->originalHeight;
+	attachment->setWidth(originalWidth * scale);
+	attachment->setHeight(originalHeight * scale);
+
+	attachment->updateRegion();
+
+	intptr_t handle = (intptr_t)attachment;
+
+	return handle;
+}
+
+// be sure region attachment is not used by any other class;
+void spine_region_attachment_dispose_unity(intptr_t regionAttachmentHandle, intptr_t slotHandle)
+{
+	RegionAttachment* regionAttachment = (RegionAttachment*)regionAttachmentHandle;
+
+	if (slotHandle != k_invalid && s_local_spine_slot_map.containsKey(slotHandle))
+	{
+		Slot* slot = s_local_spine_slot_map[slotHandle];
+		slot->setAttachment(nullptr);
+	}
+
+	delete regionAttachment;
+	//regionAttachment->dereference();
+	//if (regionAttachment->getRefCount() == 0) {
+	//	delete regionAttachment;
+	//}
+}
 
 
 intptr_t spine_mesh_generator_create_unity()
@@ -990,7 +1080,7 @@ void spine_mesh_generator_build_mesh_get_buffer_color32_unity(intptr_t generator
 	generator->getMeshBounds(outBounds, &outBounds[2]);
 	if (updateTriangles)
 	{
-		generator->getSubMeshes(outTriangles);
+		generator->getSubMeshes(generator->newInstruction, outTriangles);
 	}
 	if (calcTangents)
 	{
@@ -1049,7 +1139,8 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 
 
 	int rawVertexCount = 0, rawIndicesCount = 0;
-	int regionIndex = -1;
+	int regionSlotIndex = -1;
+	int regionHash = -1;
 
 	bool skeletonHasClipping = false;
 
@@ -1071,6 +1162,8 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 	Color* attachmentColor;
 	uint32_t curColor;
 	int pageIndex = -1;
+	void* texturePtr = nullptr;
+	String texturePath;
 
 
 	for (int i = 0; i < drawOrderCount; ++i)
@@ -1100,8 +1193,10 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 			//rawIndicesCount += 6;
 			attachmentVertexCount = 4;
 			attachmentTriangleCount = 6;
-			regionIndex = static_cast<RegionAttachment*>(attachment)->getHashCode();
+			regionSlotIndex = slot->getData().getIndex();
+			regionHash = static_cast<RegionAttachment*>(attachment)->getHashCode();
 			pageIndex = static_cast<AtlasRegion*>(regionAttachment->getRegion())->page->index;
+			texturePath = static_cast<AtlasRegion*>(regionAttachment->getRegion())->page->texturePath;
 			attachmentColor = &regionAttachment->getColor();
 		}
 		else if (attachment->getRTTI().isExactly(MeshAttachment::rtti))
@@ -1112,8 +1207,10 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 			//rawIndicesCount += (meshAttachment->getTriangles().size());
 			attachmentVertexCount = (meshAttachment->getWorldVerticesLength() >> 1);
 			attachmentTriangleCount = (meshAttachment->getTriangles().size());
-			regionIndex = static_cast<MeshAttachment*>(attachment)->getHashCode();
+			regionSlotIndex = slot->getData().getIndex();
+			regionHash = static_cast<MeshAttachment*>(attachment)->getHashCode();
 			pageIndex = static_cast<AtlasRegion*>(meshAttachment->getRegion())->page->index;
+			texturePath = static_cast<AtlasRegion*>(meshAttachment->getRegion())->page->texturePath;
 			attachmentColor = &meshAttachment->getColor();
 
 		}
@@ -1166,6 +1263,7 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 				current->rawFirstVertexIndex = rawVertexCount;
 				current->hasClipping = clippingAttachmentSource >= 0;
 				current->atlasPage = pageIndex;
+				current->texturePath = texturePath;
 			}
 		}
 		else
@@ -1183,6 +1281,7 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 				(current->rawVertexCount > 0 && !(current->atlasPage == pageIndex
 												&& current->blendMode == slot->getData().getBlendMode() 
 												//&& current->colors[0] != curColor
+												&& current->texturePath == texturePath
 												)))
 			{
 				current->endSlot = i;
@@ -1201,16 +1300,18 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 				current->rawVertexCount = 0;
 				current->rawFirstVertexIndex = rawVertexCount;
 				current->hasClipping = clippingAttachmentSource >= 0;
-
+				
 
 			}
 
-			current->regionHashCode = regionIndex;
+			current->regionHashCode = regionHash;
+			current->regionSlotIndex = regionSlotIndex;
 			current->rawTriangleCount += attachmentTriangleCount;
 			current->rawVertexCount += attachmentVertexCount;
 			current->rawFirstVertexIndex = rawVertexCount;
 			rawVertexCount += attachmentVertexCount;
 			current->atlasPage = pageIndex;
+			current->texturePath = texturePath;
 		}
 
 		if (clippingEndSlot != nullptr && (&slot->getData()) == clippingEndSlot && i != clippingAttachmentSource)
@@ -1244,7 +1345,7 @@ void spine_mesh_generator_generate_multiple_instruction_unity(intptr_t skeletonH
 }
 
 void spine_mesh_generator_generate_multiple_instruction_results_unity(intptr_t skeletonHandle, intptr_t meshGeneratorHandle,
-	int* outRegionHashCode, int* outEndSlotIndex, int* outSubmeshTriangleCount, int* outSubmeshVertexCount)
+	int* outRegionHashCode, int* outEndSlotIndex, int* outSubmeshTriangleCount, int* outSubmeshVertexCount, int* outRegionIndex)
 {
 	CHECK_MESH_GENERATOR_RETURN(meshGeneratorHandle, );
 	CHECK_SKELETON_RETURN(skeletonHandle, );
@@ -1260,6 +1361,7 @@ void spine_mesh_generator_generate_multiple_instruction_results_unity(intptr_t s
 		outEndSlotIndex[i] = instruction->submeshInstructions[i]->endSlot;
 		outSubmeshTriangleCount[i] = instruction->submeshInstructions[i]->rawTriangleCount;
 		outSubmeshVertexCount[i] = instruction->submeshInstructions[i]->rawVertexCount;
+		outRegionIndex[i] = instruction->submeshInstructions[i]->regionSlotIndex;
 	}
 }
 

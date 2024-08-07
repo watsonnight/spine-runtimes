@@ -46,6 +46,7 @@ namespace spine
         bool hasPMAAdditiveSlot = false;
 
         int regionHashCode = 0;
+        int regionSlotIndex = -1;
 
         SubmeshInstruction(const SubmeshInstructionTransfer& trans, Skeleton* skel): skeleton(skel), startSlot(trans.startSlot),
         endSlot(trans.endSlot), forceSeparate(trans.forceSeparate), preActiveClippingSlotSource(trans.preActiveClippingSlotSource),
@@ -61,6 +62,7 @@ namespace spine
         Vector<uint16_t> indices;
         int blendMode = 0;
         int32_t atlasPage = 0;
+        String texturePath;
     };
 
 
