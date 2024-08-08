@@ -729,8 +729,8 @@ void MeshGenerator::BuildMeshWithArraysWithBuffersColor32(SkeletonRendererInstru
                         tempB = (uint8_t)(b * slot->getColor().b * meshAttachment->getColor().b * 255);
                     }
 
-                    color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
-
+                    //color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
+                    color = (tempA << 24) | (tempB << 16) | (tempG << 8) | (tempR);
 
                     Vector<float>& attachmentUVs = meshAttachment->getUVs();
 
@@ -1136,8 +1136,8 @@ void MeshGenerator::BuildMeshSubmeshWithArraysWithBuffersColor32(SkeletonRendere
                         tempB = (uint8_t)(b * slot->getColor().b * meshAttachment->getColor().b * 255);
                     }
 
-                    color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
-
+                    //color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
+                    color = (tempA << 24) | (tempB << 16) | (tempG << 8) | (tempR);
 
                     Vector<float>& attachmentUVs = meshAttachment->getUVs();
 

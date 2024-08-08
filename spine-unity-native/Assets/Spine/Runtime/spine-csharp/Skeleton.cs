@@ -63,10 +63,10 @@ namespace Spine {
 			/// <summary>Sets a skin, <see cref="SetSkin(Skin)"/>.</summary>
 			set { SetSkin(value); }
 		}
-		public float R { get { return r; } set { r = value; } }
-		public float G { get { return g; } set { g = value; } }
-		public float B { get { return b; } set { b = value; } }
-		public float A { get { return a; } set { a = value; } }
+		public float R { get { return r; } set { r = value; spine_skeleton_set_color_r_unity(skeletonHandle, value); } }
+		public float G { get { return g; } set { g = value; spine_skeleton_set_color_g_unity(skeletonHandle, value); } }
+		public float B { get { return b; } set { b = value; spine_skeleton_set_color_b_unity(skeletonHandle, value); } }
+		public float A { get { return a; } set { a = value; spine_skeleton_set_color_a_unity(skeletonHandle, value); } }
 		public float X { get { return x; } set { x = value; } }
 		public float Y { get { return y; } set { y = value; } }
 		public float ScaleX { get { return scaleX; } set { scaleX = value; } }
@@ -87,7 +87,23 @@ namespace Spine {
         [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
         static extern IntPtr spine_skeleton_create_unity(IntPtr skeletonDataHandle);
 
-        public Skeleton (SkeletonData data) {
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern IntPtr spine_skeleton_set_color_unity(IntPtr skeletonDataHandle, UInt32[] color);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_skeleton_set_color_a_unity(IntPtr skeletonDataHandle, float alpha);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_skeleton_set_color_r_unity(IntPtr skeletonDataHandle, float red);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_skeleton_set_color_g_unity(IntPtr skeletonDataHandle, float green);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_skeleton_set_color_b_unity(IntPtr skeletonDataHandle, float blue);
+
+
+		public Skeleton (SkeletonData data) {
 			if (data == null) throw new ArgumentNullException("data", "data cannot be null.");
 			this.data = data;
 

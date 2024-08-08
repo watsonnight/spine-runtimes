@@ -89,6 +89,12 @@ SPINE_CPP_LITE_EXPORT void spine_skeleton_set_scale_y_unity(intptr_t skeletonHan
 SPINE_CPP_LITE_EXPORT float spine_skeleton_get_scale_y_unity(intptr_t skeletonHandle);
 SPINE_CPP_LITE_EXPORT void spine_skeleton_set_skin_unity(intptr_t skeletonHandle, const char* skinName);
 
+SPINE_CPP_LITE_EXPORT void spine_skeleton_set_color_unity(intptr_t skeletonHandle, const float* color);
+SPINE_CPP_LITE_EXPORT void spine_skeleton_set_color_a_unity(intptr_t skeletonHandle, float alpha);
+SPINE_CPP_LITE_EXPORT void spine_skeleton_set_color_r_unity(intptr_t skeletonHandle, float red);
+SPINE_CPP_LITE_EXPORT void spine_skeleton_set_color_g_unity(intptr_t skeletonHandle, float green);
+SPINE_CPP_LITE_EXPORT void spine_skeleton_set_color_b_unity(intptr_t skeletonHandle, float blue);
+
 SPINE_CPP_LITE_EXPORT intptr_t spine_skeleton_find_bone_unity(intptr_t skeletonHandle, const char* name);
 SPINE_CPP_LITE_EXPORT intptr_t spine_skeleton_find_slot_unity(intptr_t skeletonHandle, const char* name);
 SPINE_CPP_LITE_EXPORT void spine_skeleton_sync_attachments_unity(intptr_t skeletonHandle, int* slotIndexes, const char** names, int* hashCode, int size);
