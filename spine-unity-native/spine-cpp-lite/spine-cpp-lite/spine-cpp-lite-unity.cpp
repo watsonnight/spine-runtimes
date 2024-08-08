@@ -760,6 +760,49 @@ void spine_skeleton_set_skin_unity(intptr_t skeletonHandle, const char* skinName
 	skeleton->setSkin(skinName);
 }
 
+void spine_skeleton_set_color_unity(intptr_t skeletonHandle, const float* color)
+{
+	CHECK_SKELETON_RETURN(skeletonHandle, );
+
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+
+	Color col = skeleton->getColor();
+	col.r = color[0];
+	col.g = color[1];
+	col.b = color[2];
+	col.a = color[3];
+}
+
+void spine_skeleton_set_color_a_unity(intptr_t skeletonHandle, float alpha)
+{
+	CHECK_SKELETON_RETURN(skeletonHandle, );
+
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+	skeleton->getColor().a = alpha;
+}
+
+void spine_skeleton_set_color_r_unity(intptr_t skeletonHandle, float red)
+{
+	CHECK_SKELETON_RETURN(skeletonHandle, );
+
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+	skeleton->getColor().r = red;
+}
+void spine_skeleton_set_color_g_unity(intptr_t skeletonHandle, float green)
+{
+	CHECK_SKELETON_RETURN(skeletonHandle, );
+
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+	skeleton->getColor().g = green;
+}
+
+void spine_skeleton_set_color_b_unity(intptr_t skeletonHandle, float blue)
+{
+	CHECK_SKELETON_RETURN(skeletonHandle, );
+
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+	skeleton->getColor().b = blue;
+}
 
 intptr_t spine_skeleton_find_bone_unity(intptr_t skeletonHandle, const char* name)
 {
