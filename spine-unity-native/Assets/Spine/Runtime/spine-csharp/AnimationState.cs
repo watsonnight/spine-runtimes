@@ -113,7 +113,6 @@ namespace Spine {
 		[MonoPInvokeCallback(typeof(eventCallbackDelegate))]
 		static void EventCallback(IntPtr stateHandle, int trackEntryIndex, int eventType, IntPtr eventHandle)
 		{
-			UnityEngine.Debug.LogError(eventType);
 			if (!s_instanceMap.ContainsKey(stateHandle)) return;
 
 
