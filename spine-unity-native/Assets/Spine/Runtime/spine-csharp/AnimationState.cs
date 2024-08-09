@@ -129,7 +129,6 @@ namespace Spine {
 
 		void EventCallback_Internal(int trackEntryIndex, int eventType, IntPtr eventHandle)
 		{
-			UnityEngine.Debug.LogError(eventType);
             if (trackEntryIndex >= 0 && trackEntryIndex < tracks.Count)
             {
                 switch (eventType)
