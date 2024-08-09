@@ -23,6 +23,13 @@
 
 using namespace spine;
 
+
+static const int RINDEX = 0;
+static const int GINDEX = 1;
+static const int BINDEX = 2;
+static const int AINDEX = 3;
+
+
 // template specialization for Color
 template<>
 void Vector<Vector2>::setSizeWithoutConstruct(size_t newSize) {
@@ -521,7 +528,12 @@ void MeshGenerator::BuildMeshWithArraysWithBuffersColor32(SkeletonRendererInstru
         const int& startSlot = submesh->startSlot;
         lastSlotIndex = endSlot;
 
-        uint8_t tempA, tempR, tempG, tempB;
+        uint8_t tempColorArray[4];
+        uint8_t& tempA = tempColorArray[AINDEX];
+        uint8_t& tempR = tempColorArray[RINDEX];
+        uint8_t& tempG = tempColorArray[GINDEX];
+        uint8_t& tempB = tempColorArray[BINDEX];
+        uint32_t& tempColor = *(uint32_t*)tempColorArray;
 
         if (settings.tintBlack)
         {
@@ -661,7 +673,8 @@ void MeshGenerator::BuildMeshWithArraysWithBuffersColor32(SkeletonRendererInstru
                     tempB = (uint8_t)(b * slot->getColor().b * regionAttachment->getColor().b * 255);
                 }
 
-                color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
+                //color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
+                color = tempColor;
                 colorBuffer[vertexIndex] = color;
                 colorBuffer[vertexIndex + 1] = color;
                 colorBuffer[vertexIndex + 2] = color;
@@ -730,7 +743,7 @@ void MeshGenerator::BuildMeshWithArraysWithBuffersColor32(SkeletonRendererInstru
                     }
 
                     //color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
-                    color = (tempA << 24) | (tempB << 16) | (tempG << 8) | (tempR);
+                    color = tempColor;
 
                     Vector<float>& attachmentUVs = meshAttachment->getUVs();
 
@@ -928,7 +941,12 @@ void MeshGenerator::BuildMeshSubmeshWithArraysWithBuffersColor32(SkeletonRendere
         const int& startSlot = submesh->startSlot;
         lastSlotIndex = endSlot;
 
-        uint8_t tempA, tempR, tempG, tempB;
+        uint8_t tempColorArray[4];
+        uint8_t& tempA = tempColorArray[AINDEX];
+        uint8_t& tempR = tempColorArray[RINDEX];
+        uint8_t& tempG = tempColorArray[GINDEX];
+        uint8_t& tempB = tempColorArray[BINDEX];
+        uint32_t& tempColor = *(uint32_t*)tempColorArray;
 
         if (settings.tintBlack)
         {
@@ -1068,7 +1086,8 @@ void MeshGenerator::BuildMeshSubmeshWithArraysWithBuffersColor32(SkeletonRendere
                     tempB = (uint8_t)(b * slot->getColor().b * regionAttachment->getColor().b * 255);
                 }
 
-                color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
+                //color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
+                color = tempColor;
                 colorBuffer[vertexIndex] = color;
                 colorBuffer[vertexIndex + 1] = color;
                 colorBuffer[vertexIndex + 2] = color;
@@ -1137,7 +1156,7 @@ void MeshGenerator::BuildMeshSubmeshWithArraysWithBuffersColor32(SkeletonRendere
                     }
 
                     //color = (tempA << 24) | (tempR << 16) | (tempG << 8) | (tempB);
-                    color = (tempA << 24) | (tempB << 16) | (tempG << 8) | (tempR);
+                    color = tempColor;
 
                     Vector<float>& attachmentUVs = meshAttachment->getUVs();
 
@@ -1158,7 +1177,9 @@ void MeshGenerator::BuildMeshSubmeshWithArraysWithBuffersColor32(SkeletonRendere
                     {
                         float& x = tempVerts[iii], & y = tempVerts[iii + 1];
                         vertexBuffer[vertexIndex].x = x; vertexBuffer[vertexIndex].y = y; vertexBuffer[vertexIndex].z = z;
-                        colorBuffer[vertexIndex] = color; uvBuffer[vertexIndex].x = attachmentUVs[iii]; uvBuffer[vertexIndex].y = attachmentUVs[iii + 1];
+                        //colorBuffer[vertexIndex] = color;
+                        memcpy(colorBuffer + vertexIndex, &color, sizeof(uint32_t));
+                        uvBuffer[vertexIndex].x = attachmentUVs[iii]; uvBuffer[vertexIndex].y = attachmentUVs[iii + 1];
 
                         if (x < bmin.x) bmin.x = x;
                         else if (x > bmax.x) bmax.x = x;
@@ -1870,11 +1891,13 @@ void MeshGenerator::generateMeshRenderers(Skeleton* skeleton)
             continue;
         }
 
-        uint8_t r = static_cast<uint8_t>(skeleton->getColor().r * slot.getColor().r * attachmentColor->r * 255);
-        uint8_t g = static_cast<uint8_t>(skeleton->getColor().g * slot.getColor().g * attachmentColor->g * 255);
-        uint8_t b = static_cast<uint8_t>(skeleton->getColor().b * slot.getColor().b * attachmentColor->b * 255);
-        uint8_t a = static_cast<uint8_t>(skeleton->getColor().a * slot.getColor().a * attachmentColor->a * 255);
-        uint32_t color = (a << 24) | (r << 16) | (g << 8) | b;
+        uint8_t colorArray[4];
+        colorArray[0] = static_cast<uint8_t>(skeleton->getColor().r * slot.getColor().r * attachmentColor->r * 255);
+        colorArray[1] = static_cast<uint8_t>(skeleton->getColor().g * slot.getColor().g * attachmentColor->g * 255);
+        colorArray[2] = static_cast<uint8_t>(skeleton->getColor().b * slot.getColor().b * attachmentColor->b * 255);
+        colorArray[3] = static_cast<uint8_t>(skeleton->getColor().a * slot.getColor().a * attachmentColor->a * 255);
+        //uint32_t color = (a << 24) | (r << 16) | (g << 8) | b;
+        uint32_t& color = *(uint32_t*)colorArray;
         
 
         if (clipper.isClipping()) {

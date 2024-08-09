@@ -88,7 +88,7 @@ namespace Spine {
         static extern IntPtr spine_skeleton_create_unity(IntPtr skeletonDataHandle);
 
 		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
-		static extern IntPtr spine_skeleton_set_color_unity(IntPtr skeletonDataHandle, UInt32[] color);
+		static extern IntPtr spine_skeleton_set_color_unity(IntPtr skeletonDataHandle, float[] color);
 
 		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
 		static extern void spine_skeleton_set_color_a_unity(IntPtr skeletonDataHandle, float alpha);
