@@ -86,7 +86,7 @@ namespace Spine {
 		internal void OnInterrupt(TrackEntry entry) { if (Interrupt != null) Interrupt(entry); }
 		internal void OnEnd(TrackEntry entry) { if (End != null) End(entry); }
 		internal void OnDispose(TrackEntry entry) { if (Dispose != null) Dispose(entry); }
-		internal void OnComplete(TrackEntry entry) { if (Complete != null) Complete(entry); }
+		internal void OnComplete(TrackEntry entry) { if (_complete != null) _complete(entry); }
 		//internal void OnEvent (TrackEntry entry, Event e) { if (_event != null) _event(entry, e); }
 		internal void OnEvent(TrackEntry entry, IntPtr eHandle) { if (_event != null) _event(entry, eHandle); }
 
@@ -113,6 +113,7 @@ namespace Spine {
 		[MonoPInvokeCallback(typeof(eventCallbackDelegate))]
 		static void EventCallback(IntPtr stateHandle, int trackEntryIndex, int eventType, IntPtr eventHandle)
 		{
+			UnityEngine.Debug.LogError(eventType);
 			if (!s_instanceMap.ContainsKey(stateHandle)) return;
 
 
@@ -128,6 +129,7 @@ namespace Spine {
 
 		void EventCallback_Internal(int trackEntryIndex, int eventType, IntPtr eventHandle)
 		{
+			UnityEngine.Debug.LogError(eventType);
             if (trackEntryIndex >= 0 && trackEntryIndex < tracks.Count)
             {
                 switch (eventType)
@@ -138,7 +140,12 @@ namespace Spine {
                                 _start(tracks.Items[trackEntryIndex]);
                             break;
                         }
-
+					case 4:
+                        {
+							if (_complete != null)
+								_complete(tracks.Items[trackEntryIndex]);
+							break;
+                        }
                     case 5:
                         {
                             if (_event != null)
@@ -172,8 +179,31 @@ namespace Spine {
 
 		}
 
+		private TrackEntryDelegate _complete;
+		public event TrackEntryDelegate Complete
+		{
+
+			add
+			{
+				_complete += value;
+				if (eventLength == 1)
+				{
+					spine_animation_state_add_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+			remove
+			{
+				_complete -= value;
+				if (eventLength == 0)
+				{
+					spine_animation_state_remove_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+
+		}
+
 		//public event TrackEntryDelegate Start, Interrupt, End, Dispose, Complete;
-		public event TrackEntryDelegate Interrupt, End, Dispose, Complete;
+		public event TrackEntryDelegate Interrupt, End, Dispose;
 
 
 
@@ -186,7 +216,7 @@ namespace Spine {
 		{
 			get
             {
-               return (_start == null ? 0 : _start.GetInvocationList().Length) + (_event == null ? 0 : _event.GetInvocationList().Length);
+               return (_start == null ? 0 : _start.GetInvocationList().Length) + (_event == null ? 0 : _event.GetInvocationList().Length) + (_complete == null ? 0 : _complete.GetInvocationList().Length);
             }
         }
 
@@ -223,7 +253,7 @@ namespace Spine {
             Interrupt = src.Interrupt;
 			End = src.End;
 			Dispose = src.Dispose;
-			Complete = src.Complete;
+			_complete = src._complete;
 		}
 
 		public void AddEventSubscribersFrom (AnimationState src) {
@@ -234,7 +264,7 @@ namespace Spine {
 			Interrupt += src.Interrupt;
 			End += src.End;
 			Dispose += src.Dispose;
-			Complete += src.Complete;
+			_complete += src._complete;
 		}
 
 		// end of difference
