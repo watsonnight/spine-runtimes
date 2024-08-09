@@ -27,6 +27,8 @@
  * SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+using System.Runtime.InteropServices;
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -92,7 +94,18 @@ namespace Spine.Unity.Editor {
 			}
 		}
 
-		public void OnSceneGUI () {
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_x_unity(IntPtr boneHandle);
+
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_y_unity(IntPtr boneHandle);
+
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern IntPtr spine_bone_get_data_name_unity(IntPtr boneHandle);
+
+        public void OnSceneGUI () {
 			BoneFollowerGraphic tbf = target as BoneFollowerGraphic;
 			SkeletonGraphic skeletonGraphicComponent = tbf.SkeletonGraphic;
 			if (skeletonGraphicComponent == null) return;
@@ -106,19 +119,29 @@ namespace Spine.Unity.Editor {
 				SpineHandles.DrawBoneNames(transform, skeleton, positionScale);
 				Handles.Label(tbf.transform.position, "No bone selected", EditorStyles.helpBox);
 			} else {
-				Bone targetBone = tbf.bone;
-				if (targetBone == null) return;
+				//Bone targetBone = tbf.bone;
+				//if (targetBone == null) return;
+				IntPtr targetBoneHandle = tbf.boneHandle;
+				if (targetBoneHandle == IntPtr.Zero) return;
 
-				SpineHandles.DrawBoneWireframe(transform, targetBone, SpineHandles.TransformContraintColor, positionScale);
-				Handles.Label(targetBone.GetWorldPosition(transform, positionScale), targetBone.Data.Name, SpineHandles.BoneNameStyle);
-			}
+                //SpineHandles.DrawBoneWireframe(transform, targetBone, SpineHandles.TransformContraintColor, positionScale);
+                //Handles.Label(targetBone.GetWorldPosition(transform, positionScale), targetBone.Data.Name, SpineHandles.BoneNameStyle);
+
+                SpineHandles.DrawBoneWireframeNative(transform, targetBoneHandle, SpineHandles.TransformContraintColor, positionScale);
+                float bWorldX = spine_bone_get_world_x_unity(targetBoneHandle);
+                float bWorldY = spine_bone_get_world_y_unity(targetBoneHandle);
+                string bDataName = Marshal.PtrToStringUTF8(spine_bone_get_data_name_unity(targetBoneHandle));
+
+                Handles.Label(transform.TransformPoint(new Vector3(bWorldX * positionScale, bWorldY * positionScale)), bDataName, SpineHandles.BoneNameStyle);
+
+            }
 		}
 
 		override public void OnInspectorGUI () {
 			if (serializedObject.isEditingMultipleObjects) {
 				if (needsReset) {
 					needsReset = false;
-					foreach (Object o in targets) {
+					foreach (UnityEngine.Object o in targets) {
 						BoneFollower bf = (BoneFollower)o;
 						bf.Initialize();
 						bf.LateUpdate();

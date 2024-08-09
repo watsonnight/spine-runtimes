@@ -366,6 +366,13 @@ intptr_t spine_bone_get_skeleton_unity(intptr_t boneHandle)
 	return handle;
 }
 
+void spine_bone_dispose_local_unity(intptr_t boneHandle)
+{
+	CHECK_BONE_RETURN(boneHandle, );
+
+	s_local_spine_bone_map.remove(boneHandle);
+}
+
 
 
 

@@ -65,7 +65,7 @@ SPINE_CPP_LITE_EXPORT const char* spine_bone_get_data_name_unity(intptr_t boneHa
 SPINE_CPP_LITE_EXPORT void spine_bone_set_local_position_unity(intptr_t boneHandle, float* position);
 SPINE_CPP_LITE_EXPORT intptr_t spine_bone_get_parent_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT intptr_t spine_bone_get_skeleton_unity(intptr_t boneHandle);
-
+SPINE_CPP_LITE_EXPORT void spine_bone_dispose_local_unity(intptr_t boneHandle);
 
 
 

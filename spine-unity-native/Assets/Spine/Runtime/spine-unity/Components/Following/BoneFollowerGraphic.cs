@@ -31,6 +31,8 @@
 #define NEW_PREFAB_SYSTEM
 #endif
 
+using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 
@@ -76,22 +78,33 @@ namespace Spine.Unity {
 			+ " only one axis can be followed, either the X or the Y axis, which is selected here.")]
 		public AxisOrientation maintainedAxisOrientation = AxisOrientation.XAxis;
 
-		[System.NonSerialized] public Bone bone;
+		//[System.NonSerialized] public Bone bone;
+		[System.NonSerialized] public IntPtr boneHandle;
 
 		Transform skeletonTransform;
 		bool skeletonTransformIsParent;
 
 		[System.NonSerialized] public bool valid;
 
-		/// <summary>
-		/// Sets the target bone by its bone name. Returns false if no bone was found.</summary>
-		public bool SetBone (string name) {
-			bone = skeletonGraphic.Skeleton.FindBone(name);
-			if (bone == null) {
-				Debug.LogError("Bone not found: " + name, this);
-				return false;
-			}
-			boneName = name;
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern IntPtr spine_skeleton_find_bone_unity(IntPtr skeletonHandle, string boneName);
+
+        /// <summary>
+        /// Sets the target bone by its bone name. Returns false if no bone was found.</summary>
+        public bool SetBone (string name) {
+            //bone = skeletonGraphic.Skeleton.FindBone(name);
+            //if (bone == null) {
+            //	Debug.LogError("Bone not found: " + name, this);
+            //	return false;
+            //}
+            boneHandle = spine_skeleton_find_bone_unity(skeletonGraphic.Skeleton.skeletonHandle, name);
+            if (boneHandle == IntPtr.Zero)
+            {
+                Debug.LogError("Bone not found: " + name, this);
+                return false;
+            }
+            boneName = name;
 			return true;
 		}
 
@@ -100,7 +113,12 @@ namespace Spine.Unity {
 		}
 
 		public void Initialize () {
-			bone = null;
+			//bone = null;
+			if (boneHandle != IntPtr.Zero)
+			{
+                spine_bone_dispose_local_unity(boneHandle);
+            }
+            boneHandle = IntPtr.Zero;
 			valid = skeletonGraphic != null && skeletonGraphic.IsValid;
 			if (!valid) return;
 
@@ -109,17 +127,83 @@ namespace Spine.Unity {
 			//			skeletonGraphic.OnRebuild += HandleRebuildRenderer;
 			skeletonTransformIsParent = Transform.ReferenceEquals(skeletonTransform, transform.parent);
 
-			if (!string.IsNullOrEmpty(boneName))
-				bone = skeletonGraphic.Skeleton.FindBone(boneName);
+            //if (!string.IsNullOrEmpty(boneName))
+            //bone = skeletonGraphic.Skeleton.FindBone(boneName);
+            if (!string.IsNullOrEmpty(boneName))
+            {
+                boneHandle = spine_skeleton_find_bone_unity(skeletonGraphic.Skeleton.skeletonHandle, boneName);
+            }
 
 #if UNITY_EDITOR
-			if (Application.isEditor) {
+            if (Application.isEditor) {
 				LateUpdate();
 			}
 #endif
 		}
 
-		public void LateUpdate () {
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern void spine_bone_dispose_local_unity(IntPtr boneHandle);
+
+        void OnDestroy()
+		{
+			if (boneHandle != IntPtr.Zero)
+			{
+				// call dispose function
+				spine_bone_dispose_local_unity(boneHandle);
+                boneHandle = IntPtr.Zero;
+			}
+		}
+
+
+
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_x_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_y_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_a_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_c_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_rotation_x_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_rotation_y_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_scale_x_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_scale_y_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_scale_x_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_scale_y_unity(IntPtr boneHandle);
+
+
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern IntPtr spine_bone_get_parent_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern IntPtr spine_bone_get_skeleton_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_skeleton_get_scale_x_unity(IntPtr skeletonHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_skeleton_get_scale_y_unity(IntPtr skeletonHandle);
+
+
+
+        public void LateUpdate () {
 			if (!valid) {
 				Initialize();
 				return;
@@ -130,27 +214,47 @@ namespace Spine.Unity {
 				skeletonTransformIsParent = Transform.ReferenceEquals(skeletonTransform, transform.parent);
 #endif
 
-			if (bone == null) {
-				if (string.IsNullOrEmpty(boneName)) return;
-				bone = skeletonGraphic.Skeleton.FindBone(boneName);
-				if (!SetBone(boneName)) return;
-			}
+            //if (bone == null) {
+            //	if (string.IsNullOrEmpty(boneName)) return;
+            //	bone = skeletonGraphic.Skeleton.FindBone(boneName);
+            //	if (!SetBone(boneName)) return;
+            //}
+            if (boneHandle == IntPtr.Zero)
+            {
+                if (string.IsNullOrEmpty(boneName)) { return; }
 
-			RectTransform thisTransform = this.transform as RectTransform;
+                boneHandle = spine_skeleton_find_bone_unity(skeletonGraphic.Skeleton.skeletonHandle, boneName);
+                if (!SetBone(boneName)) return;
+            }
+
+            RectTransform thisTransform = this.transform as RectTransform;
 			if (thisTransform == null) return;
 
 			float scale = skeletonGraphic.MeshScale;
 
-			float additionalFlipScale = 1;
+            float boneWorldX = spine_bone_get_world_x_unity(boneHandle);
+            float boneWorldY = spine_bone_get_world_y_unity(boneHandle);
+            float boneScaleX = spine_bone_get_scale_x_unity(boneHandle);
+            float boneScaleY = spine_bone_get_scale_y_unity(boneHandle);
+
+
+            float additionalFlipScale = 1;
 			if (skeletonTransformIsParent) {
 				// Recommended setup: Use local transform properties if Spine GameObject is the immediate parent
-				thisTransform.localPosition = new Vector3(followXYPosition ? bone.WorldX * scale : thisTransform.localPosition.x,
-														followXYPosition ? bone.WorldY * scale : thisTransform.localPosition.y,
+				thisTransform.localPosition = new Vector3(followXYPosition ? boneWorldX * scale : thisTransform.localPosition.x,
+														followXYPosition ? boneWorldY * scale : thisTransform.localPosition.y,
 														followZPosition ? 0f : thisTransform.localPosition.z);
-				if (followBoneRotation) thisTransform.localRotation = bone.GetQuaternion();
+				//if (followBoneRotation) thisTransform.localRotation = bone.GetQuaternion();
+				if (followBoneRotation)
+				{
+					float boneA = spine_bone_get_a_unity(boneHandle);
+					float boneC = spine_bone_get_c_unity(boneHandle);
+					float halfRotation = Mathf.Atan2(boneC, boneA) * 0.5f;
+					thisTransform.localRotation = new Quaternion(0, 0, Mathf.Sin(halfRotation), Mathf.Cos(halfRotation));
+                }
 			} else {
 				// For special cases: Use transform world properties if transform relationship is complicated
-				Vector3 targetWorldPosition = skeletonTransform.TransformPoint(new Vector3(bone.WorldX * scale, bone.WorldY * scale, 0f));
+				Vector3 targetWorldPosition = skeletonTransform.TransformPoint(new Vector3(boneWorldX * scale, boneWorldY * scale, 0f));
 				if (!followZPosition) targetWorldPosition.z = thisTransform.position.z;
 				if (!followXYPosition) {
 					targetWorldPosition.x = thisTransform.position.x;
@@ -161,9 +265,10 @@ namespace Spine.Unity {
 				Transform transformParent = thisTransform.parent;
 				Vector3 parentLossyScale = transformParent != null ? transformParent.lossyScale : Vector3.one;
 				if (followBoneRotation) {
-					float boneWorldRotation = bone.WorldRotationX;
+                    //float boneWorldRotation = bone.WorldRotationX;
+                    float boneWorldRotation = spine_bone_get_world_rotation_x_unity(boneHandle);
 
-					if ((skeletonLossyScale.x * skeletonLossyScale.y) < 0)
+                    if ((skeletonLossyScale.x * skeletonLossyScale.y) < 0)
 						boneWorldRotation = -boneWorldRotation;
 
 					if (followSkeletonFlip || maintainedAxisOrientation == AxisOrientation.XAxis) {
@@ -175,7 +280,7 @@ namespace Spine.Unity {
 					}
 
 					Vector3 worldRotation = skeletonTransform.rotation.eulerAngles;
-					if (followLocalScale && bone.ScaleX < 0) boneWorldRotation += 180f;
+					if (followLocalScale && boneScaleX < 0) boneWorldRotation += 180f;
 					thisTransform.SetPositionAndRotation(targetWorldPosition, Quaternion.Euler(worldRotation.x, worldRotation.y, worldRotation.z + boneWorldRotation));
 				} else {
 					thisTransform.position = targetWorldPosition;
@@ -185,17 +290,34 @@ namespace Spine.Unity {
 												* skeletonLossyScale.y * parentLossyScale.y);
 			}
 
-			Bone parentBone = bone.Parent;
-			if (followParentWorldScale || followLocalScale || followSkeletonFlip) {
-				Vector3 localScale = new Vector3(1f, 1f, 1f);
-				if (followParentWorldScale && parentBone != null)
-					localScale = new Vector3(parentBone.WorldScaleX, parentBone.WorldScaleY, 1f);
-				if (followLocalScale)
-					localScale.Scale(new Vector3(bone.ScaleX, bone.ScaleY, 1f));
-				if (followSkeletonFlip)
-					localScale.y *= Mathf.Sign(bone.Skeleton.ScaleX * bone.Skeleton.ScaleY) * additionalFlipScale;
-				thisTransform.localScale = localScale;
-			}
-		}
+            //Bone parentBone = bone.Parent;
+            //if (followParentWorldScale || followLocalScale || followSkeletonFlip) {
+            //	Vector3 localScale = new Vector3(1f, 1f, 1f);
+            //	if (followParentWorldScale && parentBone != null)
+            //		localScale = new Vector3(parentBone.WorldScaleX, parentBone.WorldScaleY, 1f);
+            //	if (followLocalScale)
+            //		localScale.Scale(new Vector3(bone.ScaleX, bone.ScaleY, 1f));
+            //	if (followSkeletonFlip)
+            //		localScale.y *= Mathf.Sign(bone.Skeleton.ScaleX * bone.Skeleton.ScaleY) * additionalFlipScale;
+            //	thisTransform.localScale = localScale;
+            //}
+            IntPtr parentBoneHandle = spine_bone_get_parent_unity(boneHandle);
+            if (followParentWorldScale || followLocalScale || followSkeletonFlip)
+            {
+                Vector3 localScale = new Vector3(1f, 1f, 1f);
+                float parentBoneWorldScaleX = spine_bone_get_world_scale_x_unity(parentBoneHandle);
+                float parentBoneWorldScaleY = spine_bone_get_world_scale_y_unity(parentBoneHandle);
+                IntPtr boneSkeletonHandle = spine_bone_get_skeleton_unity(boneHandle);
+                float boneSkeletonScaleX = spine_skeleton_get_scale_x_unity(boneSkeletonHandle);
+                float boneSkeletonScaleY = spine_skeleton_get_scale_y_unity(boneSkeletonHandle);
+                if (followParentWorldScale && parentBoneHandle != IntPtr.Zero)
+                    localScale = new Vector3(parentBoneWorldScaleX, parentBoneWorldScaleY, 1f);
+                if (followLocalScale)
+                    localScale.Scale(new Vector3(boneScaleX, boneScaleY, 1f));
+                if (followSkeletonFlip)
+                    localScale.y *= Mathf.Sign(boneSkeletonScaleX * boneSkeletonScaleY) * additionalFlipScale;
+                thisTransform.localScale = localScale;
+            }
+        }
 	}
 }

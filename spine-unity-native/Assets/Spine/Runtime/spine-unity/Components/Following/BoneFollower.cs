@@ -90,7 +90,7 @@ namespace Spine.Unity {
 
 		[NonSerialized] public bool valid;
 		//[NonSerialized] public Bone bone;
-		[NonSerialized] public IntPtr boneHandle;
+		[NonSerialized] public IntPtr boneHandle = IntPtr.Zero;
 
 		Transform skeletonTransform;
 		bool skeletonTransformIsParent;
@@ -107,7 +107,7 @@ namespace Spine.Unity {
 			//	Debug.LogError("Bone not found: " + name, this);
 			//	return false;
 			//}
-			boneHandle = spine_skeleton_find_bone_unity(skeletonRenderer.skeleton.skeletonHandle, name);
+			boneHandle = spine_skeleton_find_bone_unity(skeletonRenderer.Skeleton.skeletonHandle, name);
 			if (boneHandle == IntPtr.Zero)
 			{
 				Debug.LogError("Bone not found: " + name, this);
@@ -127,6 +127,10 @@ namespace Spine.Unity {
 
 		public void Initialize () {
 			//bone = null;
+			if (boneHandle != IntPtr.Zero)
+			{
+				spine_bone_dispose_local_unity(boneHandle);
+            }
 			boneHandle = IntPtr.Zero;
 			valid = skeletonRenderer != null && skeletonRenderer.valid;
 			if (!valid) return;
@@ -140,7 +144,7 @@ namespace Spine.Unity {
 				//bone = skeletonRenderer.skeleton.FindBone(boneName);
 			if (!string.IsNullOrEmpty(boneName))
 			{
-				boneHandle = spine_skeleton_find_bone_unity(skeletonRenderer.skeleton.skeletonHandle, boneName);
+				boneHandle = spine_skeleton_find_bone_unity(skeletonRenderer.Skeleton.skeletonHandle, boneName);
 			}
 
 #if UNITY_EDITOR
@@ -149,9 +153,21 @@ namespace Spine.Unity {
 #endif
 		}
 
-		void OnDestroy () {
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern void spine_bone_dispose_local_unity(IntPtr boneHandle);
+
+
+        void OnDestroy () {
 			if (skeletonRenderer != null)
 				skeletonRenderer.OnRebuild -= HandleRebuildRenderer;
+
+			if (boneHandle != IntPtr.Zero)
+			{
+                // call dispose function, maybe should use deref instead
+                spine_bone_dispose_local_unity(boneHandle);
+				boneHandle = IntPtr.Zero;
+			}
 		}
 
 
@@ -221,7 +237,7 @@ namespace Spine.Unity {
 			{
 				if (string.IsNullOrEmpty(boneName)) { return; }
 
-				boneHandle = spine_skeleton_find_bone_unity(skeletonRenderer.skeleton.skeletonHandle, boneName);
+				boneHandle = spine_skeleton_find_bone_unity(skeletonRenderer.Skeleton.skeletonHandle, boneName);
 				if (!SetBone(boneName)) return;
 			}
 
