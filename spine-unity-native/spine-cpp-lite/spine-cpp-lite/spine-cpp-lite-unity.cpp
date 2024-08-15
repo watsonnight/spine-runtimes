@@ -711,6 +711,50 @@ void spine_animation_state_track_set_mix_duration_unity(intptr_t animationStateH
 	track->setMixDuration(mixDuration);
 }
 
+void spine_animation_state_track_set_time_scale_unity(intptr_t animationStateHandle, int trackIndex, float timeScale)
+{
+	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
+
+	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
+
+	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
+	{
+		return;
+	}
+	TrackEntry* track = animationState->getTracks()[trackIndex];
+	track->setTimeScale(timeScale);
+}
+float spine_animation_state_track_get_time_scale_unity(intptr_t animationStateHandle, int trackIndex)
+{
+	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, k_invalid);
+
+	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
+
+	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
+	{
+		return k_invalid;
+	}
+	TrackEntry* track = animationState->getTracks()[trackIndex];
+	return track->getTimeScale();
+}
+
+void spine_animation_state_track_get_track_time_end_duration_unity(intptr_t animationStateHandle, int trackIndex, float* outTrackTime)
+{
+	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
+
+	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
+
+	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
+	{
+		return;
+	}
+	TrackEntry* track = animationState->getTracks()[trackIndex];
+	
+	outTrackTime[0] = track->getTrackTime();
+	outTrackTime[1] = track->getTrackEnd();
+	outTrackTime[2] = track->getAnimation()->getDuration();
+}
+
 
 
 void spine_skeleton_update_world_transform_unity(intptr_t skeletonHandle)

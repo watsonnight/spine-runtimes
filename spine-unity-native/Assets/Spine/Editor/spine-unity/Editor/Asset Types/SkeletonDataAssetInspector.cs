@@ -37,6 +37,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
 using CompatibilityProblemInfo = Spine.Unity.SkeletonDataCompatibility.CompatibilityProblemInfo;
@@ -1030,7 +1031,16 @@ namespace Spine.Unity.Editor {
 			skeletonAnimation.Skeleton.SetToSetupPose();
 		}
 
-		public void PlayPauseAnimation (string animationName, bool loop) {
+
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern void spine_animation_state_track_set_time_scale_unity(IntPtr animationStateHandle, int trackIndex, float timeScale);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_animation_state_track_get_time_scale_unity(IntPtr animationStateHandle, int trackIndex);
+
+
+        public void PlayPauseAnimation (string animationName, bool loop) {
 			if (skeletonData == null) return;
 
 			if (skeletonAnimation == null) {
@@ -1061,10 +1071,15 @@ namespace Spine.Unity.Editor {
 				} else {
 					bool sameAnimation = (currentTrack.Animation == targetAnimation);
 					if (sameAnimation) {
-						currentTrack.TimeScale = (currentTrack.TimeScale == 0) ? 1f : 0f; // pause/play
+						//currentTrack.TimeScale = (currentTrack.TimeScale == 0) ? 1f : 0f; // pause/play
+						float curTimeScale = spine_animation_state_track_get_time_scale_unity(animationState.animationStateHandle, currentTrack.TrackIndex);
+						spine_animation_state_track_set_time_scale_unity(animationState.animationStateHandle, currentTrack.TrackIndex, curTimeScale == 0 ? 1f : 0f);
 					} else {
-						currentTrack.TimeScale = 1f;
-						animationState.SetAnimation(0, targetAnimation, loop);
+						//currentTrack.TimeScale = 1f;
+						spine_animation_state_track_set_time_scale_unity(animationState.animationStateHandle, currentTrack.TrackIndex, 1f);
+
+
+                        animationState.SetAnimation(0, targetAnimation, loop);
 					}
 				}
 
@@ -1147,7 +1162,11 @@ namespace Spine.Unity.Editor {
 			if (OnSkinChanged != null) OnSkinChanged(skin.Name);
 		}
 
-		void DrawTimeBar (Rect r) {
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern void spine_animation_state_track_get_track_time_end_duration_unity(IntPtr animationStateHandle, int trackIndex, float[] outTrackParams);
+
+        void DrawTimeBar (Rect r) {
 			if (skeletonAnimation == null)
 				return;
 
@@ -1163,9 +1182,19 @@ namespace Spine.Unity.Editor {
 			TrackEntry t = skeletonAnimation.AnimationState.GetCurrent(0);
 
 			if (t != null && Icons.userEvent != null) { // when changing to play mode, Icons.userEvent  will not be reset
-				int loopCount = (int)(t.TrackTime / t.TrackEnd);
-				float currentTime = t.TrackTime - (t.TrackEnd * loopCount);
-				float normalizedTime = currentTime / t.Animation.Duration;
+
+				float[] trackParams = new float[3];
+				spine_animation_state_track_get_track_time_end_duration_unity(skeletonAnimation.AnimationState.animationStateHandle, 0, trackParams);
+
+				float tTrackTime = trackParams[0];
+				float tTrackEnd = trackParams[1];
+				float tAnimationDuration = trackParams[2];
+
+
+
+                int loopCount = (int)(tTrackTime / tTrackEnd);
+				float currentTime = tTrackTime - (tTrackEnd * loopCount);
+				float normalizedTime = currentTime / tAnimationDuration;
 				float wrappedTime = normalizedTime % 1f;
 
 				lineRect.x = barRect.x + (lineRectWidth * wrappedTime) - 0.5f;
@@ -1180,7 +1209,7 @@ namespace Spine.Unity.Editor {
 				for (int i = 0; i < currentAnimationEvents.Count; i++) {
 					float eventTime = currentAnimationEventTimes[i];
 					Texture2D userEventIcon = Icons.userEvent;
-					float iconX = Mathf.Max(((eventTime / t.Animation.Duration) * lineRectWidth) - (userEventIcon.width / 2), barRect.x);
+					float iconX = Mathf.Max(((eventTime / tAnimationDuration) * lineRectWidth) - (userEventIcon.width / 2), barRect.x);
 					float iconY = barRect.y + userEventIcon.height;
 					Rect evRect = new Rect(barRect) {
 						x = iconX,

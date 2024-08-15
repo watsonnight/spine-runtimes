@@ -120,6 +120,9 @@ SPINE_CPP_LITE_EXPORT void spine_animation_state_add_empty_animation_unity(intpt
 
 SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_attachment_threshold_unity(intptr_t animationStateHandle, int trackIndex, float attachmentThreshold);
 SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_mix_duration_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration);
+SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_time_scale_unity(intptr_t animationStateHandle, int trackIndex, float timeScale);
+SPINE_CPP_LITE_EXPORT float spine_animation_state_track_get_time_scale_unity(intptr_t animationStateHandle, int trackIndex);
+SPINE_CPP_LITE_EXPORT void spine_animation_state_track_get_track_time_end_duration_unity(intptr_t animationStateHandle, int trackIndex, float* outTrackTime);
 
 
 //Slot

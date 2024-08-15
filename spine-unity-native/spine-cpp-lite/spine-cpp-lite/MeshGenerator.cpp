@@ -1376,10 +1376,10 @@ void spine::MeshGenerator::Begin()
     clipper.clipEnd();
 
     {
-        meshBoundsMin.x = std::numeric_limits<float>::max();
-        meshBoundsMin.y = std::numeric_limits<float>::max();
-        meshBoundsMax.x = std::numeric_limits<float>::min();
-        meshBoundsMax.y = std::numeric_limits<float>::min();
+        meshBoundsMin.x =   std::numeric_limits<float>::infinity();
+        meshBoundsMin.y =   std::numeric_limits<float>::infinity();
+        meshBoundsMax.x = -std::numeric_limits<float>::infinity();
+        meshBoundsMax.y = -std::numeric_limits<float>::infinity();
         meshBoundsThickness = 0.0f;
     }
 
