@@ -29,6 +29,10 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using System.Runtime.InteropServices;
+
+using System;
+
 #if UNITY_EDITOR
 using UnityEditor.Animations;
 #endif
@@ -252,17 +256,32 @@ namespace Spine.Unity {
 				}
 			}
 
-			public void Initialize (Animator animator, SkeletonDataAsset skeletonDataAsset) {
+            [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+            static extern IntPtr spine_skeleton_data_find_animation_unity(IntPtr skeletonDataHandle, string startingAnimation);
+
+            [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+            static extern void spine_skeleton_data_remove_animation_unity(IntPtr animationHandle);
+
+            public void Initialize (Animator animator, SkeletonDataAsset skeletonDataAsset) {
 				this.animator = animator;
 
 				previousAnimations.Clear();
 
-				animationTable.Clear();
+                // clear animationHandle ?
+                foreach (var a in animationTable.Values)
+                {
+                    spine_skeleton_data_remove_animation_unity(a.animationHandle);
+                }
+                animationTable.Clear();
+
 				SkeletonData data = skeletonDataAsset.GetSkeletonData(true);
 				foreach (Animation a in data.Animations)
-					animationTable.Add(a.Name.GetHashCode(), a);
+				{
+                    animationTable.Add(a.Name.GetHashCode(), a);
+					a.animationHandle = spine_skeleton_data_find_animation_unity(data.skeletonDataHandle, a.Name);
+                }
 
-				clipNameHashCodeTable.Clear();
+                clipNameHashCodeTable.Clear();
 				ClearClipInfosForLayers();
 			}
 

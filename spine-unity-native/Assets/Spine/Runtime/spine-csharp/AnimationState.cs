@@ -83,9 +83,12 @@ namespace Spine {
 		private readonly ExposedList<Event> events = new ExposedList<Event>();
 		// difference to libgdx reference: delegates are used for event callbacks instead of 'final SnapshotArray<AnimationStateListener> listeners'.
 		internal void OnStart(TrackEntry entry) { if (_start != null) _start(entry); }
-		internal void OnInterrupt(TrackEntry entry) { if (Interrupt != null) Interrupt(entry); }
-		internal void OnEnd(TrackEntry entry) { if (End != null) End(entry); }
-		internal void OnDispose(TrackEntry entry) { if (Dispose != null) Dispose(entry); }
+		//internal void OnInterrupt(TrackEntry entry) { if (Interrupt != null) Interrupt(entry); }
+		internal void OnInterrupt(TrackEntry entry) { if ( _interrupt != null) _interrupt(entry); }
+		//internal void OnEnd(TrackEntry entry) { if (End != null) End(entry); }
+		internal void OnEnd(TrackEntry entry) { if (_end != null) _end(entry); }
+		//internal void OnDispose(TrackEntry entry) { if (Dispose != null) Dispose(entry); }
+		internal void OnDispose(TrackEntry entry) { if (_dispose != null) _dispose(entry); }
 		internal void OnComplete(TrackEntry entry) { if (_complete != null) _complete(entry); }
 		//internal void OnEvent (TrackEntry entry, Event e) { if (_event != null) _event(entry, e); }
 		internal void OnEvent(TrackEntry entry, IntPtr eHandle) { if (_event != null) _event(entry, eHandle); }
@@ -138,12 +141,24 @@ namespace Spine {
                                 _start(tracks.Items[trackEntryIndex]);
                             break;
                         }
-					case 4:
+					case 2:
+						{
+							if (_end != null)
+								_end(tracks.Items[trackEntryIndex]);
+							break;
+						}
+					case 3:
                         {
 							if (_complete != null)
 								_complete(tracks.Items[trackEntryIndex]);
 							break;
                         }
+					case 4:
+						{
+							if (_dispose != null)
+								_dispose(tracks.Items[trackEntryIndex]);
+							break;
+						}
                     case 5:
                         {
                             if (_event != null)
@@ -177,6 +192,71 @@ namespace Spine {
 
 		}
 
+		private TrackEntryDelegate _interrupt;
+		public event TrackEntryDelegate Interrupt
+		{
+			add
+			{
+				_interrupt += value;
+				if (eventLength == 1)
+				{
+					spine_animation_state_add_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+
+			remove
+			{
+				_interrupt -= value;
+				if (eventLength == 0)
+				{
+					spine_animation_state_remove_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+		}
+
+		private TrackEntryDelegate _end;
+		public event TrackEntryDelegate End
+		{
+			add
+			{
+				_end += value;
+				if (eventLength == 1)
+				{
+					spine_animation_state_add_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+			remove
+			{
+				_end -= value;
+				if (eventLength == 0)
+				{
+					spine_animation_state_remove_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+		}
+
+		private TrackEntryDelegate _dispose;
+		public event TrackEntryDelegate Dispose
+		{
+			add
+			{ 
+				_dispose += value;
+				if (eventLength == 1)
+				{
+					spine_animation_state_add_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+
+			remove
+			{
+				_dispose -= value;
+				if (eventLength == 0)
+				{
+					spine_animation_state_remove_callback_unity(animationStateHandle, EventCallback);
+				}
+			}
+		}
+
 		private TrackEntryDelegate _complete;
 		public event TrackEntryDelegate Complete
 		{
@@ -201,7 +281,7 @@ namespace Spine {
 		}
 
 		//public event TrackEntryDelegate Start, Interrupt, End, Dispose, Complete;
-		public event TrackEntryDelegate Interrupt, End, Dispose;
+		//public event TrackEntryDelegate Dispose;
 
 
 
@@ -214,7 +294,12 @@ namespace Spine {
 		{
 			get
             {
-               return (_start == null ? 0 : _start.GetInvocationList().Length) + (_event == null ? 0 : _event.GetInvocationList().Length) + (_complete == null ? 0 : _complete.GetInvocationList().Length);
+               return (_start		== null ? 0 : _start.GetInvocationList().Length)
+					+ (_event		== null ? 0 : _event.GetInvocationList().Length) 
+					+ (_interrupt	== null ? 0 : _interrupt.GetInvocationList().Length)
+					+ (_dispose		== null ? 0 : _dispose.GetInvocationList().Length)
+					+ (_end			== null ? 0 : _end.GetInvocationList().Length)
+					+ (_complete	== null ? 0 : _complete.GetInvocationList().Length);
             }
         }
 
@@ -248,9 +333,12 @@ namespace Spine {
 			_event = src._event;
 			//Start = src.Start;
 			_start = src._start;
-            Interrupt = src.Interrupt;
-			End = src.End;
-			Dispose = src.Dispose;
+            //Interrupt = src.Interrupt;
+			_interrupt = src._interrupt;
+			//End = src.End;
+			_end = src._end;
+			//Dispose = src.Dispose;
+			_dispose = src._dispose;
 			_complete = src._complete;
 		}
 
@@ -259,10 +347,13 @@ namespace Spine {
 			Event += src._event;
 			//Start += src.Start;
 			Start += src._start;
-			Interrupt += src.Interrupt;
-			End += src.End;
-			Dispose += src.Dispose;
-			_complete += src._complete;
+			//Interrupt += src.Interrupt;
+			Interrupt += src._interrupt;
+			//End += src.End;
+			End += src._end;
+			//Dispose += src.Dispose;
+			Dispose += src._dispose;
+			Complete += src._complete;
 		}
 
 		// end of difference

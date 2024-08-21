@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Spine {
 
@@ -90,30 +91,43 @@ namespace Spine {
 			return false;
 		}
 
-		/// <summary>Applies the animation's timelines to the specified skeleton.</summary>
-		/// <seealso cref="Timeline.Apply(Skeleton, float, float, ExposedList, float, MixBlend, MixDirection)"/>
-		/// <param name="skeleton">The skeleton the animation is being applied to. This provides access to the bones, slots, and other skeleton
-		///					components the timelines may change.</param>
-		/// <param name="lastTime">The last time in seconds this animation was applied. Some timelines trigger only at specific times rather
-		///					than every frame. Pass -1 the first time an animation is applied to ensure frame 0 is triggered.</param>
-		/// <param name="time"> The time in seconds the skeleton is being posed for. Most timelines find the frame before and the frame after
-		///					this time and interpolate between the frame values. If beyond the <see cref="Duration"/> and <code>loop</code> is
-		///					true then the animation will repeat, else the last frame will be applied.</param>
-		/// <param name="loop">If true, the animation repeats after the <see cref="Duration"/>.</param>
-		/// <param name="events">If any events are fired, they are added to this list. Can be null to ignore fired events or if no timelines
-		///					fire events.</param>
-		/// <param name="alpha"> 0 applies the current or setup values (depending on <code>blend</code>). 1 applies the timeline values. Between
-		///					0 and 1 applies values between the current or setup values and the timeline values. By adjusting
-		///					<code>alpha</code> over time, an animation can be mixed in or out. <code>alpha</code> can also be useful to apply
-		///					animations on top of each other (layering).</param>
-		/// <param name="blend">Controls how mixing is applied when <code>alpha</code> < 1.</param>
-		/// <param name="direction">Indicates whether the timelines are mixing in or out. Used by timelines which perform instant transitions,
-		///					such as <see cref="DrawOrderTimeline"/> or <see cref="AttachmentTimeline"/>.</param>
-		public void Apply (Skeleton skeleton, float lastTime, float time, bool loop, ExposedList<Event> events, float alpha,
+        /// <summary>Applies the animation's timelines to the specified skeleton.</summary>
+        /// <seealso cref="Timeline.Apply(Skeleton, float, float, ExposedList, float, MixBlend, MixDirection)"/>
+        /// <param name="skeleton">The skeleton the animation is being applied to. This provides access to the bones, slots, and other skeleton
+        ///					components the timelines may change.</param>
+        /// <param name="lastTime">The last time in seconds this animation was applied. Some timelines trigger only at specific times rather
+        ///					than every frame. Pass -1 the first time an animation is applied to ensure frame 0 is triggered.</param>
+        /// <param name="time"> The time in seconds the skeleton is being posed for. Most timelines find the frame before and the frame after
+        ///					this time and interpolate between the frame values. If beyond the <see cref="Duration"/> and <code>loop</code> is
+        ///					true then the animation will repeat, else the last frame will be applied.</param>
+        /// <param name="loop">If true, the animation repeats after the <see cref="Duration"/>.</param>
+        /// <param name="events">If any events are fired, they are added to this list. Can be null to ignore fired events or if no timelines
+        ///					fire events.</param>
+        /// <param name="alpha"> 0 applies the current or setup values (depending on <code>blend</code>). 1 applies the timeline values. Between
+        ///					0 and 1 applies values between the current or setup values and the timeline values. By adjusting
+        ///					<code>alpha</code> over time, an animation can be mixed in or out. <code>alpha</code> can also be useful to apply
+        ///					animations on top of each other (layering).</param>
+        /// <param name="blend">Controls how mixing is applied when <code>alpha</code> < 1.</param>
+        /// <param name="direction">Indicates whether the timelines are mixing in or out. Used by timelines which perform instant transitions,
+        ///					such as <see cref="DrawOrderTimeline"/> or <see cref="AttachmentTimeline"/>.</param>
+        ///					
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern void spine_animation_apply_unity(IntPtr animationHandle, IntPtr skeletonHandle, float lastTime, float time, bool loop, float alpha, int mixBlend, int direction);
+        public void Apply (Skeleton skeleton, float lastTime, float time, bool loop, ExposedList<Event> events, float alpha,
 							MixBlend blend, MixDirection direction) {
 			if (skeleton == null) throw new ArgumentNullException("skeleton", "skeleton cannot be null.");
 
-			if (loop && duration != 0) {
+			if (animationHandle != IntPtr.Zero)
+			{
+                spine_animation_apply_unity(animationHandle, skeleton.skeletonHandle, lastTime, time, loop, alpha, (int)blend, (int)direction);
+            }
+
+			// below codes may can be removed?
+
+
+			if (loop && duration != 0)
+			{
 				time %= duration;
 				if (lastTime > 0) lastTime %= duration;
 			}
