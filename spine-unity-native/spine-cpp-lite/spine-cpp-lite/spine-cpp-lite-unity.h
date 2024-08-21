@@ -124,6 +124,8 @@ SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_time_scale_unity(intp
 SPINE_CPP_LITE_EXPORT float spine_animation_state_track_get_time_scale_unity(intptr_t animationStateHandle, int trackIndex);
 SPINE_CPP_LITE_EXPORT void spine_animation_state_track_get_track_time_end_duration_unity(intptr_t animationStateHandle, int trackIndex, float* outTrackTime);
 
+SPINE_CPP_LITE_EXPORT void spine_animation_apply_unity(intptr_t animationHandle, intptr_t skeletonHandle, float lastTime, float time, bool loop, float alpha, int mixBlend, int direction);
+
 
 //Slot
 SPINE_CPP_LITE_EXPORT void spine_slot_dispose_local_unity(intptr_t slotHandle);

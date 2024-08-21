@@ -755,6 +755,17 @@ void spine_animation_state_track_get_track_time_end_duration_unity(intptr_t anim
 	outTrackTime[2] = track->getAnimation()->getDuration();
 }
 
+void spine_animation_apply_unity(intptr_t animationHandle, intptr_t skeletonHandle, float lastTime, float time, bool loop, float alpha, int mixBlend, int direction)
+{
+
+	CHECK_ANIMATION_RETURN(animationHandle, );
+	CHECK_SKELETON_RETURN(skeletonHandle, );
+
+	Animation* animation = s_global_spine_animation_map[animationHandle];
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+	animation->apply(*skeleton, lastTime, time, loop, nullptr, alpha, (MixBlend)mixBlend, (MixDirection)direction);
+
+}
 
 
 void spine_skeleton_update_world_transform_unity(intptr_t skeletonHandle)
