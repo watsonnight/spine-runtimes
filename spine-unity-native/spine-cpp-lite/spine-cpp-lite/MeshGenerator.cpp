@@ -106,6 +106,33 @@ void Vector<int>::setSizeWithoutConstruct(size_t newSize) {
 	}     
 }
 
+MeshGenerator::MeshGenerator() :
+    uv2(nullptr),
+    uv3(nullptr),
+    normals(nullptr),
+    tangents(nullptr),
+    currentInstruction(new SkeletonRendererInstruction())
+{
+}
+
+MeshGenerator::~MeshGenerator()
+{
+    delete currentInstruction;
+    currentInstruction = nullptr;
+
+    delete uv2;
+    uv2 = nullptr;
+
+    delete uv3;
+    uv3 = nullptr;
+
+    delete normals;
+    normals = nullptr;
+
+    delete tangents;
+    tangents = nullptr;
+}
+
 void spine::MeshGenerator::BuildMeshWithArrays(SkeletonRendererInstruction& instruction, bool updateTriangles)
 {
     bool canvasGroupTintBlack = settings.tintBlack && settings.canvasGroupTintBlack;

@@ -27,6 +27,9 @@ namespace spine
 
 
 public:
+        MeshGenerator();
+        ~MeshGenerator();
+
         struct Settings
         {
             public:
@@ -88,7 +91,7 @@ protected:
 
         
 public:
-        SkeletonRendererInstruction* currentInstruction = new SkeletonRendererInstruction();
+        SkeletonRendererInstruction* currentInstruction;
 
         SkeletonRendererInstruction oldInstruction[2], newInstruction;
         int instructionIndex = 0;

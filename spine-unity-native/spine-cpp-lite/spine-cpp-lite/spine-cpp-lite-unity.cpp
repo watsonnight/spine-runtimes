@@ -5,6 +5,7 @@
 #include "SkeletonRendererInstruction.h"
 
 #include <cstdint>
+#include <vector>
 #include <spine/spine.h>
 #include <spine/Debug.h>
 using namespace spine;
@@ -51,7 +52,6 @@ static HashMap<intptr_t, Timeline*> s_global_spine_timeline_map;
 static HashMap<intptr_t, SkeletonData*> s_global_spine_skeleton_data_map;
 
 static HashMap<intptr_t, MeshGenerator*> s_global_mesh_generator_map;
-
 
 
 const intptr_t k_invalid = 0;
@@ -127,19 +127,19 @@ const char* spine_atlas_get_region_name_unity(intptr_t atlasHandle, int index)
 	return atlas->getRegions()[index]->name.buffer();
 }
 
-intptr_t spine_atlasregion_get_pages_unity(intptr_t atlasHandle, intptr_t regionHandle)
-{
-	CHECK_GET_ATLAS_RETURN(atlasHandle, k_invalid);
-	auto& regions = atlas->getRegions();
-	for (int i = 0; i < regions.size(); i++)
-	{
-		if ((intptr_t)regions[i] == regionHandle)
-		{
-			return (intptr_t)regions[i]->page;
-		}
-	}
-	return k_invalid;
-}
+// intptr_t spine_atlasregion_get_pages_unity(intptr_t atlasHandle, intptr_t regionHandle)
+// {
+// 	CHECK_GET_ATLAS_RETURN(atlasHandle, k_invalid);
+// 	auto& regions = atlas->getRegions();
+// 	for (int i = 0; i < regions.size(); i++)
+// 	{
+// 		if ((intptr_t)regions[i] == regionHandle)
+// 		{
+// 			return (intptr_t)regions[i]->page;
+// 		}
+// 	}
+// 	return k_invalid;
+// }
 
 
 
@@ -149,32 +149,32 @@ intptr_t spine_atlasregion_get_pages_unity(intptr_t atlasHandle, intptr_t region
 		return val;											\
 	}		
 
-float spine_bone_get_x_unity(intptr_t boneHandle)
-{
-	CHECK_BONE_RETURN(boneHandle, 0.0f);
+// float spine_bone_get_x_unity(intptr_t boneHandle)
+// {
+// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
+//
+// 	Bone* bone = s_local_spine_bone_map[boneHandle];
+//
+// 	return bone->getX();
+// }
 
-	Bone* bone = s_local_spine_bone_map[boneHandle];
-
-	return bone->getX();
-}
-
-float spine_bone_get_y_unity(intptr_t boneHandle)
-{
-	CHECK_BONE_RETURN(boneHandle, 0.0f);
-
-	Bone* bone = s_local_spine_bone_map[boneHandle];
-
-	return bone->getY();
-}
-
-float spine_bone_get_rotation_unity(intptr_t boneHandle)
-{
-	CHECK_BONE_RETURN(boneHandle, 0.0f);
-
-	Bone* bone = s_local_spine_bone_map[boneHandle];
-
-	return bone->getRotation();
-}
+// float spine_bone_get_y_unity(intptr_t boneHandle)
+// {
+// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
+//
+// 	Bone* bone = s_local_spine_bone_map[boneHandle];
+//
+// 	return bone->getY();
+// }
+//
+// float spine_bone_get_rotation_unity(intptr_t boneHandle)
+// {
+// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
+//
+// 	Bone* bone = s_local_spine_bone_map[boneHandle];
+//
+// 	return bone->getRotation();
+// }
 
 float spine_bone_get_scale_x_unity(intptr_t boneHandle)
 {
@@ -193,37 +193,37 @@ float spine_bone_get_scale_y_unity(intptr_t boneHandle)
 	return bone->getScaleY();
 }
 
-float spine_bone_get_shear_x_unity(intptr_t boneHandle)
-{
-	CHECK_BONE_RETURN(boneHandle, 0.0f);
+// float spine_bone_get_shear_x_unity(intptr_t boneHandle)
+// {
+// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
+//
+// 	Bone* bone = s_local_spine_bone_map[boneHandle];
+//
+// 	return bone->getShearX();
+// }
+//
+// float spine_bone_get_shear_y_unity(intptr_t boneHandle)
+// {
+// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
+//
+// 	Bone* bone = s_local_spine_bone_map[boneHandle];
+//
+// 	return bone->getShearY();
+// }
 
-	Bone* bone = s_local_spine_bone_map[boneHandle];
-
-	return bone->getShearX();
-}
-
-float spine_bone_get_shear_y_unity(intptr_t boneHandle)
-{
-	CHECK_BONE_RETURN(boneHandle, 0.0f);
-
-	Bone* bone = s_local_spine_bone_map[boneHandle];
-
-	return bone->getShearY();
-}
-
-void spine_bone_set_local_position_unity(intptr_t skeletonHandle, intptr_t boneHandle, float* position)
-{
-	CHECK_BONE_RETURN(boneHandle, );
-
-	Bone* bone = s_local_spine_bone_map[boneHandle];
-	if (bone == nullptr)
-	{
-		return;
-	}
-
-	bone->setX(position[0]);
-	bone->setY(position[1]);
-}
+// void spine_bone_set_local_position_unity(intptr_t skeletonHandle, intptr_t boneHandle, float* position)
+// {
+// 	CHECK_BONE_RETURN(boneHandle, );
+//
+// 	Bone* bone = s_local_spine_bone_map[boneHandle];
+// 	if (bone == nullptr)
+// 	{
+// 		return;
+// 	}
+//
+// 	bone->setX(position[0]);
+// 	bone->setY(position[1]);
+// }
 
 
 float spine_bone_get_world_x_unity(intptr_t boneHandle)
@@ -668,48 +668,48 @@ void spine_animation_state_remove_callback_unity(intptr_t animationStateHandle, 
 }
 
 
-void spine_animation_state_add_empty_animation_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration, float delay)
-{
-	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
+// void spine_animation_state_add_empty_animation_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration, float delay)
+// {
+// 	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
+//
+// 	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
+//
+// 	if (trackIndex < 0)
+// 	{
+// 		return;
+// 	}
+//
+// 	animationState->addEmptyAnimation(trackIndex, mixDuration, delay);
+//
+// }
 
-	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
-
-	if (trackIndex < 0)
-	{
-		return;
-	}
-
-	animationState->addEmptyAnimation(trackIndex, mixDuration, delay);
-
-}
-
-void spine_animation_state_track_set_attachment_threshold_unity(intptr_t animationStateHandle, int trackIndex, float attachmentThreshold)
-{
-	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
-
-	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
-
-	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
-	{
-		return;
-	}
-	TrackEntry* track = animationState->getTracks()[trackIndex];
-	track->setAttachmentThreshold(attachmentThreshold);
-}
-
-void spine_animation_state_track_set_mix_duration_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration)
-{
-	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
-
-	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
-
-	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
-	{
-		return;
-	}
-	TrackEntry* track = animationState->getTracks()[trackIndex];
-	track->setMixDuration(mixDuration);
-}
+// void spine_animation_state_track_set_attachment_threshold_unity(intptr_t animationStateHandle, int trackIndex, float attachmentThreshold)
+// {
+// 	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
+//
+// 	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
+//
+// 	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
+// 	{
+// 		return;
+// 	}
+// 	TrackEntry* track = animationState->getTracks()[trackIndex];
+// 	track->setAttachmentThreshold(attachmentThreshold);
+// }
+//
+// void spine_animation_state_track_set_mix_duration_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration)
+// {
+// 	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, );
+//
+// 	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
+//
+// 	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
+// 	{
+// 		return;
+// 	}
+// 	TrackEntry* track = animationState->getTracks()[trackIndex];
+// 	track->setMixDuration(mixDuration);
+// }
 
 void spine_animation_state_track_set_time_scale_unity(intptr_t animationStateHandle, int trackIndex, float timeScale)
 {
@@ -724,19 +724,19 @@ void spine_animation_state_track_set_time_scale_unity(intptr_t animationStateHan
 	TrackEntry* track = animationState->getTracks()[trackIndex];
 	track->setTimeScale(timeScale);
 }
-float spine_animation_state_track_get_time_scale_unity(intptr_t animationStateHandle, int trackIndex)
-{
-	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, k_invalid);
-
-	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
-
-	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
-	{
-		return k_invalid;
-	}
-	TrackEntry* track = animationState->getTracks()[trackIndex];
-	return track->getTimeScale();
-}
+// float spine_animation_state_track_get_time_scale_unity(intptr_t animationStateHandle, int trackIndex)
+// {
+// 	CHECK_ANIMATION_STATE_RETURN(animationStateHandle, k_invalid);
+//
+// 	AnimationState* animationState = s_global_spine_animation_state_map[animationStateHandle];
+//
+// 	if (trackIndex < 0 || trackIndex >= animationState->getTracks().size())
+// 	{
+// 		return k_invalid;
+// 	}
+// 	TrackEntry* track = animationState->getTracks()[trackIndex];
+// 	return track->getTimeScale();
+// }
 
 void spine_animation_state_track_get_track_time_end_duration_unity(intptr_t animationStateHandle, int trackIndex, float* outTrackTime)
 {
@@ -777,14 +777,14 @@ void spine_skeleton_update_world_transform_unity(intptr_t skeletonHandle)
 }
 
 
-void spine_skeleton_set_scale_x_unity(intptr_t skeletonHandle, float scaleX)
-{
-	CHECK_SKELETON_RETURN(skeletonHandle, );
-
-	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
-
-	skeleton->setScaleX(scaleX);
-}
+// void spine_skeleton_set_scale_x_unity(intptr_t skeletonHandle, float scaleX)
+// {
+// 	CHECK_SKELETON_RETURN(skeletonHandle, );
+//
+// 	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+//
+// 	skeleton->setScaleX(scaleX);
+// }
 
 float spine_skeleton_get_scale_x_unity(intptr_t skeletonHandle)
 {
@@ -795,14 +795,14 @@ float spine_skeleton_get_scale_x_unity(intptr_t skeletonHandle)
 	return skeleton->getScaleX();
 }
 
-void spine_skeleton_set_scale_y_unity(intptr_t skeletonHandle, float scaleY)
-{
-	CHECK_SKELETON_RETURN(skeletonHandle, );
-
-	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
-
-	skeleton->setScaleY(scaleY);
-}
+// void spine_skeleton_set_scale_y_unity(intptr_t skeletonHandle, float scaleY)
+// {
+// 	CHECK_SKELETON_RETURN(skeletonHandle, );
+//
+// 	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHandle];
+//
+// 	skeleton->setScaleY(scaleY);
+// }
 
 float spine_skeleton_get_scale_y_unity(intptr_t skeletonHandle)
 {
@@ -952,19 +952,19 @@ void spine_slot_set_attachment_unity(intptr_t slotHandle, intptr_t attachmentHan
 	slot->setAttachment(attachment);
 }
 
-SPINE_CPP_LITE_EXPORT intptr_t spine_event_get_event_data_handle_unity(intptr_t eventHandle)
-{
-	Event* event = (Event*)eventHandle;
-	if (event == nullptr)
-	{
-		return k_invalid;
-	}
-
-	const EventData& data = event->getData();
-	
-	intptr_t dataHandle = (intptr_t)&data;
-	return dataHandle;
-}
+// SPINE_CPP_LITE_EXPORT intptr_t spine_event_get_event_data_handle_unity(intptr_t eventHandle)
+// {
+// 	Event* event = (Event*)eventHandle;
+// 	if (event == nullptr)
+// 	{
+// 		return k_invalid;
+// 	}
+//
+// 	const EventData& data = event->getData();
+//
+// 	intptr_t dataHandle = (intptr_t)&data;
+// 	return dataHandle;
+// }
 
 
 intptr_t spine_region_attachment_create_from_atlas_region_unity(intptr_t atlasHandle, const char* regionName, const char* attachmentName, float scale, float rotation)
@@ -1606,8 +1606,159 @@ void spine_mesh_generator_get_results_unity(intptr_t meshGeneratorHandle, float 
 
 }
 
+// timeline
+template <typename TimelineType, typename... Args>
+intptr_t create_timeline(Args&&... args)
+{
+	TimelineType* timeline = new TimelineType(std::forward<Args>(args)...);
+	intptr_t handle = reinterpret_cast<intptr_t>(timeline);
+	s_global_spine_timeline_map.put(handle, timeline);
+	return handle;
+}
+
+// Note: This class only to be used for get Timeline's propertyIds & frames
+class ManagedTempTimeline : public Timeline {
+public:
+	ManagedTempTimeline(size_t frameCount, size_t frameEntries, PropertyId propertyIds[], size_t propertyIdsCount)
+			: Timeline(frameCount, frameEntries) {
+		setPropertyIds(propertyIds, propertyIdsCount);
+	}
+	virtual void apply(Skeleton &skeleton, float lastTime, float time, Vector<Event *> *pEvents,
+		float alpha, MixBlend blend, MixDirection direction){}
+};
+
+intptr_t spine_timeline_create_unity(size_t frameCount, size_t frameEntries, long long* propertyIds, size_t propertyIdsCount)
+{
+	PropertyId* ids = reinterpret_cast<PropertyId*>(propertyIds);
+	auto handle = create_timeline<ManagedTempTimeline>(frameCount, frameEntries, ids, propertyIdsCount);
+	return handle;
+}
+
+intptr_t spine_curve_timeline_create_unity(size_t frameCount, size_t bezierCount, int intParam, const char* className)
+{
+    if (className == "RotateTimeline") {
+        return create_timeline<RotateTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "TranslateTimeline") {
+	    return create_timeline<TranslateTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "TranslateXTimeline") {
+        return create_timeline<TranslateXTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "TranslateYTimeline") {
+        return create_timeline<TranslateYTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "ScaleTimeline") {
+        return create_timeline<ScaleTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "ScaleXTimeline") {
+        return create_timeline<ScaleXTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "ScaleYTimeline") {
+        return create_timeline<ScaleYTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "ShearTimeline") {
+        return create_timeline<ShearTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "ShearXTimeline") {
+        return create_timeline<ShearXTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "ShearYTimeline") {
+        return create_timeline<ShearYTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "RGBATimeline") {
+        return create_timeline<RGBATimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "RGBTimeline") {
+        return create_timeline<RGBTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "AlphaTimeline") {
+        return create_timeline<AlphaTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "RGBA2Timeline") {
+        return create_timeline<RGBA2Timeline>(frameCount, bezierCount, intParam);
+    } else if (className == "RGB2Timeline") {
+        return create_timeline<RGB2Timeline>(frameCount, bezierCount, intParam);
+    } else if (className == "IkConstraintTimeline") {
+        return create_timeline<IkConstraintTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "TransformConstraintTimeline") {
+        return create_timeline<TransformConstraintTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "PathConstraintPositionTimeline") {
+        return create_timeline<PathConstraintPositionTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "PathConstraintSpacingTimeline") {
+        return create_timeline<PathConstraintSpacingTimeline>(frameCount, bezierCount, intParam);
+    } else if (className == "PathConstraintMixTimeline") {
+        return create_timeline<PathConstraintMixTimeline>(frameCount, bezierCount, intParam);
+    } else {
+        return 0;
+    }
+}
+
+intptr_t spine_attachment_timeline_create_unity(int frameCount, int slotIndex)
+{
+	return create_timeline<AttachmentTimeline>(frameCount, slotIndex);
+}
+
+void spine_timeline_destroy_unity(intptr_t timelineHandle)
+{
+	if(timelineHandle == 0) {
+		return;
+	}
+	auto* timeline = s_global_spine_timeline_map[timelineHandle];
+	s_global_spine_timeline_map.remove(timelineHandle);
+	delete timeline;
+}
+
+long long* spine_timeline_get_propertyIds(intptr_t timelineHandle) {
+	if(timelineHandle == 0) {
+		return 0;
+	}
+	auto timeline = s_global_spine_timeline_map[timelineHandle];
+	if(timeline != nullptr) {
+		return timeline->getPropertyIds().buffer();
+	}
+	return 0;
+}
+
+float* spine_timeline_get_frames(intptr_t timelineHandle) {
+	if(timelineHandle == 0) {
+		return nullptr;
+	}
+	auto timeline = s_global_spine_timeline_map[timelineHandle];
+	if (timeline != nullptr) {
+		return timeline->getFrames().buffer();
+	}
+	return nullptr;
+}
+void spine_timeline_set_frame(intptr_t timelineHandle, int index, float value) {
+	if(timelineHandle == 0) {
+		return;
+	}
+	auto timeline = s_global_spine_timeline_map[timelineHandle];
+	if(timeline != nullptr) {
+		auto frames = timeline->getFrames();
+		if(frames.size() > index) {
+			frames[index] = value;
+		}
+	}
+}
 
 
+int spine_attachment_timeline_get_slotIndex(intptr_t timelineHandle) {
+	if(timelineHandle == 0) {
+		return 0;
+	}
+	auto attachmentTimeline = dynamic_cast<AttachmentTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	return attachmentTimeline->getSlotIndex();
+}
+
+const char* spine_attachment_timeline_get_attachmentName(intptr_t timelineHandle, int frame) {
+	if(timelineHandle == 0) {
+		return nullptr;
+	}
+	auto attachmentTimeline = dynamic_cast<AttachmentTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	return attachmentTimeline->getAttachmentNames()[frame].buffer();
+}
+
+void spine_attachment_timeline_set_attachmentName(intptr_t timelineHandle, int frame, const char* value) {
+	if(timelineHandle == 0) {
+		return;
+	}
+	auto attachmentTimeline = dynamic_cast<AttachmentTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	if(attachmentTimeline != nullptr) {
+		auto attachmentNames = attachmentTimeline->getAttachmentNames();
+		if(attachmentNames.size() > frame) {
+			attachmentNames[frame] = value;
+		}
+	}
+}
 
 
 
