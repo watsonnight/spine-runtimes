@@ -174,18 +174,34 @@ SPINE_CPP_LITE_EXPORT void spine_mesh_generator_update_multiple_data_unity(intpt
 
 
 // Timeline
+SPINE_CPP_LITE_EXPORT intptr_t spine_get_timelinehandle_by_index(intptr_t skeletonHandle, int animationindex, int timelineindex);
 SPINE_CPP_LITE_EXPORT void spine_timeline_destroy_unity(intptr_t timelineHandle);
-SPINE_CPP_LITE_EXPORT long long* spine_timeline_get_propertyIds(intptr_t timelineHandle);
-SPINE_CPP_LITE_EXPORT float* spine_timeline_get_frames(intptr_t timelineHandle);
+SPINE_CPP_LITE_EXPORT long long* spine_timeline_get_propertyIds(intptr_t timelineHandle,int* length);
+SPINE_CPP_LITE_EXPORT float* spine_timeline_get_frames(intptr_t timelineHandle, int* length);
 SPINE_CPP_LITE_EXPORT void spine_timeline_set_frame(intptr_t timelineHandle, int index, float value);
 
+//CurveTimeline Curve[]
+SPINE_CPP_LITE_EXPORT float* spine_timeline_get_curves(intptr_t timelineHandle, int* length);
+SPINE_CPP_LITE_EXPORT  void set_liner(intptr_t timelineHandle, int frame);
+SPINE_CPP_LITE_EXPORT  void set_stepped(intptr_t timelineHandle, int frame);
+SPINE_CPP_LITE_EXPORT  float get_curve_type(intptr_t timelineHandle, int frame);
+SPINE_CPP_LITE_EXPORT void set_bezier(intptr_t timelineHandle, int bezier, int frame, int value, float time1, float value1, float cx1, float cy1, float cx2,
+    float cy2, float time2, float value2);
+SPINE_CPP_LITE_EXPORT float get_bezier_value(intptr_t timelineHandle, float time, int frameIndex, int valueOffset, int i);
+SPINE_CPP_LITE_EXPORT void  shrink(intptr_t timelineHandle, int size);
+
+//SPINE_CPP_LITE_EXPORT intptr_t spine_deform_timeline_create_unity(int frameCount, int bezierCount, int slotIndex, int attachmentpid);
+
 // AttachmentTimeline
-SPINE_CPP_LITE_EXPORT int spine_attachment_timeline_get_slotIndex(intptr_t timelineHandle);
+SPINE_CPP_LITE_EXPORT int spine_timeline_get_slotIndex(intptr_t timelineHandle);
 SPINE_CPP_LITE_EXPORT const char* spine_attachment_timeline_get_attachmentName(intptr_t timelineHandle, int frame);
 SPINE_CPP_LITE_EXPORT void spine_attachment_timeline_set_attachmentName(intptr_t timelineHandle, int frame, const char* value);
+SPINE_CPP_LITE_EXPORT int spine_timeline_get_boneIndex(intptr_t timelineHandle);
+//SPINE_CPP_LITE_EXPORT int spine_timeline_get_boneIndex(intptr_t timelineHandle);
+
 
 // Create Timeline
-SPINE_CPP_LITE_EXPORT intptr_t spine_timeline_create_unity(size_t frameCount, size_t frameEntries, long long* propertyIds, int propertyIdsCount);
-SPINE_CPP_LITE_EXPORT intptr_t spine_curve_timeline_create_unity(size_t frameCount, size_t bezierCount, int intParam, const char* className);
-SPINE_CPP_LITE_EXPORT intptr_t spine_attachment_timeline_create_unity(int frameCount, int slotIndex);
+//SPINE_CPP_LITE_EXPORT intptr_t spine_timeline_create_unity(size_t frameCount, size_t frameEntries, long long* propertyIds, size_t propertyIdsCount);
+//SPINE_CPP_LITE_EXPORT intptr_t spine_curve_timeline_create_unity(size_t frameCount, size_t bezierCount, int intParam, const char* className);
+//SPINE_CPP_LITE_EXPORT intptr_t spine_attachment_timeline_create_unity(int frameCount, int slotIndex);
 #endif

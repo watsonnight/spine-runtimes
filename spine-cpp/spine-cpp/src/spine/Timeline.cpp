@@ -47,6 +47,16 @@ namespace spine {
 		return _propertyIds;
 	}
 
+	int Timeline::getSlotIndex()
+	{
+		return 0;
+	}
+
+	int Timeline::getBoneIndex()
+	{
+		return 0;
+	}
+
 	void Timeline::setPropertyIds(PropertyId propertyIds[], size_t propertyIdsCount) {
 		_propertyIds.clear();
 		_propertyIds.ensureCapacity(propertyIdsCount);

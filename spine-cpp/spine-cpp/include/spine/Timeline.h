@@ -74,6 +74,10 @@ namespace spine {
 
 		virtual Vector <PropertyId> &getPropertyIds();
 
+		virtual int getSlotIndex();
+
+		virtual int getBoneIndex();
+
 	protected:
 		void setPropertyIds(PropertyId propertyIds[], size_t propertyIdsCount);
 
