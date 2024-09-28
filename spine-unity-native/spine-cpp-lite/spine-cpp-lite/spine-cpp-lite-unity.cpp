@@ -49,7 +49,7 @@ static HashMap<intptr_t, AnimationStateData*> s_global_spine_animation_state_dat
 
 static HashMap<intptr_t, Animation*> s_global_spine_animation_map;
 
-static HashMap<intptr_t, Timeline*> s_global_spine_timeline_map;
+//static HashMap<intptr_t, Timeline*> s_global_spine_timeline_map;
 
 static HashMap<intptr_t, SkeletonData*> s_global_spine_skeleton_data_map;
 
@@ -375,7 +375,6 @@ void spine_bone_dispose_local_unity(intptr_t boneHandle)
 	//myadd
 	Bone* b = s_local_spine_bone_map[boneHandle];
 	s_local_spine_bone_map.remove(boneHandle);
-	delete b;
 }
 
 
@@ -957,7 +956,7 @@ void spine_slot_dispose_local_unity(intptr_t slotHandle)
 		//myadd
 		Slot* s = s_local_spine_slot_map[slotHandle];
 		s_local_spine_slot_map.remove(slotHandle);
-		delete s;
+		//delete s;
 	}
 }
 
@@ -1630,7 +1629,7 @@ void spine_mesh_generator_get_results_unity(intptr_t meshGeneratorHandle, float 
 
 // timeline
 
-intptr_t spine_get_timelinehandle_by_index(intptr_t skeletonHandle, int animationindex, int timelineindex)
+intptr_t spine_timeline_create_unity(intptr_t skeletonHandle, int animationindex, int timelineindex)
 {
 	if (skeletonHandle == 0 || animationindex < 0 || timelineindex < 0) {
 		return 0;
@@ -1651,140 +1650,17 @@ intptr_t spine_get_timelinehandle_by_index(intptr_t skeletonHandle, int animatio
 	//have to  put into map? 
 	intptr_t timelinehandle = reinterpret_cast<intptr_t>(timeline);
 
-	s_global_spine_timeline_map.put(timelinehandle, timeline);
+	//s_global_spine_timeline_map.put(timelinehandle, timeline);
 
 	return timelinehandle;
 }
 
-
-
-
-
-
-
-//template <typename TimelineType, typename... Args>
-//intptr_t create_timeline(Args&&... args)
-//{
-//	//TimelineType* timeline = new TimelineType(std::forward<Args>(args)...);
-//	intptr_t handle = reinterpret_cast<intptr_t>(timeline);
-//	if (handle == 0) {
-//		auto name = typeid(TimelineType).name();
-//		int a = 0;
-//		int b = 0;
-//	}
-//	s_global_spine_timeline_map.put(handle, timeline);
-//	return handle;
-//}
-//
-//// Note: This class only to be used for get Timeline's propertyIds & frames
-//class ManagedTempTimeline : public Timeline {
-//public:
-//	ManagedTempTimeline(size_t frameCount, size_t frameEntries, PropertyId propertyIds[], size_t propertyIdsCount)
-//			: Timeline(frameCount, frameEntries) {
-//		setPropertyIds(propertyIds, propertyIdsCount);
-//	}
-//	virtual void apply(Skeleton &skeleton, float lastTime, float time, Vector<Event *> *pEvents,
-//		float alpha, MixBlend blend, MixDirection direction){}
-//};
-//
-//
-////for deform creation
-//class ManagedCurveTimeline : public CurveTimeline {
-//public:
-//	ManagedCurveTimeline(size_t frameCount, size_t bezierCount, size_t slotIndex, size_t attachmentpid)
-//		: CurveTimeline(frameCount, 1, bezierCount) {
-//
-//		PropertyId ids[] = { ((PropertyId)Property_Deform << 32) | ((slotIndex << 16 | attachmentpid) & 0xffffffff) };
-//		setPropertyIds(ids, 1);
-//		
-//	}
-//	virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents,
-//		float alpha, MixBlend blend, MixDirection direction) {}
-//};
-//
-//intptr_t spine_timeline_create_unity(size_t frameCount, size_t frameEntries, long long* propertyIds, size_t propertyIdsCount)
-//{
-//	PropertyId* ids = reinterpret_cast<PropertyId*>(propertyIds);
-//	auto handle = create_timeline<ManagedTempTimeline>(frameCount, frameEntries, ids, propertyIdsCount);
-//	return handle;
-//}
-//
-//intptr_t spine_curve_timeline_create_unity(size_t frameCount, size_t bezierCount, int intParam,const char* className)
-//{
-//	std::string tmp = className;
-//	/*const char* address = className;
-//	bool x = className == "TranslateTimeline";
-//	bool y = tmp == "TranslateTimeline";
-//	bool z = strcmp(className, "TranslateTimeline");*/
-//
-//    if (tmp == "RotateTimeline") {
-//        return create_timeline<RotateTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "TranslateTimeline") {
-//	    return create_timeline<TranslateTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "TranslateXTimeline") {
-//        return create_timeline<TranslateXTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "TranslateYTimeline") {
-//        return create_timeline<TranslateYTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "ScaleTimeline") {
-//        return create_timeline<ScaleTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "ScaleXTimeline") {
-//        return create_timeline<ScaleXTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "ScaleYTimeline") {
-//        return create_timeline<ScaleYTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "ShearTimeline") {
-//        return create_timeline<ShearTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "ShearXTimeline") {
-//        return create_timeline<ShearXTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "ShearYTimeline") {
-//        return create_timeline<ShearYTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "RGBATimeline") {
-//        return create_timeline<RGBATimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "RGBTimeline") {
-//        return create_timeline<RGBTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "AlphaTimeline") {
-//        return create_timeline<AlphaTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "RGBA2Timeline") {
-//        return create_timeline<RGBA2Timeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "RGB2Timeline") {
-//        return create_timeline<RGB2Timeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "IkConstraintTimeline") {
-//        return create_timeline<IkConstraintTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "TransformConstraintTimeline") {
-//        return create_timeline<TransformConstraintTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "PathConstraintPositionTimeline") {
-//        return create_timeline<PathConstraintPositionTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "PathConstraintSpacingTimeline") {
-//        return create_timeline<PathConstraintSpacingTimeline>(frameCount, bezierCount, intParam);
-//    } else if (tmp == "PathConstraintMixTimeline") {
-//        return create_timeline<PathConstraintMixTimeline>(frameCount, bezierCount, intParam);
-//    } else {
-//        return 0;
-//    }
-//}
-//
-//intptr_t spine_attachment_timeline_create_unity(int frameCount, int slotIndex)
-//{
-//	return create_timeline<AttachmentTimeline>(frameCount, slotIndex);
-//}
-//
-////size_t frameCount, size_t bezierCount, int slotIndex, VertexAttachment *attachment
-//intptr_t spine_deform_timeline_create_unity(int frameCount,int bezierCount,int slotIndex, int attachmentpid)
-//{
-//	//VertexAttachment* attachment = new VertexAttachment(name);
-//	//VertexAttachment* attachment = reinterpret_cast<VertexAttachment*>(attachmentptr);
-//	//return new DeformTimeline
-//	//return create_timeline<DeformTimeline>(frameCount, bezierCount,slotIndex, attachment);
-//	return create_timeline<ManagedCurveTimeline>(frameCount, bezierCount, slotIndex,attachmentpid);
-//}
 
 void spine_timeline_destroy_unity(intptr_t timelineHandle)
 {
 	if(timelineHandle == 0) {
 		return;
 	}
-	auto* timeline = s_global_spine_timeline_map[timelineHandle];
-	s_global_spine_timeline_map.remove(timelineHandle);
-	delete timeline;
 }
 
 //long long* spine_timeline_get_propertyIds(intptr_t timelineHandle) {
@@ -1802,7 +1678,10 @@ long long* spine_timeline_get_propertyIds(intptr_t timelineHandle, int* length) 
 	if (timelineHandle == 0) {
 		return 0;
 	}
-	auto timeline = s_global_spine_timeline_map[timelineHandle];
+
+	// TODO: use hashmap
+	Timeline* timeline = reinterpret_cast<Timeline*>(timelineHandle);
+	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if (timeline != nullptr) {
 		*length = timeline->getPropertyIds().size();
 		return timeline->getPropertyIds().buffer();
@@ -1814,7 +1693,8 @@ float* spine_timeline_get_frames(intptr_t timelineHandle, int* length) {
 	if(timelineHandle == 0) {
 		return 0;
 	}
-	auto timeline = s_global_spine_timeline_map[timelineHandle];
+	Timeline* timeline = reinterpret_cast<Timeline*>(timelineHandle);
+	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if (timeline != nullptr) {
 		*length = timeline->getFrames().size();
 		return timeline->getFrames().buffer();
@@ -1828,7 +1708,8 @@ void spine_timeline_set_frame(intptr_t timelineHandle, int index, float value) {
 	if(timelineHandle == 0) {
 		return;
 	}
-	auto timeline = s_global_spine_timeline_map[timelineHandle];
+	Timeline* timeline = reinterpret_cast<Timeline*>(timelineHandle);
+	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if(timeline != nullptr) {
 		auto frames = timeline->getFrames();
 		if(frames.size() > index) {
@@ -1842,7 +1723,7 @@ float* spine_timeline_get_curves(intptr_t timelineHandle, int* length)
 	if (timelineHandle == 0) {
 		return 0;
 	}
-	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(timelineHandle);
 	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if (timeline != nullptr) {
 		
@@ -1856,7 +1737,7 @@ float* spine_timeline_get_curves(intptr_t timelineHandle, int* length)
 
 void set_stepped(intptr_t timelineHandle, int frame)
 {
-	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(timelineHandle);
 	if (timelineHandle != 0 && frame >= 0 && frame < timeline->getCurves().size()) {
 		timeline->setStepped(frame);		
 	}
@@ -1865,7 +1746,7 @@ void set_stepped(intptr_t timelineHandle, int frame)
 
 void set_liner(intptr_t timelineHandle, int frame)
 {
-	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(timelineHandle);
 	if (timelineHandle != 0 && frame >= 0 && frame < timeline->getCurves().size()) {
 		timeline->setLinear(frame);
 	}
@@ -1877,7 +1758,7 @@ float get_curve_type(intptr_t timelineHandle, int frame)
 	if (timelineHandle == 0) {
 		return 0;
 	}
-	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(timelineHandle);
 	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if (timeline != nullptr) {
 
@@ -1893,7 +1774,7 @@ void  shrink(intptr_t timelineHandle, int size)
 	if (timelineHandle == 0) {
 		return;
 	}
-	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(timelineHandle);
 	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if (timeline != nullptr) {
 		if (timeline->getCurves().size() > size)
@@ -1912,7 +1793,7 @@ void set_bezier(intptr_t timelineHandle, int bezier, int frame, int value, float
 	if (timelineHandle == 0) {
 		return ;
 	}
-	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(timelineHandle);
 	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if (timeline != nullptr) {
 		 timeline->setBezier(bezier, frame, value, time1, value1, cx1, cy1, cx2, cy2, time2, value2);
@@ -1925,7 +1806,7 @@ float get_bezier_value(intptr_t timelineHandle, float time, int frameIndex, int 
 	if (timelineHandle == 0) {
 		return 0;
 	}
-	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	CurveTimeline* timeline = reinterpret_cast<CurveTimeline*>(timelineHandle);
 	//auto timeline = s_global_spine_timeline_map[timelineHandle];
 	if (timeline != nullptr) {
 		return timeline->getBezierValue(time, frameIndex, valueOffset, i);
@@ -1939,7 +1820,7 @@ int spine_timeline_get_slotIndex(intptr_t timelineHandle) {
 	if(timelineHandle == 0) {
 		return 0;
 	}
-	auto timeline = dynamic_cast<Timeline*>(s_global_spine_timeline_map[timelineHandle]);
+	auto timeline = reinterpret_cast<Timeline*>(timelineHandle);
 	return timeline->getSlotIndex();
 }
 
@@ -1948,7 +1829,7 @@ int spine_timeline_get_boneIndex(intptr_t timelineHandle)
 	if (timelineHandle == 0) {
 		return 0;
 	}
-	auto timeline = dynamic_cast<Timeline*>(s_global_spine_timeline_map[timelineHandle]);
+	auto timeline = reinterpret_cast<Timeline*>(timelineHandle);
 	return timeline->getBoneIndex();
 }
 
@@ -1973,7 +1854,7 @@ const char* spine_attachment_timeline_get_attachmentName(intptr_t timelineHandle
 	if(timelineHandle == 0) {
 		return nullptr;
 	}
-	auto attachmentTimeline = dynamic_cast<AttachmentTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	auto attachmentTimeline = reinterpret_cast<AttachmentTimeline*>(timelineHandle);
 	return attachmentTimeline->getAttachmentNames()[frame].buffer();
 }
 
@@ -1981,7 +1862,7 @@ void spine_attachment_timeline_set_attachmentName(intptr_t timelineHandle, int f
 	if(timelineHandle == 0) {
 		return;
 	}
-	auto attachmentTimeline = dynamic_cast<AttachmentTimeline*>(s_global_spine_timeline_map[timelineHandle]);
+	auto attachmentTimeline = reinterpret_cast<AttachmentTimeline*>(timelineHandle);
 	if(attachmentTimeline != nullptr) {
 		auto attachmentNames = attachmentTimeline->getAttachmentNames();
 		if(attachmentNames.size() > frame) {

@@ -174,7 +174,7 @@ SPINE_CPP_LITE_EXPORT void spine_mesh_generator_update_multiple_data_unity(intpt
 
 
 // Timeline
-SPINE_CPP_LITE_EXPORT intptr_t spine_get_timelinehandle_by_index(intptr_t skeletonHandle, int animationindex, int timelineindex);
+SPINE_CPP_LITE_EXPORT intptr_t spine_timeline_create_unity(intptr_t skeletonHandle, int animationindex, int timelineindex);
 SPINE_CPP_LITE_EXPORT void spine_timeline_destroy_unity(intptr_t timelineHandle);
 SPINE_CPP_LITE_EXPORT long long* spine_timeline_get_propertyIds(intptr_t timelineHandle,int* length);
 SPINE_CPP_LITE_EXPORT float* spine_timeline_get_frames(intptr_t timelineHandle, int* length);
