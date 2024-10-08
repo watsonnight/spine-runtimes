@@ -1639,7 +1639,6 @@ float* outVertex, float* outUv, UInt32* outColor, float[] outBounds, int[] outTr
 			int[] submeshVertexCount = new int[submeshCount];
 			int[] outRegionSlotIndex = new int[submeshCount];
 
-
 			spine_mesh_generator_generate_multiple_instruction_results_unity(skeleton.skeletonHandle, meshGeneratorHandle, outRegionHashCode, endSlotIndex, submeshTriangleCount, submeshVertexCount, outRegionSlotIndex);
 
 

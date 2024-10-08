@@ -71,7 +71,7 @@ namespace Spine {
 			}
 		}
 
-		public abstract SkeletonData ReadSkeletonData (string path);
+		public abstract SkeletonData ReadSkeletonData (string path, IntPtr sklhandle);
 
 		protected class LinkedMesh {
 			internal string parent, skin;

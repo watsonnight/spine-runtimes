@@ -30,6 +30,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace Spine {
 
@@ -38,7 +39,7 @@ namespace Spine {
 	public class Animation {
 		internal String name;
 		internal ExposedList<Timeline> timelines;
-		internal HashSet<string> timelineIds;
+		//internal HashSet<string> timelineIds;
 		internal float duration;
 
 
@@ -62,19 +63,19 @@ namespace Spine {
 			this.timelines = timelines;
 			// Note: avoiding reallocations by adding all hash set entries at
 			// once (EnsureCapacity() is only available in newer .Net versions).
-			int idCount = 0;
-			int timelinesCount = timelines.Count;
-			Timeline[] timelinesItems = timelines.Items;
-			for (int t = 0; t < timelinesCount; ++t)
-				idCount += timelinesItems[t].PropertyIds.Length;
-			string[] propertyIds = new string[idCount];
-			int currentId = 0;
-			for (int t = 0; t < timelinesCount; ++t) {
-				string[] ids = timelinesItems[t].PropertyIds;
-				for (int i = 0, idsLength = ids.Length; i < idsLength; ++i)
-					propertyIds[currentId++] = ids[i];
-			}
-			this.timelineIds = new HashSet<string>(propertyIds);
+			//int idCount = 0;
+			//int timelinesCount = timelines.Count;
+			//Timeline[] timelinesItems = timelines.Items;
+			//for (int t = 0; t < timelinesCount; ++t)
+			//	idCount += timelinesItems[t].PropertyIds.Length;
+			//string[] propertyIds = new string[idCount];
+			//int currentId = 0;
+			//for (int t = 0; t < timelinesCount; ++t) {
+			//	string[] ids = timelinesItems[t].PropertyIds;
+			//	for (int i = 0, idsLength = ids.Length; i < idsLength; ++i)
+			//		propertyIds[currentId++] = ids[i];
+			//}
+			//this.timelineIds = new HashSet<string>(propertyIds);
 		}
 
 		/// <summary>The duration of the animation in seconds, which is usually the highest time of all frames in the timeline. The duration is
@@ -85,11 +86,11 @@ namespace Spine {
 		public string Name { get { return name; } }
 
 		/// <summary>Returns true if this animation contains a timeline with any of the specified property IDs.</summary>
-		public bool HasTimeline (string[] propertyIds) {
-			foreach (string id in propertyIds)
-				if (timelineIds.Contains(id)) return true;
-			return false;
-		}
+		//public bool HasTimeline (string[] propertyIds) {
+		//	foreach (string id in propertyIds)
+		//		if (timelineIds.Contains(id)) return true;
+		//	return false;
+		//}
 
         /// <summary>Applies the animation's timelines to the specified skeleton.</summary>
         /// <seealso cref="Timeline.Apply(Skeleton, float, float, ExposedList, float, MixBlend, MixDirection)"/>
@@ -126,15 +127,15 @@ namespace Spine {
 			// below codes may can be removed?
 
 
-			if (loop && duration != 0)
-			{
-				time %= duration;
-				if (lastTime > 0) lastTime %= duration;
-			}
+			//if (loop && duration != 0)
+			//{
+			//	time %= duration;
+			//	if (lastTime > 0) lastTime %= duration;
+			//}
 
-			Timeline[] timelines = this.timelines.Items;
-			for (int i = 0, n = this.timelines.Count; i < n; i++)
-				timelines[i].Apply(skeleton, lastTime, time, events, alpha, blend, direction);
+			//Timeline[] timelines = this.timelines.Items;
+			//for (int i = 0, n = this.timelines.Count; i < n; i++)
+			//	timelines[i].Apply(skeleton, lastTime, time, events, alpha, blend, direction);
 		}
 
 		override public string ToString () {
@@ -205,20 +206,98 @@ namespace Spine {
 	/// <summary>
 	/// The base class for all timelines.</summary>
 	public abstract class Timeline {
-		private readonly string[] propertyIds;
-		internal readonly float[] frames;
-
-		/// <param name="propertyIds">Unique identifiers for the properties the timeline modifies.</param>
-		public Timeline (int frameCount, params string[] propertyIds) {
-			if (propertyIds == null) throw new System.ArgumentNullException("propertyIds", "propertyIds cannot be null.");
-			this.propertyIds = propertyIds;
-			frames = new float[frameCount * FrameEntries];
+		
+		public IntPtr timelineHandle = IntPtr.Zero;
+		
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern IntPtr spine_timeline_create_unity(IntPtr skeletonHandle,int animationIndex,int timelineIndex);
+		protected void CreateTimeLine(IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+		{
+			timelineHandle = spine_timeline_create_unity(skeletonHandle, animationIndex, timelineIndex);
+			if (timelineHandle.ToInt32() == 0)
+			{
+				Debug.Log(this.GetType().Name);
+			}
 		}
+		
+		// private readonly string[] propertyIds;
+		//[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		//static extern long[] spine_timeline_get_propertyIds(IntPtr timelineHandle);
+		//private long ManagedToNativePropertyId(string managed)
+		//{
+		//	string[] elements = managed.Split('|');
+		//	if(elements.Length != 2)
+		//		throw new System.ArgumentException("propertyId must be in the format 'int|int'");
+		//	return long.Parse(elements[0]) << 32 | long.Parse(elements[1]);
+		//}
+		//private string NativeToManagedPropertyId(long native)
+		//{
+		//	return (native >> 32).ToString() + "|" + (native & 0xFFFFFFFF).ToString();
+		//}
+		//private long[] ManagedToNativePropertyIds(string[] managed)
+		//{
+		//	long[] native = new long[managed.Length];
+		//	for(int i=0;i<managed.Length;i++)
+		//		native[i] = ManagedToNativePropertyId(managed[i]);
+		//	return native;
+		//}
+		//private string[] NativeToManagedPropertyIds(long[] native)
+		//{
+		//	string[] managed = new string[native.Length];
+		//	for(int i=0;i<native.Length;i++)
+		//		managed[i] = NativeToManagedPropertyId(native[i]);
+		//	return managed;
+		//}
+		//private string[] propertyIds { get => NativeToManagedPropertyIds(spine_timeline_get_propertyIds(timelineHandle)); }
+		
+		
+		// internal readonly float[] frames;
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern IntPtr spine_timeline_get_frames(IntPtr timelineHandle,out int length);
+
+
+		private float[] frames
+		{
+			get
+			{
+				if(timelineHandle == IntPtr.Zero && timelineHandle.ToInt32() == 0)
+					Debug.LogError("ERROR:" + GetType().Name);
+
+				int length = 0;
+				IntPtr ptr = spine_timeline_get_frames(timelineHandle, out length);
+                float[] Array = new float[length];
+                Marshal.Copy(ptr, Array, 0, length);
+
+                return Array;
+			}
+			
+		}
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_timeline_set_frame(IntPtr timelineHandle, int index, float value);
+		public void SetFrame (int frame, float time) {
+			spine_timeline_set_frame(timelineHandle, frame, time);
+		}
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_timeline_init_frames(IntPtr timelineHandle, float count);
+		
+		
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_timeline_destroy_unity(IntPtr timelineHandle);
+		protected virtual void ReleaseHandle()
+		{
+			if (timelineHandle != IntPtr.Zero)
+			{
+				spine_timeline_destroy_unity(timelineHandle);
+				timelineHandle = IntPtr.Zero;
+			}
+		}
+		
 
 		/// <summary>Uniquely encodes both the type of this timeline and the skeleton properties that it affects.</summary>
-		public string[] PropertyIds {
-			get { return propertyIds; }
-		}
+		//public string[] PropertyIds {
+		//	get { return propertyIds; }
+		//}
 
 		/// <summary>The time in seconds and any other values for each frame.</summary>
 		public float[] Frames {
@@ -298,18 +377,53 @@ namespace Spine {
 
 	/// <summary>The base class for timelines that interpolate between frame values using stepped, linear, or a Bezier curve.</summary>
 	public abstract class CurveTimeline : Timeline {
+
 		public const int LINEAR = 0, STEPPED = 1, BEZIER = 2, BEZIER_SIZE = 18;
 
-		internal float[] curves;
-		/// <summary>The number of key frames for this timeline.</summary>
+        //internal float[] curves;
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern IntPtr spine_timeline_get_curves(IntPtr timelineHandle, out int length);
+        protected float[] curves
+        {
+            get
+            {
+                if (timelineHandle == IntPtr.Zero && timelineHandle.ToInt32() == 0)
+                    Debug.LogError("ERROR:" + GetType().Name);
 
-		/// <param name="bezierCount">The maximum number of Bezier curves. See <see cref="Shrink(int)"/>.</param>
-		/// <param name="propertyIds">Unique identifiers for the properties the timeline modifies.</param>
-		public CurveTimeline (int frameCount, int bezierCount, params string[] propertyIds)
-			: base(frameCount, propertyIds) {
-			curves = new float[frameCount + bezierCount * BEZIER_SIZE];
-			curves[frameCount - 1] = STEPPED;
-		}
+                int length = 0;
+                IntPtr ptr = spine_timeline_get_curves(timelineHandle, out length);
+                float[] Array = new float[length];
+                Marshal.Copy(ptr, Array, 0, length);
+
+                return Array;
+            }
+			set
+			{
+
+			}
+
+        }
+
+        /// <summary>The number of key frames for this timeline.</summary>
+
+        //      [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        //static extern IntPtr spine_curve_timeline_create_unity(int frameCount, int bezierCount, int boneIndex, string className);
+        //protected void CreateCurveTimeline(int frameCount, int bezierCount, int boneIndex, string className)
+        //{
+        //	Debug.Log(className);
+        //	timelineHandle = spine_curve_timeline_create_unity(frameCount, bezierCount, boneIndex, className);
+        //	if (timelineHandle == IntPtr.Zero && timelineHandle.ToInt32() == 0)
+        //	{
+        //		Debug.Log(this.GetType().Name);
+        //	}
+    
+		// /// <param name="bezierCount">The maximum number of Bezier curves. See <see cref="Shrink(int)"/>.</param>
+		// /// <param name="propertyIds">Unique identifiers for the properties the timeline modifies.</param>
+		// public CurveTimeline (int frameCount, int bezierCount, params string[] propertyIds)
+		// 	: base(frameCount, propertyIds) {
+		// 	curves = new float[frameCount + bezierCount * BEZIER_SIZE];
+		// 	curves[frameCount - 1] = STEPPED;
+		// }
 
 		/// <summary>Sets the specified frame to linear interpolation.</summary>
 		/// <param name="frame">Between 0 and <code>frameCount - 1</code>, inclusive.</param>
@@ -332,14 +446,14 @@ namespace Spine {
 
 		/// <summary>Shrinks the storage for Bezier curves, for use when <code>bezierCount</code> (specified in the constructor) was larger
 		/// than the actual number of Bezier curves.</summary>
-		public void Shrink (int bezierCount) {
-			int size = FrameCount + bezierCount * BEZIER_SIZE;
-			if (curves.Length > size) {
-				float[] newCurves = new float[size];
-				Array.Copy(curves, 0, newCurves, 0, size);
-				curves = newCurves;
-			}
-		}
+		//public void Shrink (int bezierCount) {
+		//	int size = FrameCount + bezierCount * BEZIER_SIZE;
+		//	if (curves.Length > size) {
+		//		float[] newCurves = new float[size];
+		//		Array.Copy(curves, 0, newCurves, 0, size);
+		//		curves = newCurves;
+		//	}
+		//}
 
 		/// <summary>
 		/// Stores the segments for the specified Bezier curve. For timelines that modify multiple values, there may be more than
@@ -387,7 +501,7 @@ namespace Spine {
 		public float GetBezierValue (float time, int frameIndex, int valueOffset, int i) {
 			float[] curves = this.curves;
 			if (curves[i] > time) {
-				float x = frames[frameIndex], y = frames[frameIndex + valueOffset];
+				float x = Frames[frameIndex], y = Frames[frameIndex + valueOffset];
 				return y + (time - x) / (curves[i] - x) * (curves[i + 1] - y);
 			}
 			int n = i + BEZIER_SIZE;
@@ -400,7 +514,7 @@ namespace Spine {
 			frameIndex += FrameEntries;
 			{ // scope added to prevent compile error "float x and y declared in enclosing scope"
 				float x = curves[n - 2], y = curves[n - 1];
-				return y + (time - x) / (frames[frameIndex] - x) * (frames[frameIndex + valueOffset] - y);
+				return y + (time - x) / (Frames[frameIndex] - x) * (Frames[frameIndex + valueOffset] - y);
 			}
 		}
 	}
@@ -409,12 +523,12 @@ namespace Spine {
 	public abstract class CurveTimeline1 : CurveTimeline {
 		public const int ENTRIES = 2;
 		internal const int VALUE = 1;
-
+		
 		/// <param name="bezierCount">The maximum number of Bezier curves. See <see cref="Shrink(int)"/>.</param>
 		/// <param name="propertyIds">Unique identifiers for the properties the timeline modifies.</param>
-		public CurveTimeline1 (int frameCount, int bezierCount, string propertyId)
-			: base(frameCount, bezierCount, propertyId) {
-		}
+		// public CurveTimeline1 (int frameCount, int bezierCount, string propertyId)
+		// 	: base(frameCount, bezierCount, propertyId) {
+		// }
 
 		public override int FrameEntries {
 			get { return ENTRIES; }
@@ -425,13 +539,13 @@ namespace Spine {
 		/// <param name="time">The frame time in seconds</param>
 		public void SetFrame (int frame, float time, float value) {
 			frame <<= 1;
-			frames[frame] = time;
-			frames[frame + VALUE] = value;
+			SetFrame(frame, time);
+			SetFrame(frame + VALUE, value);
 		}
 
 		/// <summary>Returns the interpolated value for the specified time.</summary>
 		public float GetCurveValue (float time) {
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			int i = frames.Length - 2;
 			for (int ii = 2; ii <= i; ii += 2) {
 				if (frames[ii] > time) {
@@ -459,9 +573,9 @@ namespace Spine {
 
 		/// <param name="bezierCount">The maximum number of Bezier curves. See <see cref="Shrink(int)"/>.</param>
 		/// <param name="propertyIds">Unique identifiers for the properties the timeline modifies.</param>
-		public CurveTimeline2 (int frameCount, int bezierCount, string propertyId1, string propertyId2)
-			: base(frameCount, bezierCount, propertyId1, propertyId2) {
-		}
+		// public CurveTimeline2 (int frameCount, int bezierCount, string propertyId1, string propertyId2)
+		// 	: base(frameCount, bezierCount, propertyId1, propertyId2) {
+		// }
 
 		public override int FrameEntries {
 			get { return ENTRIES; }
@@ -472,33 +586,44 @@ namespace Spine {
 		/// <param name="time">The frame time in seconds.</param>
 		public void SetFrame (int frame, float time, float value1, float value2) {
 			frame *= ENTRIES;
-			frames[frame] = time;
-			frames[frame + VALUE1] = value1;
-			frames[frame + VALUE2] = value2;
+			SetFrame(frame,time);
+			SetFrame(frame + VALUE1,value1);
+			SetFrame(frame + VALUE2,value2);
 		}
 	}
 
 	/// <summary>Changes a bone's local <see cref="Bone.Rotation"/>.</summary>
 	public class RotateTimeline : CurveTimeline1, IBoneTimeline {
-		readonly int boneIndex;
-
-		public RotateTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, (int)Property.Rotate + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		
+		//readonly int boneIndex;
+		
+		public RotateTimeline (int frameCount, int bezierCount, int boneIndex,IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+			// : base(frameCount, bezierCount, (int)Property.Rotate + "|" + boneIndex) {
+			CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+			//this.boneIndex = boneIndex;
+		}
+		
+		~RotateTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex {
 			get {
-				return boneIndex;
+				return spine_timeline_get_boneIndex(timelineHandle);
 			}
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			if (time < frames[0]) { // Time is before first frame.
+			if (time < Frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
 					bone.rotation = bone.data.rotation;
@@ -528,27 +653,41 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref"Bone.X"/> and <see cref"Bone.Y"/>.</summary>
 	public class TranslateTimeline : CurveTimeline2, IBoneTimeline {
-		readonly int boneIndex;
+		
+	    //readonly int boneIndex;
 
-		public TranslateTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, //
-				(int)Property.X + "|" + boneIndex, //
-				(int)Property.Y + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+
+		public TranslateTimeline (int frameCount, int bezierCount, int boneIndex,IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, //
+            // 	(int)Property.X + "|" + boneIndex, //
+            // 	(int)Property.Y + "|" + boneIndex) {
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.boneIndex = boneIndex;
+		}
+		
+		~TranslateTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -584,19 +723,19 @@ namespace Spine {
 		}
 
 		public void GetCurveValue (out float x, out float y, float time) {
-			int i = Search(frames, time, ENTRIES), curveType = (int)curves[i / ENTRIES];
+			int i = Search(Frames, time, ENTRIES), curveType = (int)curves[i / ENTRIES];
 			switch (curveType) {
 			case LINEAR:
-				float before = frames[i];
-				x = frames[i + VALUE1];
-				y = frames[i + VALUE2];
-				float t = (time - before) / (frames[i + ENTRIES] - before);
-				x += (frames[i + ENTRIES + VALUE1] - x) * t;
-				y += (frames[i + ENTRIES + VALUE2] - y) * t;
+				float before = Frames[i];
+				x = Frames[i + VALUE1];
+				y = Frames[i + VALUE2];
+				float t = (time - before) / (Frames[i + ENTRIES] - before);
+				x += (Frames[i + ENTRIES + VALUE1] - x) * t;
+				y += (Frames[i + ENTRIES + VALUE2] - y) * t;
 				break;
 			case STEPPED:
-				x = frames[i + VALUE1];
-				y = frames[i + VALUE2];
+				x = Frames[i + VALUE1];
+				y = Frames[i + VALUE2];
 				break;
 			default:
 				x = GetBezierValue(time, i, VALUE1, curveType - BEZIER);
@@ -608,25 +747,36 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref"Bone.X"/>.</summary>
 	public class TranslateXTimeline : CurveTimeline1, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public TranslateXTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, (int)Property.X + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public TranslateXTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.X + "|" + boneIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.boneIndex = boneIndex;
+		}
+		
+		~TranslateXTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -657,25 +807,36 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref"Bone.Y"/>.</summary>
 	public class TranslateYTimeline : CurveTimeline1, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public TranslateYTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, (int)Property.Y + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public TranslateYTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.Y + "|" + boneIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.boneIndex = boneIndex;
+		}
+		
+		~TranslateYTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -706,27 +867,37 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref="Bone.ScaleX"> and <see cref="Bone.ScaleY">.</summary>
 	public class ScaleTimeline : CurveTimeline2, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public ScaleTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, //
-				(int)Property.ScaleX + "|" + boneIndex, //
-				(int)Property.ScaleY + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public ScaleTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex){
+            // : base(frameCount, bezierCount, //
+            // 	(int)Property.ScaleX + "|" + boneIndex, //
+            // 	(int)Property.ScaleY + "|" + boneIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.boneIndex = boneIndex;
+		}
+		
+		~ScaleTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -822,25 +993,36 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref="Bone.ScaleX">.</summary>
 	public class ScaleXTimeline : CurveTimeline1, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public ScaleXTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, (int)Property.ScaleX + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public ScaleXTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex){
+            // : base(frameCount, bezierCount, (int)Property.ScaleX + "|" + boneIndex) {
+            //CreateCurveTimeline(frameCount, bezierCount, boneIndex, "ScaleXTimeline");
+            //this.boneIndex = boneIndex;
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+        }
+		
+		~ScaleXTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -899,25 +1081,36 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref="Bone.ScaleY">.</summary>
 	public class ScaleYTimeline : CurveTimeline1, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public ScaleYTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, (int)Property.ScaleY + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public ScaleYTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.ScaleY + "|" + boneIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.boneIndex = boneIndex;
+		}
+		
+		~ScaleYTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -976,27 +1169,40 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref="Bone.ShearX"/> and <see cref="Bone.ShearY"/>.</summary>
 	public class ShearTimeline : CurveTimeline2, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public ShearTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, //
-				(int)Property.ShearX + "|" + boneIndex, //
-				(int)Property.ShearY + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public ShearTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, //
+            // (int)Property.ShearX + "|" + boneIndex, //
+            // (int)Property.ShearY + "|" + boneIndex) {
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+
+            //this.boneIndex = boneIndex;
+		}
+		
+		~ShearTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -1052,25 +1258,37 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref="Bone.ShearX"/>.</summary>
 	public class ShearXTimeline : CurveTimeline1, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public ShearXTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, (int)Property.ShearX + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public ShearXTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex){
+            // : base(frameCount, bezierCount, (int)Property.ShearX + "|" + boneIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.boneIndex = boneIndex;
+		}
+		
+		~ShearXTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
+
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -1101,25 +1319,36 @@ namespace Spine {
 
 	/// <summary>Changes a bone's local <see cref="Bone.ShearY"/>.</summary>
 	public class ShearYTimeline : CurveTimeline1, IBoneTimeline {
-		readonly int boneIndex;
+		//readonly int boneIndex;
 
-		public ShearYTimeline (int frameCount, int bezierCount, int boneIndex)
-			: base(frameCount, bezierCount, (int)Property.ShearY + "|" + boneIndex) {
-			this.boneIndex = boneIndex;
+		public ShearYTimeline (int frameCount, int bezierCount, int boneIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.ShearY + "|" + boneIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.boneIndex = boneIndex;
+		}
+		
+		~ShearYTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int BoneIndex {
-			get {
-				return boneIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_boneIndex(IntPtr timelineHandle);
+        public int BoneIndex
+        {
+            get
+            {
+                return spine_timeline_get_boneIndex(timelineHandle);
+            }
+        }
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Bone bone = skeleton.bones.Items[boneIndex];
+			Bone bone = skeleton.bones.Items[BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -1153,22 +1382,33 @@ namespace Spine {
 		public const int ENTRIES = 5;
 		protected const int R = 1, G = 2, B = 3, A = 4;
 
-		readonly int slotIndex;
+		//readonly int slotIndex;
 
-		public RGBATimeline (int frameCount, int bezierCount, int slotIndex)
-			: base(frameCount, bezierCount, //
-				(int)Property.RGB + "|" + slotIndex, //
-				(int)Property.Alpha + "|" + slotIndex) {
-			this.slotIndex = slotIndex;
+		public RGBATimeline (int frameCount, int bezierCount, int slotIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, //
+            // 	(int)Property.RGB + "|" + slotIndex, //
+            // 	(int)Property.Alpha + "|" + slotIndex) {
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.slotIndex = slotIndex;
 		}
+				
+		~RGBATimeline()
+		{
+			base.ReleaseHandle();
+		}
+
 		public override int FrameEntries {
 			get { return ENTRIES; }
 		}
 
-		public int SlotIndex {
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+        public int SlotIndex {
 			get {
-				return slotIndex;
-			}
+				return spine_timeline_get_slotIndex(timelineHandle);
+            }
 		}
 
 		/// <summary>Sets the time and color for the specified frame.</summary>
@@ -1176,19 +1416,19 @@ namespace Spine {
 		/// <param name="time">The frame time in seconds.</param>
 		public void SetFrame (int frame, float time, float r, float g, float b, float a) {
 			frame *= ENTRIES;
-			frames[frame] = time;
-			frames[frame + R] = r;
-			frames[frame + G] = g;
-			frames[frame + B] = b;
-			frames[frame + A] = a;
+			SetFrame(frame,time);
+			SetFrame(frame + R,r);
+			SetFrame(frame + G,g);
+			SetFrame(frame + B,b);
+			SetFrame(frame + A,a);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Slot slot = skeleton.slots.Items[slotIndex];
+			Slot slot = skeleton.slots.Items[SlotIndex];
 			if (!slot.bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				SlotData setup = slot.data;
 				switch (blend) {
@@ -1270,41 +1510,53 @@ namespace Spine {
 		public const int ENTRIES = 4;
 		protected const int R = 1, G = 2, B = 3;
 
-		readonly int slotIndex;
+		//readonly int slotIndex;
 
-		public RGBTimeline (int frameCount, int bezierCount, int slotIndex)
-			: base(frameCount, bezierCount, //
-				(int)Property.RGB + "|" + slotIndex) {
-			this.slotIndex = slotIndex;
+		public RGBTimeline (int frameCount, int bezierCount, int slotIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, //
+            // 	(int)Property.RGB + "|" + slotIndex) {
+            //CreateCurveTimeline(frameCount, bezierCount, slotIndex, "RGBTimeline");
+            //this.slotIndex = slotIndex;
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+        }
+				
+		~RGBTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		public override int FrameEntries {
 			get { return ENTRIES; }
 		}
 
-		public int SlotIndex {
-			get {
-				return slotIndex;
-			}
-		}
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+        public int SlotIndex
+        {
+            get
+            {
+                return spine_timeline_get_slotIndex(timelineHandle);
+            }
+        }
 
-		/// <summary>Sets the time and color for the specified frame.</summary>
-		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
-		/// <param name="time">The frame time in seconds.</param>
-		public void SetFrame (int frame, float time, float r, float g, float b) {
+        /// <summary>Sets the time and color for the specified frame.</summary>
+        /// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
+        /// <param name="time">The frame time in seconds.</param>
+        public void SetFrame (int frame, float time, float r, float g, float b) {
 			frame <<= 2;
-			frames[frame] = time;
-			frames[frame + R] = r;
-			frames[frame + G] = g;
-			frames[frame + B] = b;
+			SetFrame(frame,time);
+			SetFrame(frame + R,r);
+			SetFrame(frame + G,g);
+			SetFrame(frame + B,b);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Slot slot = skeleton.slots.Items[slotIndex];
+			Slot slot = skeleton.slots.Items[SlotIndex];
 			if (!slot.bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				SlotData setup = slot.data;
 				switch (blend) {
@@ -1374,25 +1626,38 @@ namespace Spine {
 
 	/// <summary>Changes the alpha for a slot's <see cref="Slot.Color"/>.</summary>
 	public class AlphaTimeline : CurveTimeline1, ISlotTimeline {
-		readonly int slotIndex;
+		//readonly int slotIndex;
 
-		public AlphaTimeline (int frameCount, int bezierCount, int slotIndex)
-			: base(frameCount, bezierCount, (int)Property.Alpha + "|" + slotIndex) {
-			this.slotIndex = slotIndex;
+		public AlphaTimeline (int frameCount, int bezierCount, int slotIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.Alpha + "|" + slotIndex) {
+            //CreateCurveTimeline(frameCount, bezierCount, slotIndex, "AlphaTimeline");
+            //this.slotIndex = slotIndex;
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+        }
+				
+		~AlphaTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
-		public int SlotIndex {
-			get {
-				return slotIndex;
-			}
-		}
 
-		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+        public int SlotIndex
+        {
+            get
+            {
+                return spine_timeline_get_slotIndex(timelineHandle);
+            }
+        }
+
+        override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Slot slot = skeleton.slots.Items[slotIndex];
+			Slot slot = skeleton.slots.Items[SlotIndex];
 			if (!slot.bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				SlotData setup = slot.data;
 				switch (blend) {
@@ -1423,14 +1688,23 @@ namespace Spine {
 		public const int ENTRIES = 8;
 		protected const int R = 1, G = 2, B = 3, A = 4, R2 = 5, G2 = 6, B2 = 7;
 
-		readonly int slotIndex;
+		//readonly int slotIndex;
 
-		public RGBA2Timeline (int frameCount, int bezierCount, int slotIndex)
-			: base(frameCount, bezierCount, //
-				(int)Property.RGB + "|" + slotIndex, //
-				(int)Property.Alpha + "|" + slotIndex, //
-				(int)Property.RGB2 + "|" + slotIndex) {
-			this.slotIndex = slotIndex;
+		public RGBA2Timeline (int frameCount, int bezierCount, int slotIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, //
+            // 	(int)Property.RGB + "|" + slotIndex, //
+            // 	(int)Property.Alpha + "|" + slotIndex, //
+            // 	(int)Property.RGB2 + "|" + slotIndex) {
+            //CreateCurveTimeline(frameCount, bezierCount, slotIndex, "RGBA2Timeline");
+            //this.slotIndex = slotIndex;
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+        }
+				
+		~RGBA2Timeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		public override int FrameEntries {
@@ -1439,36 +1713,40 @@ namespace Spine {
 			}
 		}
 
-		/// <summary>
-		/// The index of the slot in <see cref="Skeleton.Slots"/> that will be changed when this timeline is applied. The
-		/// <see cref="Slot"/> must have a dark color available.</summary>
-		public int SlotIndex {
-			get {
-				return slotIndex;
-			}
-		}
+        /// <summary>
+        /// The index of the slot in <see cref="Skeleton.Slots"/> that will be changed when this timeline is applied. The
+        /// <see cref="Slot"/> must have a dark color available.</summary>
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+        public int SlotIndex
+        {
+            get
+            {
+                return spine_timeline_get_slotIndex(timelineHandle);
+            }
+        }
 
-		/// <summary>Sets the time, light color, and dark color for the specified frame.</summary>
-		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
-		/// <param name="time">The frame time in seconds.</param>
-		public void SetFrame (int frame, float time, float r, float g, float b, float a, float r2, float g2, float b2) {
+        /// <summary>Sets the time, light color, and dark color for the specified frame.</summary>
+        /// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
+        /// <param name="time">The frame time in seconds.</param>
+        public void SetFrame (int frame, float time, float r, float g, float b, float a, float r2, float g2, float b2) {
 			frame <<= 3;
-			frames[frame] = time;
-			frames[frame + R] = r;
-			frames[frame + G] = g;
-			frames[frame + B] = b;
-			frames[frame + A] = a;
-			frames[frame + R2] = r2;
-			frames[frame + G2] = g2;
-			frames[frame + B2] = b2;
+			SetFrame(frame,time);
+			SetFrame(frame + R,r);
+			SetFrame(frame + G,g);
+			SetFrame(frame + B,b);
+			SetFrame(frame + A,a);
+			SetFrame(frame + R2,r2);
+			SetFrame(frame + G2,g2);
+			SetFrame(frame + B2,b2);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Slot slot = skeleton.slots.Items[slotIndex];
+			Slot slot = skeleton.slots.Items[SlotIndex];
 			if (!slot.bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				SlotData setup = slot.data;
 				switch (blend) {
@@ -1584,13 +1862,22 @@ namespace Spine {
 		public const int ENTRIES = 7;
 		protected const int R = 1, G = 2, B = 3, R2 = 4, G2 = 5, B2 = 6;
 
-		readonly int slotIndex;
+		//readonly int slotIndex;
 
-		public RGB2Timeline (int frameCount, int bezierCount, int slotIndex)
-			: base(frameCount, bezierCount, //
-				(int)Property.RGB + "|" + slotIndex, //
-				(int)Property.RGB2 + "|" + slotIndex) {
-			this.slotIndex = slotIndex;
+		public RGB2Timeline (int frameCount, int bezierCount, int slotIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex
+)
+        {
+            // : base(frameCount, bezierCount, //
+            // 	(int)Property.RGB + "|" + slotIndex, //
+            // 	(int)Property.RGB2 + "|" + slotIndex) {
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.slotIndex = slotIndex;
+		}
+				
+		~RGB2Timeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		public override int FrameEntries {
@@ -1599,35 +1886,39 @@ namespace Spine {
 			}
 		}
 
-		/// <summary>
-		/// The index of the slot in <see cref="Skeleton.Slots"/> that will be changed when this timeline is applied. The
-		/// <see cref="Slot"/> must have a dark color available.</summary>
-		public int SlotIndex {
-			get {
-				return slotIndex;
-			}
-		}
+        /// <summary>
+        /// The index of the slot in <see cref="Skeleton.Slots"/> that will be changed when this timeline is applied. The
+        /// <see cref="Slot"/> must have a dark color available.</summary>
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+        public int SlotIndex
+        {
+            get
+            {
+                return spine_timeline_get_slotIndex(timelineHandle);
+            }
+        }
 
-		/// <summary>Sets the time, light color, and dark color for the specified frame.</summary>
-		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
-		/// <param name="time">The frame time in seconds.</param>
-		public void SetFrame (int frame, float time, float r, float g, float b, float r2, float g2, float b2) {
+        /// <summary>Sets the time, light color, and dark color for the specified frame.</summary>
+        /// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
+        /// <param name="time">The frame time in seconds.</param>
+        public void SetFrame (int frame, float time, float r, float g, float b, float r2, float g2, float b2) {
 			frame *= ENTRIES;
-			frames[frame] = time;
-			frames[frame + R] = r;
-			frames[frame + G] = g;
-			frames[frame + B] = b;
-			frames[frame + R2] = r2;
-			frames[frame + G2] = g2;
-			frames[frame + B2] = b2;
+			SetFrame(frame,time);
+			SetFrame(frame + R,r);
+			SetFrame(frame + G,g);
+			SetFrame(frame + B,b);
+			SetFrame(frame + R2,r2);
+			SetFrame(frame + G2,g2);
+			SetFrame(frame + B2,b2);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
-			Slot slot = skeleton.slots.Items[slotIndex];
+			Slot slot = skeleton.slots.Items[SlotIndex];
 			if (!slot.bone.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				SlotData setup = slot.data;
 				switch (blend) {
@@ -1730,14 +2021,27 @@ namespace Spine {
 	}
 
 	/// <summary>Changes a slot's <see cref="Slot.Attachment"/>.</summary>
-	public class AttachmentTimeline : Timeline, ISlotTimeline {
-		readonly int slotIndex;
-		readonly string[] attachmentNames;
+	public class AttachmentTimeline : Timeline, ISlotTimeline 
+	{
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+		int slotIndex { get => spine_timeline_get_slotIndex(timelineHandle); }
+		
 
-		public AttachmentTimeline (int frameCount, int slotIndex)
-			: base(frameCount, (int)Property.Attachment + "|" + slotIndex) {
-			this.slotIndex = slotIndex;
-			attachmentNames = new String[frameCount];
+	
+		public AttachmentTimeline (int frameCount, int slotIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, (int)Property.Attachment + "|" + slotIndex) {
+
+            // this.slotIndex = slotIndex;
+            // attachmentNames = new String[frameCount];
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            
+		}
+
+		~AttachmentTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		public int SlotIndex {
@@ -1747,18 +2051,26 @@ namespace Spine {
 		}
 
 		/// <summary>The attachment name for each frame. May contain null values to clear the attachment. </summary>
-		public string[] AttachmentNames {
-			get {
-				return attachmentNames;
-			}
+		// public string[] AttachmentNames {
+		// 	get {
+		// 		return attachmentNames;
+		// 	}
+		// }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern string spine_attachment_timeline_get_attachmentName(IntPtr timelineHandle, int frame);
+		public string GetAttachmentNameByFrame(int frame)
+		{
+			return spine_attachment_timeline_get_attachmentName(timelineHandle, frame);
 		}
 
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_attachment_timeline_set_attachmentName(IntPtr timelineHandle, int frame, string value);
 		/// <summary>Sets the time and attachment name for the specified frame.</summary>
 		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
 		/// <param name="time">The frame time in seconds.</param>
 		public void SetFrame (int frame, float time, String attachmentName) {
-			frames[frame] = time;
-			attachmentNames[frame] = attachmentName;
+			SetFrame(frame,time);
+			spine_attachment_timeline_set_attachmentName(timelineHandle, frame, attachmentName);
 		}
 
 		public override void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
@@ -1771,13 +2083,13 @@ namespace Spine {
 				return;
 			}
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				if (blend == MixBlend.Setup || blend == MixBlend.First) SetAttachment(skeleton, slot, slot.data.attachmentName);
 				return;
 			}
 
-			SetAttachment(skeleton, slot, attachmentNames[Search(frames, time)]);
+			SetAttachment(skeleton, slot, GetAttachmentNameByFrame(Search(frames, time)));
 		}
 
 		private void SetAttachment (Skeleton skeleton, Slot slot, string attachmentName) {
@@ -1787,25 +2099,36 @@ namespace Spine {
 
 	/// <summary>Changes a slot's <see cref="Slot.Deform"/> to deform a <see cref="VertexAttachment"/>.</summary>
 	public class DeformTimeline : CurveTimeline, ISlotTimeline {
-		readonly int slotIndex;
+		//readonly int slotIndex;
 		readonly VertexAttachment attachment;
 		internal float[][] vertices;
 
-		public DeformTimeline (int frameCount, int bezierCount, int slotIndex, VertexAttachment attachment)
-			: base(frameCount, bezierCount, (int)Property.Deform + "|" + slotIndex + "|" + attachment.Id) {
-			this.slotIndex = slotIndex;
+		public DeformTimeline (int frameCount, int bezierCount, int slotIndex, VertexAttachment attachment, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.Deform + "|" + slotIndex + "|" + attachment.Id) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.slotIndex = slotIndex;
 			this.attachment = attachment;
 			vertices = new float[frameCount][];
 		}
-
-		public int SlotIndex {
-			get {
-				return slotIndex;
-			}
+				
+		~DeformTimeline()
+		{
+			base.ReleaseHandle();
 		}
-		/// <summary>The attachment that will be deformed.</summary>
-		/// <seealso cref="VertexAttachment.TimelineAttachment"/>
-		public VertexAttachment Attachment {
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+        public int SlotIndex
+        {
+            get
+            {
+                return spine_timeline_get_slotIndex(timelineHandle);
+            }
+        }
+        /// <summary>The attachment that will be deformed.</summary>
+        /// <seealso cref="VertexAttachment.TimelineAttachment"/>
+        public VertexAttachment Attachment {
 			get {
 				return attachment;
 			}
@@ -1823,7 +2146,7 @@ namespace Spine {
 		/// <param name="time">The frame time in seconds.</param>
 		/// <param name="vertices">Vertex positions for an unweighted VertexAttachment, or deform offsets if it has weights.</param>
 		public void SetFrame (int frame, float time, float[] vertices) {
-			frames[frame] = time;
+			SetFrame(frame,time);
 			this.vertices[frame] = vertices;
 		}
 
@@ -1858,14 +2181,14 @@ namespace Spine {
 			int i = (int)curves[frame];
 			switch (i) {
 			case LINEAR:
-				float x = frames[frame];
-				return (time - x) / (frames[frame + FrameEntries] - x);
+				float x = Frames[frame];
+				return (time - x) / (Frames[frame + FrameEntries] - x);
 			case STEPPED:
 				return 0;
 			}
 			i -= BEZIER;
 			if (curves[i] > time) {
-				float x = frames[frame];
+				float x = Frames[frame];
 				return curves[i + 1] * (time - x) / (curves[i] - x);
 			}
 			int n = i + BEZIER_SIZE;
@@ -1877,14 +2200,14 @@ namespace Spine {
 			}
 			{ // scope added to prevent compile error "float x and y declared in enclosing scope"
 				float x = curves[n - 2], y = curves[n - 1];
-				return y + (1 - y) * (time - x) / (frames[frame + FrameEntries] - x);
+				return y + (1 - y) * (time - x) / (Frames[frame + FrameEntries] - x);
 			}
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 
-			Slot slot = skeleton.slots.Items[slotIndex];
+			Slot slot = skeleton.slots.Items[SlotIndex];
 			if (!slot.bone.active) return;
 			VertexAttachment vertexAttachment = slot.attachment as VertexAttachment;
 			if (vertexAttachment == null || vertexAttachment.TimelineAttachment != attachment) return;
@@ -1897,7 +2220,7 @@ namespace Spine {
 
 			float[] deform;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) {  // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -2072,14 +2395,21 @@ namespace Spine {
 
 	/// <summary>Fires an <see cref="Event"/> when specific animation times are reached.</summary>
 	public class EventTimeline : Timeline {
-		readonly static string[] propertyIds = { ((int)Property.Event).ToString() };
+		//readonly static string[] propertyIds = { ((int)Property.Event).ToString() };
 		readonly Event[] events;
 
-		public EventTimeline (int frameCount)
-			: base(frameCount, propertyIds) {
-			events = new Event[frameCount];
+		public EventTimeline (int frameCount, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, propertyIds) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            events = new Event[frameCount];
 		}
-
+		
+		~EventTimeline()
+		{
+			base.ReleaseHandle();
+		}
+		
 		/// <summary>The event for each frame.</summary>
 		public Event[] Events {
 			get {
@@ -2090,7 +2420,7 @@ namespace Spine {
 		/// <summary>Sets the time and event for the specified frame.</summary>
 		/// <param name="frame">Between 0 and <code>frameCount</code>, inclusive.</param>
 		public void SetFrame (int frame, Event e) {
-			frames[frame] = e.time;
+			SetFrame(frame,e.time);
 			events[frame] = e;
 		}
 
@@ -2100,7 +2430,7 @@ namespace Spine {
 
 			if (firedEvents == null) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			int frameCount = frames.Length;
 
 			if (lastTime > time) { // Fire events after last time for looped animations.
@@ -2128,15 +2458,22 @@ namespace Spine {
 
 	/// <summary>Changes a skeleton's <see cref="Skeleton.DrawOrder"/>.</summary>
 	public class DrawOrderTimeline : Timeline {
-		static readonly string[] propertyIds = { ((int)Property.DrawOrder).ToString() };
+		//static readonly string[] propertyIds = { ((int)Property.DrawOrder).ToString() };
 
 		readonly int[][] drawOrders;
 
-		public DrawOrderTimeline (int frameCount)
-			: base(frameCount, propertyIds) {
-			drawOrders = new int[frameCount][];
+		public DrawOrderTimeline (int frameCount, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, propertyIds) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            drawOrders = new int[frameCount][];
 		}
-
+		
+		~DrawOrderTimeline()
+		{
+			base.ReleaseHandle();
+		}
+		
 		/// <summary>The draw order for each frame. </summary>
 		/// <seealso cref="Timeline.SetFrame(int, float, int[])"/>.
 		public int[][] DrawOrders {
@@ -2151,7 +2488,7 @@ namespace Spine {
 		/// <param name="drawOrder">For each slot in <see cref="Skeleton.Slots"/>, the index of the slot in the new draw order. May be null to use
 		///					 setup pose draw order.</param>
 		public void SetFrame (int frame, float time, int[] drawOrder) {
-			frames[frame] = time;
+			SetFrame(frame,time);
 			drawOrders[frame] = drawOrder;
 		}
 
@@ -2163,7 +2500,7 @@ namespace Spine {
 				return;
 			}
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				if (blend == MixBlend.Setup || blend == MixBlend.First) Array.Copy(skeleton.slots.Items, 0, skeleton.drawOrder.Items, 0, skeleton.slots.Count);
 				return;
@@ -2189,11 +2526,19 @@ namespace Spine {
 
 		readonly int ikConstraintIndex;
 
-		public IkConstraintTimeline (int frameCount, int bezierCount, int ikConstraintIndex)
-			: base(frameCount, bezierCount, (int)Property.IkConstraint + "|" + ikConstraintIndex) {
-			this.ikConstraintIndex = ikConstraintIndex;
+		public IkConstraintTimeline (int frameCount, int bezierCount, int ikConstraintIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.IkConstraint + "|" + ikConstraintIndex) {
+            //CreateCurveTimeline(frameCount, bezierCount, ikConstraintIndex, "IkConstraintTimeline");
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            this.ikConstraintIndex = ikConstraintIndex;
 		}
-
+		
+		~IkConstraintTimeline()
+		{
+			base.ReleaseHandle();
+		}
+		
 		public override int FrameEntries {
 			get {
 				return ENTRIES;
@@ -2215,12 +2560,12 @@ namespace Spine {
 		public void SetFrame (int frame, float time, float mix, float softness, int bendDirection, bool compress,
 			bool stretch) {
 			frame *= ENTRIES;
-			frames[frame] = time;
-			frames[frame + MIX] = mix;
-			frames[frame + SOFTNESS] = softness;
-			frames[frame + BEND_DIRECTION] = bendDirection;
-			frames[frame + COMPRESS] = compress ? 1 : 0;
-			frames[frame + STRETCH] = stretch ? 1 : 0;
+			SetFrame(frame,time);
+			SetFrame(frame + MIX,mix);
+			SetFrame(frame + SOFTNESS,softness);
+			SetFrame(frame + BEND_DIRECTION,bendDirection);
+			SetFrame(frame + COMPRESS,compress ? 1 : 0);
+			SetFrame(frame + STRETCH,stretch ? 1 : 0);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
@@ -2228,7 +2573,7 @@ namespace Spine {
 			IkConstraint constraint = skeleton.ikConstraints.Items[ikConstraintIndex];
 			if (!constraint.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -2301,9 +2646,16 @@ namespace Spine {
 
 		readonly int transformConstraintIndex;
 
-		public TransformConstraintTimeline (int frameCount, int bezierCount, int transformConstraintIndex)
-			: base(frameCount, bezierCount, (int)Property.TransformConstraint + "|" + transformConstraintIndex) {
-			this.transformConstraintIndex = transformConstraintIndex;
+		public TransformConstraintTimeline (int frameCount, int bezierCount, int transformConstraintIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.TransformConstraint + "|" + transformConstraintIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            this.transformConstraintIndex = transformConstraintIndex;
+		}
+		
+		~TransformConstraintTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		public override int FrameEntries {
@@ -2326,13 +2678,13 @@ namespace Spine {
 		public void SetFrame (int frame, float time, float mixRotate, float mixX, float mixY, float mixScaleX, float mixScaleY,
 			float mixShearY) {
 			frame *= ENTRIES;
-			frames[frame] = time;
-			frames[frame + ROTATE] = mixRotate;
-			frames[frame + X] = mixX;
-			frames[frame + Y] = mixY;
-			frames[frame + SCALEX] = mixScaleX;
-			frames[frame + SCALEY] = mixScaleY;
-			frames[frame + SHEARY] = mixShearY;
+			SetFrame(frame,time);
+			SetFrame(frame + ROTATE,mixRotate);
+			SetFrame(frame + X,mixX);
+			SetFrame(frame + Y,mixY);
+			SetFrame(frame + SCALEX,mixScaleX);
+			SetFrame(frame + SCALEY,mixScaleY);
+			SetFrame(frame + SHEARY,mixShearY);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
@@ -2340,7 +2692,7 @@ namespace Spine {
 			TransformConstraint constraint = skeleton.transformConstraints.Items[transformConstraintIndex];
 			if (!constraint.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				TransformConstraintData data = constraint.data;
 				switch (blend) {
@@ -2388,7 +2740,7 @@ namespace Spine {
 		public void GetCurveValue (out float rotate, out float x, out float y,
 			out float scaleX, out float scaleY, out float shearY, float time) {
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			int i = Search(frames, time, ENTRIES), curveType = (int)curves[i / ENTRIES];
 			switch (curveType) {
 			case LINEAR:
@@ -2431,9 +2783,16 @@ namespace Spine {
 	public class PathConstraintPositionTimeline : CurveTimeline1 {
 		readonly int pathConstraintIndex;
 
-		public PathConstraintPositionTimeline (int frameCount, int bezierCount, int pathConstraintIndex)
-			: base(frameCount, bezierCount, (int)Property.PathConstraintPosition + "|" + pathConstraintIndex) {
-			this.pathConstraintIndex = pathConstraintIndex;
+		public PathConstraintPositionTimeline (int frameCount, int bezierCount, int pathConstraintIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.PathConstraintPosition + "|" + pathConstraintIndex) {
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            this.pathConstraintIndex = pathConstraintIndex;
+		}
+		
+		~PathConstraintPositionTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		/// <summary>The index of the path constraint slot in <see cref="Skeleton.PathConstraints"/> that will be changed when this timeline
@@ -2449,7 +2808,7 @@ namespace Spine {
 			PathConstraint constraint = skeleton.pathConstraints.Items[pathConstraintIndex];
 			if (!constraint.active) return;
 
-			if (time < frames[0]) { // Time is before first frame.
+			if (time < Frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
 					constraint.position = constraint.data.position;
@@ -2473,9 +2832,12 @@ namespace Spine {
 	public class PathConstraintSpacingTimeline : CurveTimeline1 {
 		readonly int pathConstraintIndex;
 
-		public PathConstraintSpacingTimeline (int frameCount, int bezierCount, int pathConstraintIndex)
-			: base(frameCount, bezierCount, (int)Property.PathConstraintSpacing + "|" + pathConstraintIndex) {
-			this.pathConstraintIndex = pathConstraintIndex;
+		public PathConstraintSpacingTimeline (int frameCount, int bezierCount, int pathConstraintIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.PathConstraintSpacing + "|" + pathConstraintIndex) {
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            this.pathConstraintIndex = pathConstraintIndex;
 		}
 
 		/// <summary>The index of the path constraint slot in <see cref="Skeleton.PathConstraints"/> that will be changed when this timeline
@@ -2492,7 +2854,7 @@ namespace Spine {
 			PathConstraint constraint = skeleton.pathConstraints.Items[pathConstraintIndex];
 			if (!constraint.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -2521,9 +2883,17 @@ namespace Spine {
 
 		readonly int pathConstraintIndex;
 
-		public PathConstraintMixTimeline (int frameCount, int bezierCount, int pathConstraintIndex)
-			: base(frameCount, bezierCount, (int)Property.PathConstraintMix + "|" + pathConstraintIndex) {
-			this.pathConstraintIndex = pathConstraintIndex;
+		public PathConstraintMixTimeline (int frameCount, int bezierCount, int pathConstraintIndex, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, bezierCount, (int)Property.PathConstraintMix + "|" + pathConstraintIndex) {
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            this.pathConstraintIndex = pathConstraintIndex;
+		}
+		
+		~PathConstraintMixTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		public override int FrameEntries {
@@ -2543,10 +2913,10 @@ namespace Spine {
 		/// <param name="time">The frame time in seconds.</param>
 		public void SetFrame (int frame, float time, float mixRotate, float mixX, float mixY) {
 			frame <<= 2;
-			frames[frame] = time;
-			frames[frame + ROTATE] = mixRotate;
-			frames[frame + X] = mixX;
-			frames[frame + Y] = mixY;
+			SetFrame(frame,time);
+			SetFrame(frame + ROTATE,mixRotate);
+			SetFrame(frame + X,mixX);
+			SetFrame(frame + Y,mixY);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
@@ -2554,7 +2924,7 @@ namespace Spine {
 			PathConstraint constraint = skeleton.pathConstraints.Items[pathConstraintIndex];
 			if (!constraint.active) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
@@ -2614,25 +2984,37 @@ namespace Spine {
 		public const int ENTRIES = 3;
 		private const int MODE = 1, DELAY = 2;
 
-		readonly int slotIndex;
+		//readonly int slotIndex;
 		readonly IHasTextureRegion attachment;
 
-		public SequenceTimeline (int frameCount, int slotIndex, Attachment attachment)
-			: base(frameCount, (int)Property.Sequence + "|" + slotIndex + "|" + ((IHasTextureRegion)attachment).Sequence.Id) {
-			this.slotIndex = slotIndex;
+		public SequenceTimeline (int frameCount, int slotIndex, Attachment attachment, IntPtr skeletonHandle, int animationIndex, int timelineIndex)
+        {
+            // : base(frameCount, (int)Property.Sequence + "|" + slotIndex + "|" + ((IHasTextureRegion)attachment).Sequence.Id) {
+
+            CreateTimeLine(skeletonHandle, animationIndex, timelineIndex);
+            //this.slotIndex = slotIndex;
 			this.attachment = (IHasTextureRegion)attachment;
+		}
+		
+		~SequenceTimeline()
+		{
+			base.ReleaseHandle();
 		}
 
 		public override int FrameEntries {
 			get { return ENTRIES; }
 		}
 
-		public int SlotIndex {
-			get {
-				return slotIndex;
-			}
-		}
-		public Attachment Attachment {
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern int spine_timeline_get_slotIndex(IntPtr timelineHandle);
+        public int SlotIndex
+        {
+            get
+            {
+                return spine_timeline_get_slotIndex(timelineHandle);
+            }
+        }
+        public Attachment Attachment {
 			get {
 				return (Attachment)attachment;
 			}
@@ -2643,15 +3025,15 @@ namespace Spine {
 		/// <param name="time">Seconds between frames.</param>
 		public void SetFrame (int frame, float time, SequenceMode mode, int index, float delay) {
 			frame *= ENTRIES;
-			frames[frame] = time;
-			frames[frame + MODE] = (int)mode | (index << 4);
-			frames[frame + DELAY] = delay;
+			SetFrame(frame,time);
+			SetFrame(frame + MODE,(int)mode | (index << 4));
+			SetFrame(frame + DELAY, delay);
 		}
 
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 			MixDirection direction) {
 
-			Slot slot = skeleton.slots.Items[slotIndex];
+			Slot slot = skeleton.slots.Items[SlotIndex];
 			if (!slot.bone.active) return;
 			Attachment slotAttachment = slot.attachment;
 			if (slotAttachment != attachment) {
@@ -2662,7 +3044,7 @@ namespace Spine {
 			Sequence sequence = ((IHasTextureRegion)slotAttachment).Sequence;
 			if (sequence == null) return;
 
-			float[] frames = this.frames;
+			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				if (blend == MixBlend.Setup || blend == MixBlend.First) slot.SequenceIndex = -1;
 				return;

@@ -190,15 +190,17 @@ namespace Spine.Unity {
 			try {
 				if (hasBinaryExtension)
 				{
-					loadedSkeletonData = SkeletonDataAsset.ReadSkeletonData(skeletonJSON.bytes, attachmentLoader, skeletonDataScale);
-                    loadedSkeletonData.skeletonDataHandle = spine_skeleton_data_load_binary_scale_unity(atlasArray[0].atlasHandle, skeletonJSON.bytes, skeletonJSON.bytes.Length, skeletonDataScale);
+					IntPtr sklhandle = spine_skeleton_data_load_binary_scale_unity(atlasArray[0].atlasHandle, skeletonJSON.bytes, skeletonJSON.bytes.Length, skeletonDataScale);
+                    loadedSkeletonData = SkeletonDataAsset.ReadSkeletonData(skeletonJSON.bytes, attachmentLoader, skeletonDataScale, sklhandle);
+					loadedSkeletonData.skeletonDataHandle = sklhandle;
 
                 }
                 else
 				{
-					loadedSkeletonData = SkeletonDataAsset.ReadSkeletonData(skeletonJSON.text, attachmentLoader, skeletonDataScale);
-					loadedSkeletonData.skeletonDataHandle = spine_skeleton_data_load_json_scale_unity(atlasArray[0].atlasHandle, skeletonJSON.text, skeletonJSON.text.Length, skeletonDataScale);
-				}
+                    IntPtr sklhandle = spine_skeleton_data_load_json_scale_unity(atlasArray[0].atlasHandle, skeletonJSON.text, skeletonJSON.text.Length, skeletonDataScale);
+                    loadedSkeletonData = SkeletonDataAsset.ReadSkeletonData(skeletonJSON.text, attachmentLoader, skeletonDataScale, sklhandle);
+					loadedSkeletonData.skeletonDataHandle = sklhandle;
+                }
 
 				int count = loadedSkeletonData.DefaultSkin.attachmentsHash.Count;
 				int[] attachmentSlotIndexes = new int[count];
@@ -305,21 +307,21 @@ namespace Spine.Unity {
 			return returnList.ToArray();
 		}
 
-		internal static SkeletonData ReadSkeletonData (byte[] bytes, AttachmentLoader attachmentLoader, float scale) {
+		internal static SkeletonData ReadSkeletonData (byte[] bytes, AttachmentLoader attachmentLoader, float scale,IntPtr sklhanle) {
 			using (MemoryStream input = new MemoryStream(bytes)) {
 				SkeletonBinary binary = new SkeletonBinary(attachmentLoader) {
 					Scale = scale
 				};
-				return binary.ReadSkeletonData(input);
+				return binary.ReadSkeletonData(input,sklhanle);
 			}
 		}
 
-		internal static SkeletonData ReadSkeletonData (string text, AttachmentLoader attachmentLoader, float scale) {
+		internal static SkeletonData ReadSkeletonData (string text, AttachmentLoader attachmentLoader, float scale, IntPtr sklhanle) {
 			StringReader input = new StringReader(text);
 			SkeletonJson json = new SkeletonJson(attachmentLoader) {
 				Scale = scale
 			};
-			return json.ReadSkeletonData(input);
+			return json.ReadSkeletonData(input,sklhanle);
 		}
 	}
 

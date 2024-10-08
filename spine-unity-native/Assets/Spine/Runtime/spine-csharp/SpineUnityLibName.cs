@@ -10,6 +10,9 @@ namespace Spine.Unity
 
         public const string SpineLibNameDynamic = "spine-cpp-lite";
 
+        public const string OSX_SpineLibNameDynamic = "spine-cpp-lite-osx";
+
+
 
         public static bool IsStatic
         {
@@ -33,8 +36,12 @@ namespace Spine.Unity
             }
         }
 
-#if UNITY_WEBGL
-        public const string SpineLibName = SpineLibNameStatic;
+#if UNITY_EDITOR
+    #if UNITY_EDITOR_OSX
+            public const string SpineLibName = OSX_SpineLibNameDynamic;
+    #else
+            public const string SpineLibName = SpineLibNameDynamic;
+    #endif
 #else
         public const string SpineLibName = SpineLibNameDynamic;
 #endif

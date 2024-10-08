@@ -695,12 +695,12 @@ namespace Spine {
 			Slot slot = skeleton.slots.Items[timeline.SlotIndex];
 			if (!slot.bone.active) return;
 
-			float[] frames = timeline.frames;
+			float[] frames = timeline.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				if (blend == MixBlend.Setup || blend == MixBlend.First)
 					SetAttachment(skeleton, slot, slot.data.attachmentName, attachments);
 			} else
-				SetAttachment(skeleton, slot, timeline.AttachmentNames[Timeline.Search(frames, time)], attachments);
+				SetAttachment(skeleton, slot, timeline.GetAttachmentNameByFrame(Timeline.Search(frames, time)), attachments);
 
 			// If an attachment wasn't set (ie before the first frame or attachments is false), set the setup attachment later.
 			if (slot.attachmentState <= unkeyedState) slot.attachmentState = unkeyedState + Setup;
@@ -727,7 +727,7 @@ namespace Spine {
 			Bone bone = skeleton.bones.Items[timeline.BoneIndex];
 			if (!bone.active) return;
 
-			float[] frames = timeline.frames;
+			float[] frames = timeline.Frames;
 			float r1, r2;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
@@ -1104,65 +1104,65 @@ namespace Spine {
 			entry.next = null;
 		}
 
-		private void AnimationsChanged () {
-			animationsChanged = false;
+		// private void AnimationsChanged () {
+		// 	animationsChanged = false;
+		//
+		// 	// Process in the order that animations are applied.
+		// 	propertyIds.Clear();
+		// 	int n = tracks.Count;
+		// 	TrackEntry[] tracksItems = tracks.Items;
+		// 	for (int i = 0; i < n; i++) {
+		// 		TrackEntry entry = tracksItems[i];
+		// 		if (entry == null) continue;
+		// 		while (entry.mixingFrom != null) // Move to last entry, then iterate in reverse.
+		// 			entry = entry.mixingFrom;
+		// 		do {
+		// 			if (entry.mixingTo == null || entry.mixBlend != MixBlend.Add) ComputeHold(entry);
+		// 			entry = entry.mixingTo;
+		// 		} while (entry != null);
+		// 	}
+		// }
 
-			// Process in the order that animations are applied.
-			propertyIds.Clear();
-			int n = tracks.Count;
-			TrackEntry[] tracksItems = tracks.Items;
-			for (int i = 0; i < n; i++) {
-				TrackEntry entry = tracksItems[i];
-				if (entry == null) continue;
-				while (entry.mixingFrom != null) // Move to last entry, then iterate in reverse.
-					entry = entry.mixingFrom;
-				do {
-					if (entry.mixingTo == null || entry.mixBlend != MixBlend.Add) ComputeHold(entry);
-					entry = entry.mixingTo;
-				} while (entry != null);
-			}
-		}
-
-		private void ComputeHold (TrackEntry entry) {
-			TrackEntry to = entry.mixingTo;
-			Timeline[] timelines = entry.animation.timelines.Items;
-			int timelinesCount = entry.animation.timelines.Count;
-			int[] timelineMode = entry.timelineMode.Resize(timelinesCount).Items;
-			entry.timelineHoldMix.Clear();
-			TrackEntry[] timelineHoldMix = entry.timelineHoldMix.Resize(timelinesCount).Items;
-			HashSet<string> propertyIds = this.propertyIds;
-
-			if (to != null && to.holdPrevious) {
-				for (int i = 0; i < timelinesCount; i++)
-					timelineMode[i] = propertyIds.AddAll(timelines[i].PropertyIds) ? AnimationState.HoldFirst : AnimationState.HoldSubsequent;
-
-				return;
-			}
-
-			// outer:
-			for (int i = 0; i < timelinesCount; i++) {
-				Timeline timeline = timelines[i];
-				String[] ids = timeline.PropertyIds;
-				if (!propertyIds.AddAll(ids))
-					timelineMode[i] = AnimationState.Subsequent;
-				else if (to == null || timeline is AttachmentTimeline || timeline is DrawOrderTimeline
-						|| timeline is EventTimeline || !to.animation.HasTimeline(ids)) {
-					timelineMode[i] = AnimationState.First;
-				} else {
-					for (TrackEntry next = to.mixingTo; next != null; next = next.mixingTo) {
-						if (next.animation.HasTimeline(ids)) continue;
-						if (next.mixDuration > 0) {
-							timelineMode[i] = AnimationState.HoldMix;
-							timelineHoldMix[i] = next;
-							goto continue_outer; // continue outer;
-						}
-						break;
-					}
-					timelineMode[i] = AnimationState.HoldFirst;
-				}
-				continue_outer: { }
-			}
-		}
+		// private void ComputeHold (TrackEntry entry) {
+		// 	TrackEntry to = entry.mixingTo;
+		// 	Timeline[] timelines = entry.animation.timelines.Items;
+		// 	int timelinesCount = entry.animation.timelines.Count;
+		// 	int[] timelineMode = entry.timelineMode.Resize(timelinesCount).Items;
+		// 	entry.timelineHoldMix.Clear();
+		// 	TrackEntry[] timelineHoldMix = entry.timelineHoldMix.Resize(timelinesCount).Items;
+		// 	HashSet<string> propertyIds = this.propertyIds;
+		//
+		// 	if (to != null && to.holdPrevious) {
+		// 		for (int i = 0; i < timelinesCount; i++)
+		// 			timelineMode[i] = propertyIds.AddAll(timelines[i].PropertyIds) ? AnimationState.HoldFirst : AnimationState.HoldSubsequent;
+		//
+		// 		return;
+		// 	}
+		//
+		// 	// outer:
+		// 	for (int i = 0; i < timelinesCount; i++) {
+		// 		Timeline timeline = timelines[i];
+		// 		String[] ids = timeline.PropertyIds;
+		// 		if (!propertyIds.AddAll(ids))
+		// 			timelineMode[i] = AnimationState.Subsequent;
+		// 		else if (to == null || timeline is AttachmentTimeline || timeline is DrawOrderTimeline
+		// 				|| timeline is EventTimeline || !to.animation.HasTimeline(ids)) {
+		// 			timelineMode[i] = AnimationState.First;
+		// 		} else {
+		// 			for (TrackEntry next = to.mixingTo; next != null; next = next.mixingTo) {
+		// 				if (next.animation.HasTimeline(ids)) continue;
+		// 				if (next.mixDuration > 0) {
+		// 					timelineMode[i] = AnimationState.HoldMix;
+		// 					timelineHoldMix[i] = next;
+		// 					goto continue_outer; // continue outer;
+		// 				}
+		// 				break;
+		// 			}
+		// 			timelineMode[i] = AnimationState.HoldFirst;
+		// 		}
+		// 		continue_outer: { }
+		// 	}
+		// }
 
 		/// <returns>The track entry for the animation currently playing on the track, or null if no animation is currently playing.</returns>
 		public TrackEntry GetCurrent (int trackIndex) {

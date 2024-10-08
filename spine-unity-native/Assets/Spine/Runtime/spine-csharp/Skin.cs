@@ -60,8 +60,9 @@ namespace Spine {
 		/// If the name already exists for the slot, the previous value is replaced.</summary>
 		public void SetAttachment (int slotIndex, string name, Attachment attachment) {
 			if (attachment == null) throw new ArgumentNullException("attachment", "attachment cannot be null.");
-			attachments[new SkinKey(slotIndex, name)] = new SkinEntry(slotIndex, name, attachment);
-			attachmentsHash[SkinKey.SkinKeyHashCode(slotIndex, name)] = new SkinEntry(slotIndex, name, attachment);
+			var entry = new SkinEntry(slotIndex, name, attachment);
+			attachments[new SkinKey(slotIndex, name)] = entry;
+			attachmentsHash[SkinKey.SkinKeyHashCode(slotIndex, name)] = entry;
         }
 
 		///<summary>Adds all attachments, bones, and constraints from the specified skin to this skin.</summary>

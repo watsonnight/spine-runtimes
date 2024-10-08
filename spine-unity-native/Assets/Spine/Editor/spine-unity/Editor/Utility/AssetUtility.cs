@@ -220,7 +220,8 @@ namespace Spine.Unity.Editor {
 					// as a workaround, we provide a fallback reader.
 					input = File.Open(skeletonDataPath, FileMode.Open, FileAccess.Read);
 				}
-				binary.ReadSkeletonData(input);
+				//wait to fix
+				binary.ReadSkeletonData(input,System.IntPtr.Zero);
 			} finally {
 				if (input != null)
 					input.Dispose();

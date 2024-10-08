@@ -28,6 +28,7 @@
  *****************************************************************************/
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Spine {
 
@@ -46,6 +47,14 @@ namespace Spine {
 		internal int sequenceIndex;
 		internal ExposedList<float> deform = new ExposedList<float>();
 		internal int attachmentState;
+
+		#region ¡¾DL¡¿dicretion bones animation optimization
+		/// <summary>
+		/// cache the override attachment we apply
+		/// </summary>
+		public Attachment AttachmentOverride { get; set; }
+		#endregion
+
 
 		public Slot (SlotData data, Bone bone) {
 			if (data == null) throw new ArgumentNullException("data", "data cannot be null.");
@@ -87,8 +96,69 @@ namespace Spine {
 			deform.AddRange(slot.deform);
 		}
 
-		/// <summary>The slot's setup pose data.</summary>
-		public SlotData Data { get { return data; } }
+		#region [H5] NativeSpine- Fix Attachment Bug
+		IntPtr regionAttachmentHandle;
+		
+		IntPtr slotHandle;
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern IntPtr spine_skeleton_find_slot_unity(IntPtr skeletonHandle, string slotName);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_slot_set_attachment_unity(IntPtr slotHandle, IntPtr attachmentHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern IntPtr spine_region_attachment_create_from_atlas_region_unity(IntPtr atlasHandle, string regionName, string attachmentName, float scale, float rotation);
+
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_region_attachment_dispose_unity(IntPtr regionAttachmentHandle, IntPtr slotHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_slot_dispose_local_unity(IntPtr slotHandle);
+
+		~Slot()
+		{
+			if (regionAttachmentHandle != IntPtr.Zero && slotHandle != IntPtr.Zero)
+			{
+				spine_region_attachment_dispose_unity(regionAttachmentHandle, slotHandle);
+				regionAttachmentHandle = IntPtr.Zero;
+			}
+
+			if (slotHandle != IntPtr.Zero)
+			{
+				spine_slot_dispose_local_unity(slotHandle);
+				slotHandle = IntPtr.Zero;
+			}
+		}
+
+		public void Wear(Skeleton skeleton, Atlas spAtlas, AtlasRegion atlasReg, RegionAttachment rWeapon, string partImg)
+		{
+			if (slotHandle == IntPtr.Zero)
+			{
+				slotHandle = spine_skeleton_find_slot_unity(skeleton.skeletonHandle, Data.Name);
+			}
+
+			regionAttachmentHandle = spine_region_attachment_create_from_atlas_region_unity(spAtlas.atlasHandle, atlasReg.name, partImg, 0.02f, 0f);
+			Attachment = rWeapon;
+			spine_slot_set_attachment_unity(slotHandle, regionAttachmentHandle);
+		}
+
+		public void UnWear()
+        {
+			if (regionAttachmentHandle != IntPtr.Zero && slotHandle != IntPtr.Zero)
+			{
+				spine_region_attachment_dispose_unity(regionAttachmentHandle, slotHandle);
+				regionAttachmentHandle = IntPtr.Zero;
+			}
+
+			attachment = null;
+			AttachmentOverride = null;
+		}
+        #endregion
+
+        /// <summary>The slot's setup pose data.</summary>
+        public SlotData Data { get { return data; } }
 		/// <summary>The bone this slot belongs to.</summary>
 		public Bone Bone { get { return bone; } }
 		/// <summary>The skeleton this slot belongs to.</summary>
@@ -190,6 +260,7 @@ namespace Spine {
 				attachment = null;
 				Attachment = bone.skeleton.GetAttachment(data.index, data.attachmentName);
 			}
+			AttachmentOverride = null;
 		}
 
 		override public string ToString () {

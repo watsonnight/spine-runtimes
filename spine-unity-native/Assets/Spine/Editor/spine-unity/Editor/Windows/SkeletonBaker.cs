@@ -1587,7 +1587,7 @@ namespace Spine.Unity.Editor {
 
 				int frameIndex = Search(frames, time);
 
-				string name = timeline.AttachmentNames[frameIndex];
+				string name = timeline.GetAttachmentNameByFrame(frameIndex);
 				foreach (KeyValuePair<string, AnimationCurve> pair in curveTable) {
 					if (name == "") {
 						pair.Value.AddKey(new Keyframe(time, 0, float.PositiveInfinity, float.PositiveInfinity));
