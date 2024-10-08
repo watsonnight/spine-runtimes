@@ -1416,6 +1416,7 @@ namespace Spine.Unity {
 			{
 
 				float* ptrVertex = (float*)NativeArrayUnsafeUtility.GetUnsafePtr(nativeVertexfb);
+				UnsafeUtility.MemClear(ptrVertex, nativeVertexfb.Length * sizeof(float3));
 				float* ptrUv = (float*)NativeArrayUnsafeUtility.GetUnsafePtr(nativeUvfb);
 				UInt32* ptrColor = (UInt32*)NativeArrayUnsafeUtility.GetUnsafePtr(nativeColorfb);
 
@@ -1506,6 +1507,7 @@ float* outVertex, float* outUv, UInt32* outColor, float[] outBounds, int[] outTr
             {
 
                 float* ptrVertex = (float*)NativeArrayUnsafeUtility.GetUnsafePtr(nativeVertexfb);
+				UnsafeUtility.MemClear(ptrVertex, nativeVertexfb.Length * sizeof(float3));
                 float* ptrUv = (float*)NativeArrayUnsafeUtility.GetUnsafePtr(nativeUvfb);
                 UInt32* ptrColor = (UInt32*)NativeArrayUnsafeUtility.GetUnsafePtr(nativeColorfb);
 
