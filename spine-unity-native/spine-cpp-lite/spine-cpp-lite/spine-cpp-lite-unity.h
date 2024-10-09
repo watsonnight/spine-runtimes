@@ -41,17 +41,17 @@ SPINE_CPP_LITE_EXPORT void spine_atlas_flipV_unity(intptr_t atlasHandle);
 SPINE_CPP_LITE_EXPORT intptr_t spine_atlas_get_region_unity(intptr_t atlasHandle, int index);
 SPINE_CPP_LITE_EXPORT int spine_atlas_get_region_count_unity(intptr_t atlasHandle);
 SPINE_CPP_LITE_EXPORT const char* spine_atlas_get_region_name_unity(intptr_t atlasHandle, int index);
-// SPINE_CPP_LITE_EXPORT intptr_t spine_atlasregion_get_pages_unity(intptr_t atlasHandle, intptr_t regionHandle);
+SPINE_CPP_LITE_EXPORT intptr_t spine_atlasregion_get_pages_unity(intptr_t atlasHandle, intptr_t regionHandle);
 
 
 //bone
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_x_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_y_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_rotation_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_x_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_y_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_rotation_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_scale_x_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_scale_y_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_x_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_y_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_x_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_y_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_world_x_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_world_y_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_a_unity(intptr_t boneHandle);
@@ -62,7 +62,7 @@ SPINE_CPP_LITE_EXPORT float spine_bone_get_world_scale_x_unity(intptr_t boneHand
 SPINE_CPP_LITE_EXPORT float spine_bone_get_world_scale_y_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_data_length_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT const char* spine_bone_get_data_name_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT void spine_bone_set_local_position_unity(intptr_t boneHandle, float* position);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_local_position_unity(intptr_t boneHandle, float* position);
 SPINE_CPP_LITE_EXPORT intptr_t spine_bone_get_parent_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT intptr_t spine_bone_get_skeleton_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT void spine_bone_dispose_local_unity(intptr_t boneHandle);
@@ -83,9 +83,9 @@ SPINE_CPP_LITE_EXPORT intptr_t spine_skeleton_data_find_event_data_unity(intptr_
 SPINE_CPP_LITE_EXPORT intptr_t spine_skeleton_create_unity(intptr_t skeletonDataHandle);
 SPINE_CPP_LITE_EXPORT void spine_skeleton_destroy_unity(intptr_t skeletonHandle);
 SPINE_CPP_LITE_EXPORT void spine_skeleton_update_world_transform_unity(intptr_t skeletonHandle);
-// SPINE_CPP_LITE_EXPORT void spine_skeleton_set_scale_x_unity(intptr_t skeletonHandle, float scaleX);
+SPINE_CPP_LITE_EXPORT void spine_skeleton_set_scale_x_unity(intptr_t skeletonHandle, float scaleX); 
 SPINE_CPP_LITE_EXPORT float spine_skeleton_get_scale_x_unity(intptr_t skeletonHandle);
-// SPINE_CPP_LITE_EXPORT void spine_skeleton_set_scale_y_unity(intptr_t skeletonHandle, float scaleY);
+SPINE_CPP_LITE_EXPORT void spine_skeleton_set_scale_y_unity(intptr_t skeletonHandle, float scaleY);
 SPINE_CPP_LITE_EXPORT float spine_skeleton_get_scale_y_unity(intptr_t skeletonHandle);
 SPINE_CPP_LITE_EXPORT void spine_skeleton_set_skin_unity(intptr_t skeletonHandle, const char* skinName);
 
@@ -116,12 +116,12 @@ typedef void (*eventCallbackDelegate)(intptr_t stateHandle, int trackIndex, int 
 SPINE_CPP_LITE_EXPORT void spine_animation_state_add_callback_unity(intptr_t animationStateHandle, eventCallbackDelegate cb);
 SPINE_CPP_LITE_EXPORT void spine_animation_state_remove_callback_unity(intptr_t animationStateHandle, eventCallbackDelegate cb);
 
-// SPINE_CPP_LITE_EXPORT void spine_animation_state_add_empty_animation_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration, float delay);
+SPINE_CPP_LITE_EXPORT void spine_animation_state_add_empty_animation_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration, float delay);
 
-// SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_attachment_threshold_unity(intptr_t animationStateHandle, int trackIndex, float attachmentThreshold);
-// SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_mix_duration_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration);
+SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_attachment_threshold_unity(intptr_t animationStateHandle, int trackIndex, float attachmentThreshold);
+SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_mix_duration_unity(intptr_t animationStateHandle, int trackIndex, float mixDuration);
 SPINE_CPP_LITE_EXPORT void spine_animation_state_track_set_time_scale_unity(intptr_t animationStateHandle, int trackIndex, float timeScale);
-// SPINE_CPP_LITE_EXPORT float spine_animation_state_track_get_time_scale_unity(intptr_t animationStateHandle, int trackIndex);
+SPINE_CPP_LITE_EXPORT float spine_animation_state_track_get_time_scale_unity(intptr_t animationStateHandle, int trackIndex);
 SPINE_CPP_LITE_EXPORT void spine_animation_state_track_get_track_time_end_duration_unity(intptr_t animationStateHandle, int trackIndex, float* outTrackTime);
 
 SPINE_CPP_LITE_EXPORT void spine_animation_apply_unity(intptr_t animationHandle, intptr_t skeletonHandle, float lastTime, float time, bool loop, float alpha, int mixBlend, int direction);
@@ -131,7 +131,7 @@ SPINE_CPP_LITE_EXPORT void spine_animation_apply_unity(intptr_t animationHandle,
 SPINE_CPP_LITE_EXPORT void spine_slot_dispose_local_unity(intptr_t slotHandle);
 SPINE_CPP_LITE_EXPORT void spine_slot_set_attachment_unity(intptr_t slotHandle, intptr_t attachmentHandle);
 
-// SPINE_CPP_LITE_EXPORT intptr_t spine_event_get_event_data_handle_unity(intptr_t eventHandle);
+SPINE_CPP_LITE_EXPORT intptr_t spine_event_get_event_data_handle_unity(intptr_t eventHandle);
 
 
 //Attachment
