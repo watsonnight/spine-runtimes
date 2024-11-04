@@ -1871,9 +1871,191 @@ void spine_attachment_timeline_set_attachmentName(intptr_t timelineHandle, int f
 	}
 }
 
+//spine bonedata
+intptr_t spine_bonedata_get_Handle_x_unity(intptr_t skeletondataHandle, int index)
+{
+
+	SkeletonData* skeletondata = s_global_spine_skeleton_data_map[skeletondataHandle];
+	if (skeletondata == nullptr) return 0;
+
+	BoneData* bonedata = skeletondata->getBones()[index];
+	if (bonedata == nullptr) return 0;
+
+	return reinterpret_cast<intptr_t>(bonedata);
 
 
+}
+void spine_bonedata_set_length_unity(intptr_t boneDataHandle, float newLength)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
 
+	bonedata->setLength(newLength);
+}
 
+float spine_bonedata_get_length_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getLength();
+}
+void spine_bonedata_set_x_unity(intptr_t boneDataHandle, float newX)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setX(newX);
+}
+
+float spine_bonedata_get_x_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getX();
+}
+void spine_bonedata_set_y_unity(intptr_t boneDataHandle, float newY)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setY(newY);
+}
+
+float spine_bonedata_get_y_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getY();
+}
+void spine_bonedata_set_rotation_unity(intptr_t boneDataHandle, float newRotation)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setRotation(newRotation);
+}
+
+float spine_bonedata_get_rotation_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getRotation();
+}
+void spine_bonedata_set_scaleX_unity(intptr_t boneDataHandle, float newScaleX)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setScaleX(newScaleX);
+}
+
+float spine_bonedata_get_scaleX_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getScaleX();
+}
+void spine_bonedata_set_scaleY_unity(intptr_t boneDataHandle, float newScaleY)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setScaleY(newScaleY);
+}
+
+float spine_bonedata_get_scaleY_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getScaleY();
+}
+void spine_bonedata_set_shearX_unity(intptr_t boneDataHandle, float newShearX)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setShearX(newShearX);
+}
+
+float spine_bonedata_get_shearX_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getShearX();
+}
+void spine_bonedata_set_shearY_unity(intptr_t boneDataHandle, float newShearY)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setShearY(newShearY);
+}
+
+float spine_bonedata_get_shearY_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0.0f;
+
+	return bonedata->getShearY();
+}
+void spine_bonedata_set_skinRequired_unity(intptr_t boneDataHandle, bool newSkinRequired)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setSkinRequired(newSkinRequired);
+}
+
+bool spine_bonedata_get_skinRequired_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return false;
+
+	return bonedata->isSkinRequired();
+}
+int spine_bonedata_get_transformMode_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0;
+
+	return static_cast<int>(bonedata->getTransformMode());
+}
+
+void spine_bonedata_set_transformMode_unity(intptr_t boneDataHandle, int transformMode)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return;
+
+	bonedata->setTransformMode(static_cast<TransformMode>(transformMode));
+}
+const char* spine_bonedata_get_data_name_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return nullptr;
+
+	return bonedata->getName().buffer();
+}
+intptr_t spine_bonedata_create_unity(int index, const char* name)
+{
+	BoneData* bonedata = new BoneData(index, name);
+	intptr_t bonedatahandle = reinterpret_cast<intptr_t>(bonedata);
+
+	//s_global_spine_timeline_map.put(timelinehandle, timeline);
+	return bonedatahandle;
+
+}
+int spine_bonedata_get_index_unity(intptr_t boneDataHandle)
+{
+	BoneData* bonedata = reinterpret_cast<BoneData*>(boneDataHandle);
+	if (bonedata == nullptr) return 0;
+	return bonedata->getIndex();
+}
 
 
