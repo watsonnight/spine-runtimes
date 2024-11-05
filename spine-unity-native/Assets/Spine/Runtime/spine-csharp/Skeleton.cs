@@ -102,29 +102,36 @@ namespace Spine {
 		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
 		static extern void spine_skeleton_set_color_b_unity(IntPtr skeletonDataHandle, float blue);
 
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern IntPtr spine_skeleton_get_bone(IntPtr skeletonHandle, int index);
 
 		public Skeleton (SkeletonData data) {
 			if (data == null) throw new ArgumentNullException("data", "data cannot be null.");
 			this.data = data;
+			
+			skeletonHandle = spine_skeleton_create_unity(data.skeletonDataHandle);
 
 			bones = new ExposedList<Bone>(data.bones.Count);
 			Bone[] bonesItems = this.bones.Items;
+			int index = 0;
 			foreach (BoneData boneData in data.bones) {
 				Bone bone;
 				if (boneData.parent == null) {
 					bone = new Bone(boneData, this, null);
 				} else {
-					Bone parent = bonesItems[boneData.parent.index];
+					Bone parent = bonesItems[boneData.parent.Index];
 					bone = new Bone(boneData, this, parent);
 					parent.children.Add(bone);
 				}
+
+				bone.boneHandle = spine_skeleton_get_bone(skeletonHandle, index++);
 				this.bones.Add(bone);
 			}
 
 			slots = new ExposedList<Slot>(data.slots.Count);
 			drawOrder = new ExposedList<Slot>(data.slots.Count);
 			foreach (SlotData slotData in data.slots) {
-				Bone bone = bonesItems[slotData.boneData.index];
+				Bone bone = bonesItems[slotData.boneData.Index];
 				Slot slot = new Slot(slotData, bone);
 				slots.Add(slot);
 				drawOrder.Add(slot);
@@ -142,9 +149,6 @@ namespace Spine {
 			foreach (PathConstraintData pathConstraintData in data.pathConstraints)
 				pathConstraints.Add(new PathConstraint(pathConstraintData, this));
 
-            skeletonHandle = spine_skeleton_create_unity(data.skeletonDataHandle);
-
-
             UpdateCache();
 		}
 
@@ -159,7 +163,7 @@ namespace Spine {
 				if (bone.parent == null)
 					newBone = new Bone(bone, this, null);
 				else {
-					Bone parent = bones.Items[bone.parent.data.index];
+					Bone parent = bones.Items[bone.parent.data.Index];
 					newBone = new Bone(bone, this, parent);
 					parent.children.Add(newBone);
 				}
@@ -169,7 +173,7 @@ namespace Spine {
 			slots = new ExposedList<Slot>(skeleton.slots.Count);
 			Bone[] bonesItems = bones.Items;
 			foreach (Slot slot in skeleton.slots) {
-				Bone bone = bonesItems[slot.bone.data.index];
+				Bone bone = bonesItems[slot.bone.data.Index];
 				slots.Add(new Slot(slot, bone));
 			}
 
@@ -225,16 +229,16 @@ namespace Spine {
 			Bone[] bones = this.bones.Items;
 			for (int i = 0; i < boneCount; i++) {
 				Bone bone = bones[i];
-				bone.sorted = bone.data.skinRequired;
-				bone.active = !bone.sorted;
+				bone.Sorted = bone.data.SkinRequired;
+				bone.Active = !bone.Sorted;
 			}
 			if (skin != null) {
 				BoneData[] skinBones = skin.bones.Items;
 				for (int i = 0, n = skin.bones.Count; i < n; i++) {
-					Bone bone = bones[skinBones[i].index];
+					Bone bone = bones[skinBones[i].Index];
 					do {
-						bone.sorted = false;
-						bone.active = true;
+						bone.Sorted = false;
+						bone.Active = true;
 						bone = bone.parent;
 					} while (bone != null);
 				}
@@ -275,7 +279,7 @@ namespace Spine {
 		}
 
 		private void SortIkConstraint (IkConstraint constraint) {
-			constraint.active = constraint.target.active
+			constraint.active = constraint.target.Active
 				&& (!constraint.data.skinRequired || (skin != null && skin.constraints.Contains(constraint.data)));
 			if (!constraint.active) return;
 
@@ -296,12 +300,12 @@ namespace Spine {
 				updateCache.Add(constraint);
 
 				SortReset(parent.children);
-				child.sorted = true;
+				child.Sorted = true;
 			}
 		}
 
 		private void SortTransformConstraint (TransformConstraint constraint) {
-			constraint.active = constraint.target.active
+			constraint.active = constraint.target.Active
 				&& (!constraint.data.skinRequired || (skin != null && skin.constraints.Contains(constraint.data)));
 			if (!constraint.active) return;
 
@@ -325,11 +329,11 @@ namespace Spine {
 			for (int i = 0; i < boneCount; i++)
 				SortReset(constrained[i].children);
 			for (int i = 0; i < boneCount; i++)
-				constrained[i].sorted = true;
+				constrained[i].Sorted = true;
 		}
 
 		private void SortPathConstraint (PathConstraint constraint) {
-			constraint.active = constraint.target.bone.active
+			constraint.active = constraint.target.bone.Active
 				&& (!constraint.data.skinRequired || (skin != null && skin.constraints.Contains(constraint.data)));
 			if (!constraint.active) return;
 
@@ -353,7 +357,7 @@ namespace Spine {
 			for (int i = 0; i < boneCount; i++)
 				SortReset(constrained[i].children);
 			for (int i = 0; i < boneCount; i++)
-				constrained[i].sorted = true;
+				constrained[i].Sorted = true;
 		}
 
 		private void SortPathConstraintAttachment (Skin skin, int slotIndex, Bone slotBone) {
@@ -378,10 +382,10 @@ namespace Spine {
 		}
 
 		private void SortBone (Bone bone) {
-			if (bone.sorted) return;
+			if (bone.Sorted) return;
 			Bone parent = bone.parent;
 			if (parent != null) SortBone(parent);
-			bone.sorted = true;
+			bone.Sorted = true;
 			updateCache.Add(bone);
 		}
 
@@ -389,9 +393,9 @@ namespace Spine {
 			Bone[] bonesItems = bones.Items;
 			for (int i = 0, n = bones.Count; i < n; i++) {
 				Bone bone = bonesItems[i];
-				if (!bone.active) continue;
-				if (bone.sorted) SortReset(bone.children);
-				bone.sorted = false;
+				if (!bone.Active) continue;
+				if (bone.Sorted) SortReset(bone.children);
+				bone.Sorted = false;
 			}
 		}
 
@@ -425,19 +429,19 @@ namespace Spine {
 
 			// Apply the parent bone transform to the root bone. The root bone always inherits scale, rotation and reflection.
 			Bone rootBone = this.RootBone;
-			float pa = parent.a, pb = parent.b, pc = parent.c, pd = parent.d;
-			rootBone.worldX = pa * x + pb * y + parent.worldX;
-			rootBone.worldY = pc * x + pd * y + parent.worldY;
+			float pa = parent.A, pb = parent.B, pc = parent.C, pd = parent.D;
+			rootBone.WorldX = pa * x + pb * y + parent.WorldX;
+			rootBone.WorldY = pc * x + pd * y + parent.WorldY;
 
-			float rotationY = rootBone.rotation + 90 + rootBone.shearY;
-			float la = MathUtils.CosDeg(rootBone.rotation + rootBone.shearX) * rootBone.scaleX;
-			float lb = MathUtils.CosDeg(rotationY) * rootBone.scaleY;
-			float lc = MathUtils.SinDeg(rootBone.rotation + rootBone.shearX) * rootBone.scaleX;
-			float ld = MathUtils.SinDeg(rotationY) * rootBone.scaleY;
-			rootBone.a = (pa * la + pb * lc) * scaleX;
-			rootBone.b = (pa * lb + pb * ld) * scaleX;
-			rootBone.c = (pc * la + pd * lc) * scaleY;
-			rootBone.d = (pc * lb + pd * ld) * scaleY;
+			float rotationY = rootBone.Rotation + 90 + rootBone.ShearY;
+			float la = MathUtils.CosDeg(rootBone.Rotation + rootBone.ShearX) * rootBone.ScaleX;
+			float lb = MathUtils.CosDeg(rotationY) * rootBone.ScaleY;
+			float lc = MathUtils.SinDeg(rootBone.Rotation + rootBone.ShearX) * rootBone.ScaleX;
+			float ld = MathUtils.SinDeg(rotationY) * rootBone.ScaleY;
+			rootBone.A = (pa * la + pb * lc) * scaleX;
+			rootBone.B = (pa * lb + pb * ld) * scaleX;
+			rootBone.C = (pc * la + pd * lc) * scaleY;
+			rootBone.D = (pc * lb + pd * ld) * scaleY;
 
 			// Update everything except root bone.
 			IUpdatable[] updateCache = this.updateCache.Items;
@@ -510,7 +514,7 @@ namespace Spine {
 			Bone[] bones = this.bones.Items;
 			for (int i = 0, n = this.bones.Count; i < n; i++) {
 				Bone bone = bones[i];
-				if (bone.data.name == boneName) return bone;
+				if (bone.data.Name == boneName) return bone;
 			}
 			return null;
 		}
@@ -664,7 +668,7 @@ namespace Spine {
 			float minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
 			for (int i = 0, n = this.drawOrder.Count; i < n; i++) {
 				Slot slot = drawOrder[i];
-				if (!slot.bone.active) continue;
+				if (!slot.bone.Active) continue;
 				int verticesLength = 0;
 				float[] vertices = null;
 				Attachment attachment = slot.attachment;

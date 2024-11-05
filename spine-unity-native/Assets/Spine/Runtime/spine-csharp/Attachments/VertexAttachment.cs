@@ -107,8 +107,8 @@ namespace Spine {
 			if (bones == null) {
 				if (deformArray.Count > 0) vertices = deformArray.Items;
 				Bone bone = slot.bone;
-				float x = bone.worldX, y = bone.worldY;
-				float a = bone.a, b = bone.b, c = bone.c, d = bone.d;
+				float x = bone.WorldX, y = bone.WorldY;
+				float a = bone.A, b = bone.B, c = bone.C, d = bone.D;
 				for (int vv = start, w = offset; w < count; vv += 2, w += stride) {
 					float vx = vertices[vv], vy = vertices[vv + 1];
 					worldVertices[w] = vx * a + vy * b + x;
@@ -131,8 +131,8 @@ namespace Spine {
 					for (; v < n; v++, b += 3) {
 						Bone bone = skeletonBones[bones[v]];
 						float vx = vertices[b], vy = vertices[b + 1], weight = vertices[b + 2];
-						wx += (vx * bone.a + vy * bone.b + bone.worldX) * weight;
-						wy += (vx * bone.c + vy * bone.d + bone.worldY) * weight;
+						wx += (vx * bone.A + vy * bone.B + bone.WorldX) * weight;
+						wy += (vx * bone.C + vy * bone.D + bone.WorldY) * weight;
 					}
 					worldVertices[w] = wx;
 					worldVertices[w + 1] = wy;
@@ -146,8 +146,8 @@ namespace Spine {
 					for (; v < n; v++, b += 3, f += 2) {
 						Bone bone = skeletonBones[bones[v]];
 						float vx = vertices[b] + deform[f], vy = vertices[b + 1] + deform[f + 1], weight = vertices[b + 2];
-						wx += (vx * bone.a + vy * bone.b + bone.worldX) * weight;
-						wy += (vx * bone.c + vy * bone.d + bone.worldY) * weight;
+						wx += (vx * bone.A + vy * bone.B + bone.WorldX) * weight;
+						wy += (vx * bone.C + vy * bone.D + bone.WorldY) * weight;
 					}
 					worldVertices[w] = wx;
 					worldVertices[w + 1] = wy;

@@ -219,10 +219,10 @@ namespace Spine {
 				Debug.Log(this.GetType().Name);
 			}
 		}
-		
-		// private readonly string[] propertyIds;
-		//[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
-		//static extern long[] spine_timeline_get_propertyIds(IntPtr timelineHandle);
+
+		private readonly string[] propertyIds;
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern long[] spine_timeline_get_propertyIds(IntPtr timelineHandle);
 		//private long ManagedToNativePropertyId(string managed)
 		//{
 		//	string[] elements = managed.Split('|');
@@ -241,18 +241,44 @@ namespace Spine {
 		//		native[i] = ManagedToNativePropertyId(managed[i]);
 		//	return native;
 		//}
-		//private string[] NativeToManagedPropertyIds(long[] native)
-		//{
-		//	string[] managed = new string[native.Length];
-		//	for(int i=0;i<native.Length;i++)
-		//		managed[i] = NativeToManagedPropertyId(native[i]);
-		//	return managed;
-		//}
-		//private string[] propertyIds { get => NativeToManagedPropertyIds(spine_timeline_get_propertyIds(timelineHandle)); }
-		
-		
-		// internal readonly float[] frames;
-		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		private string[] NativeToManagedPropertyIds(long[] native)
+		{
+			string[] managed = new string[native.Length];
+			for (int i = 0; i < native.Length; i++)
+				managed[i] = NativeToManagedPropertyId(native[i]);
+			return managed;
+		}
+        private string NativeToManagedPropertyId(long native)
+        {
+            // get first 32 bit
+            long first32Bits = native >> 32;
+
+            // get the power
+            int power = (int)Math.Log(first32Bits, 2);
+
+            // divide left 32 bits into two 16 bits
+            int lower16Bits = (int)(native & 0xFFFF);
+            int upper16Bits = (int)((native >> 16) & 0xFFFF);
+
+
+            if (lower16Bits == 0 && upper16Bits == 0)
+            {
+                return power.ToString();
+            }
+            else if (lower16Bits == 0)
+            {
+                return power.ToString() + "|" + (int)(native & 0xFFFFFFFF);
+            }
+            else
+            {
+                return power.ToString() + "|" + upper16Bits.ToString() + "|" + lower16Bits.ToString();
+            }
+        }
+        //private string[] propertyIds { get => NativeToManagedPropertyIds(spine_timeline_get_propertyIds(timelineHandle)); }
+
+
+        // internal readonly float[] frames;
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
 		static extern IntPtr spine_timeline_get_frames(IntPtr timelineHandle,out int length);
 
 
@@ -292,12 +318,13 @@ namespace Spine {
 				timelineHandle = IntPtr.Zero;
 			}
 		}
-		
+
 
 		/// <summary>Uniquely encodes both the type of this timeline and the skeleton properties that it affects.</summary>
-		//public string[] PropertyIds {
-		//	get { return propertyIds; }
-		//}
+		public string[] PropertyIds
+		{
+			get { return NativeToManagedPropertyIds(spine_timeline_get_propertyIds(timelineHandle)); }
+		}
 
 		/// <summary>The time in seconds and any other values for each frame.</summary>
 		public float[] Frames {
@@ -621,15 +648,15 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			if (time < Frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.rotation = bone.data.rotation;
+					bone.Rotation = bone.data.Rotation;
 					return;
 				case MixBlend.First:
-					bone.rotation += (bone.data.rotation - bone.rotation) * alpha;
+					bone.Rotation += (bone.data.Rotation - bone.Rotation) * alpha;
 					return;
 				}
 				return;
@@ -638,14 +665,14 @@ namespace Spine {
 			float r = GetCurveValue(time);
 			switch (blend) {
 			case MixBlend.Setup:
-				bone.rotation = bone.data.rotation + r * alpha;
+				bone.Rotation = bone.data.Rotation + r * alpha;
 				break;
 			case MixBlend.First:
 			case MixBlend.Replace:
-				r += bone.data.rotation - bone.rotation;
+				r += bone.data.Rotation - bone.Rotation;
 				goto case MixBlend.Add; // Fall through.
 			case MixBlend.Add:
-				bone.rotation += r * alpha;
+				bone.Rotation += r * alpha;
 				break;
 			}
 		}
@@ -685,18 +712,18 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.x = bone.data.x;
-					bone.y = bone.data.y;
+					bone.X = bone.data.X;
+					bone.Y = bone.data.Y;
 					return;
 				case MixBlend.First:
-					bone.x += (bone.data.x - bone.x) * alpha;
-					bone.y += (bone.data.y - bone.y) * alpha;
+					bone.X += (bone.data.X - bone.X) * alpha;
+					bone.Y += (bone.data.Y - bone.Y) * alpha;
 					return;
 				}
 				return;
@@ -707,17 +734,17 @@ namespace Spine {
 
 			switch (blend) {
 			case MixBlend.Setup:
-				bone.x = bone.data.x + x * alpha;
-				bone.y = bone.data.y + y * alpha;
+				bone.X = bone.data.X + x * alpha;
+				bone.Y = bone.data.Y + y * alpha;
 				break;
 			case MixBlend.First:
 			case MixBlend.Replace:
-				bone.x += (bone.data.x + x - bone.x) * alpha;
-				bone.y += (bone.data.y + y - bone.y) * alpha;
+				bone.X += (bone.data.X + x - bone.X) * alpha;
+				bone.Y += (bone.data.Y + y - bone.Y) * alpha;
 				break;
 			case MixBlend.Add:
-				bone.x += x * alpha;
-				bone.y += y * alpha;
+				bone.X += x * alpha;
+				bone.Y += y * alpha;
 				break;
 			}
 		}
@@ -774,16 +801,16 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.x = bone.data.x;
+					bone.X = bone.data.X;
 					return;
 				case MixBlend.First:
-					bone.x += (bone.data.x - bone.x) * alpha;
+					bone.X += (bone.data.X - bone.X) * alpha;
 					return;
 				}
 				return;
@@ -792,14 +819,14 @@ namespace Spine {
 			float x = GetCurveValue(time);
 			switch (blend) {
 			case MixBlend.Setup:
-				bone.x = bone.data.x + x * alpha;
+				bone.X = bone.data.X + x * alpha;
 				break;
 			case MixBlend.First:
 			case MixBlend.Replace:
-				bone.x += (bone.data.x + x - bone.x) * alpha;
+				bone.X += (bone.data.X + x - bone.X) * alpha;
 				break;
 			case MixBlend.Add:
-				bone.x += x * alpha;
+				bone.X += x * alpha;
 				break;
 			}
 		}
@@ -834,16 +861,16 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.y = bone.data.y;
+					bone.Y = bone.data.Y;
 					return;
 				case MixBlend.First:
-					bone.y += (bone.data.y - bone.y) * alpha;
+					bone.Y += (bone.data.Y - bone.Y) * alpha;
 					return;
 				}
 				return;
@@ -852,14 +879,14 @@ namespace Spine {
 			float y = GetCurveValue(time);
 			switch (blend) {
 			case MixBlend.Setup:
-				bone.y = bone.data.y + y * alpha;
+				bone.Y = bone.data.Y + y * alpha;
 				break;
 			case MixBlend.First:
 			case MixBlend.Replace:
-				bone.y += (bone.data.y + y - bone.y) * alpha;
+				bone.Y += (bone.data.Y + y - bone.Y) * alpha;
 				break;
 			case MixBlend.Add:
-				bone.y += y * alpha;
+				bone.Y += y * alpha;
 				break;
 			}
 		}
@@ -895,18 +922,18 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.scaleX = bone.data.scaleX;
-					bone.scaleY = bone.data.scaleY;
+					bone.ScaleX = bone.data.ScaleX;
+					bone.ScaleY = bone.data.ScaleY;
 					return;
 				case MixBlend.First:
-					bone.scaleX += (bone.data.scaleX - bone.scaleX) * alpha;
-					bone.scaleY += (bone.data.scaleY - bone.scaleY) * alpha;
+					bone.ScaleX += (bone.data.ScaleX - bone.ScaleX) * alpha;
+					bone.ScaleY += (bone.data.ScaleY - bone.ScaleY) * alpha;
 					return;
 				}
 				return;
@@ -932,16 +959,16 @@ namespace Spine {
 				y = GetBezierValue(time, i, VALUE2, curveType + BEZIER_SIZE - BEZIER);
 				break;
 			}
-			x *= bone.data.scaleX;
-			y *= bone.data.scaleY;
+			x *= bone.data.ScaleX;
+			y *= bone.data.ScaleY;
 
 			if (alpha == 1) {
 				if (blend == MixBlend.Add) {
-					bone.scaleX += x - bone.data.scaleX;
-					bone.scaleY += y - bone.data.scaleY;
+					bone.ScaleX += x - bone.data.ScaleX;
+					bone.ScaleY += y - bone.data.ScaleY;
 				} else {
-					bone.scaleX = x;
-					bone.scaleY = y;
+					bone.ScaleX = x;
+					bone.ScaleY = y;
 				}
 			} else {
 				// Mixing out uses sign of setup or current pose, else use sign of key.
@@ -949,41 +976,41 @@ namespace Spine {
 				if (direction == MixDirection.Out) {
 					switch (blend) {
 					case MixBlend.Setup:
-						bx = bone.data.scaleX;
-						by = bone.data.scaleY;
-						bone.scaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
-						bone.scaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
+						bx = bone.data.ScaleX;
+						by = bone.data.ScaleY;
+						bone.ScaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
+						bone.ScaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
 						break;
 					case MixBlend.First:
 					case MixBlend.Replace:
-						bx = bone.scaleX;
-						by = bone.scaleY;
-						bone.scaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
-						bone.scaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
+						bx = bone.ScaleX;
+						by = bone.ScaleY;
+						bone.ScaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
+						bone.ScaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
 						break;
 					case MixBlend.Add:
-						bone.scaleX += (x - bone.data.scaleX) * alpha;
-						bone.scaleY += (y - bone.data.scaleY) * alpha;
+						bone.ScaleX += (x - bone.data.ScaleX) * alpha;
+						bone.ScaleY += (y - bone.data.ScaleY) * alpha;
 						break;
 					}
 				} else {
 					switch (blend) {
 					case MixBlend.Setup:
-						bx = Math.Abs(bone.data.scaleX) * Math.Sign(x);
-						by = Math.Abs(bone.data.scaleY) * Math.Sign(y);
-						bone.scaleX = bx + (x - bx) * alpha;
-						bone.scaleY = by + (y - by) * alpha;
+						bx = Math.Abs(bone.data.ScaleX) * Math.Sign(x);
+						by = Math.Abs(bone.data.ScaleY) * Math.Sign(y);
+						bone.ScaleX = bx + (x - bx) * alpha;
+						bone.ScaleY = by + (y - by) * alpha;
 						break;
 					case MixBlend.First:
 					case MixBlend.Replace:
-						bx = Math.Abs(bone.scaleX) * Math.Sign(x);
-						by = Math.Abs(bone.scaleY) * Math.Sign(y);
-						bone.scaleX = bx + (x - bx) * alpha;
-						bone.scaleY = by + (y - by) * alpha;
+						bx = Math.Abs(bone.ScaleX) * Math.Sign(x);
+						by = Math.Abs(bone.ScaleY) * Math.Sign(y);
+						bone.ScaleX = bx + (x - bx) * alpha;
+						bone.ScaleY = by + (y - by) * alpha;
 						break;
 					case MixBlend.Add:
-						bone.scaleX += (x - bone.data.scaleX) * alpha;
-						bone.scaleY += (y - bone.data.scaleY) * alpha;
+						bone.ScaleX += (x - bone.data.ScaleX) * alpha;
+						bone.ScaleY += (y - bone.data.ScaleY) * alpha;
 						break;
 					}
 				}
@@ -1020,58 +1047,58 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.scaleX = bone.data.scaleX;
+					bone.ScaleX = bone.data.ScaleX;
 					return;
 				case MixBlend.First:
-					bone.scaleX += (bone.data.scaleX - bone.scaleX) * alpha;
+					bone.ScaleX += (bone.data.ScaleX - bone.ScaleX) * alpha;
 					return;
 				}
 				return;
 			}
 
-			float x = GetCurveValue(time) * bone.data.scaleX;
+			float x = GetCurveValue(time) * bone.data.ScaleX;
 			if (alpha == 1) {
 				if (blend == MixBlend.Add)
-					bone.scaleX += x - bone.data.scaleX;
+					bone.ScaleX += x - bone.data.ScaleX;
 				else
-					bone.scaleX = x;
+					bone.ScaleX = x;
 			} else {
 				// Mixing out uses sign of setup or current pose, else use sign of key.
 				float bx;
 				if (direction == MixDirection.Out) {
 					switch (blend) {
 					case MixBlend.Setup:
-						bx = bone.data.scaleX;
-						bone.scaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
+						bx = bone.data.ScaleX;
+						bone.ScaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
 						break;
 					case MixBlend.First:
 					case MixBlend.Replace:
-						bx = bone.scaleX;
-						bone.scaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
+						bx = bone.ScaleX;
+						bone.ScaleX = bx + (Math.Abs(x) * Math.Sign(bx) - bx) * alpha;
 						break;
 					case MixBlend.Add:
-						bone.scaleX += (x - bone.data.scaleX) * alpha;
+						bone.ScaleX += (x - bone.data.ScaleX) * alpha;
 						break;
 					}
 				} else {
 					switch (blend) {
 					case MixBlend.Setup:
-						bx = Math.Abs(bone.data.scaleX) * Math.Sign(x);
-						bone.scaleX = bx + (x - bx) * alpha;
+						bx = Math.Abs(bone.data.ScaleX) * Math.Sign(x);
+						bone.ScaleX = bx + (x - bx) * alpha;
 						break;
 					case MixBlend.First:
 					case MixBlend.Replace:
-						bx = Math.Abs(bone.scaleX) * Math.Sign(x);
-						bone.scaleX = bx + (x - bx) * alpha;
+						bx = Math.Abs(bone.ScaleX) * Math.Sign(x);
+						bone.ScaleX = bx + (x - bx) * alpha;
 						break;
 					case MixBlend.Add:
-						bone.scaleX += (x - bone.data.scaleX) * alpha;
+						bone.ScaleX += (x - bone.data.ScaleX) * alpha;
 						break;
 					}
 				}
@@ -1108,58 +1135,58 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.scaleY = bone.data.scaleY;
+					bone.ScaleY = bone.data.ScaleY;
 					return;
 				case MixBlend.First:
-					bone.scaleY += (bone.data.scaleY - bone.scaleY) * alpha;
+					bone.ScaleY += (bone.data.ScaleY - bone.ScaleY) * alpha;
 					return;
 				}
 				return;
 			}
 
-			float y = GetCurveValue(time) * bone.data.scaleY;
+			float y = GetCurveValue(time) * bone.data.ScaleY;
 			if (alpha == 1) {
 				if (blend == MixBlend.Add)
-					bone.scaleY += y - bone.data.scaleY;
+					bone.ScaleY += y - bone.data.ScaleY;
 				else
-					bone.scaleY = y;
+					bone.ScaleY = y;
 			} else {
 				// Mixing out uses sign of setup or current pose, else use sign of key.
 				float by;
 				if (direction == MixDirection.Out) {
 					switch (blend) {
 					case MixBlend.Setup:
-						by = bone.data.scaleY;
-						bone.scaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
+						by = bone.data.ScaleY;
+						bone.ScaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
 						break;
 					case MixBlend.First:
 					case MixBlend.Replace:
-						by = bone.scaleY;
-						bone.scaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
+						by = bone.ScaleY;
+						bone.ScaleY = by + (Math.Abs(y) * Math.Sign(by) - by) * alpha;
 						break;
 					case MixBlend.Add:
-						bone.scaleY += (y - bone.data.scaleY) * alpha;
+						bone.ScaleY += (y - bone.data.ScaleY) * alpha;
 						break;
 					}
 				} else {
 					switch (blend) {
 					case MixBlend.Setup:
-						by = Math.Abs(bone.data.scaleY) * Math.Sign(y);
-						bone.scaleY = by + (y - by) * alpha;
+						by = Math.Abs(bone.data.ScaleY) * Math.Sign(y);
+						bone.ScaleY = by + (y - by) * alpha;
 						break;
 					case MixBlend.First:
 					case MixBlend.Replace:
-						by = Math.Abs(bone.scaleY) * Math.Sign(y);
-						bone.scaleY = by + (y - by) * alpha;
+						by = Math.Abs(bone.ScaleY) * Math.Sign(y);
+						bone.ScaleY = by + (y - by) * alpha;
 						break;
 					case MixBlend.Add:
-						bone.scaleY += (y - bone.data.scaleY) * alpha;
+						bone.ScaleY += (y - bone.data.ScaleY) * alpha;
 						break;
 					}
 				}
@@ -1200,18 +1227,18 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.shearX = bone.data.shearX;
-					bone.shearY = bone.data.shearY;
+					bone.ShearX= bone.data.ShearX;
+					bone.ShearY = bone.data.ShearY;
 					return;
 				case MixBlend.First:
-					bone.shearX += (bone.data.shearX - bone.shearX) * alpha;
-					bone.shearY += (bone.data.shearY - bone.shearY) * alpha;
+					bone.ShearX+= (bone.data.ShearX - bone.ShearX) * alpha;
+					bone.ShearY += (bone.data.ShearY - bone.ShearY) * alpha;
 					return;
 				}
 				return;
@@ -1240,17 +1267,17 @@ namespace Spine {
 
 			switch (blend) {
 			case MixBlend.Setup:
-				bone.shearX = bone.data.shearX + x * alpha;
-				bone.shearY = bone.data.shearY + y * alpha;
+				bone.ShearX= bone.data.ShearX + x * alpha;
+				bone.ShearY = bone.data.ShearY + y * alpha;
 				break;
 			case MixBlend.First:
 			case MixBlend.Replace:
-				bone.shearX += (bone.data.shearX + x - bone.shearX) * alpha;
-				bone.shearY += (bone.data.shearY + y - bone.shearY) * alpha;
+				bone.ShearX+= (bone.data.ShearX + x - bone.ShearX) * alpha;
+				bone.ShearY += (bone.data.ShearY + y - bone.ShearY) * alpha;
 				break;
 			case MixBlend.Add:
-				bone.shearX += x * alpha;
-				bone.shearY += y * alpha;
+				bone.ShearX+= x * alpha;
+				bone.ShearY += y * alpha;
 				break;
 			}
 		}
@@ -1286,16 +1313,16 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.shearX = bone.data.shearX;
+					bone.ShearX= bone.data.ShearX;
 					return;
 				case MixBlend.First:
-					bone.shearX += (bone.data.shearX - bone.shearX) * alpha;
+					bone.ShearX+= (bone.data.ShearX - bone.ShearX) * alpha;
 					return;
 				}
 				return;
@@ -1304,14 +1331,14 @@ namespace Spine {
 			float x = GetCurveValue(time);
 			switch (blend) {
 			case MixBlend.Setup:
-				bone.shearX = bone.data.shearX + x * alpha;
+				bone.ShearX= bone.data.ShearX + x * alpha;
 				break;
 			case MixBlend.First:
 			case MixBlend.Replace:
-				bone.shearX += (bone.data.shearX + x - bone.shearX) * alpha;
+				bone.ShearX+= (bone.data.ShearX + x - bone.ShearX) * alpha;
 				break;
 			case MixBlend.Add:
-				bone.shearX += x * alpha;
+				bone.ShearX+= x * alpha;
 				break;
 			}
 		}
@@ -1346,16 +1373,16 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Bone bone = skeleton.bones.Items[BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.shearY = bone.data.shearY;
+					bone.ShearY = bone.data.ShearY;
 					return;
 				case MixBlend.First:
-					bone.shearY += (bone.data.shearY - bone.shearY) * alpha;
+					bone.ShearY += (bone.data.ShearY - bone.ShearY) * alpha;
 					return;
 				}
 				return;
@@ -1364,14 +1391,14 @@ namespace Spine {
 			float y = GetCurveValue(time);
 			switch (blend) {
 			case MixBlend.Setup:
-				bone.shearY = bone.data.shearY + y * alpha;
+				bone.ShearY = bone.data.ShearY + y * alpha;
 				break;
 			case MixBlend.First:
 			case MixBlend.Replace:
-				bone.shearY += (bone.data.shearY + y - bone.shearY) * alpha;
+				bone.ShearY += (bone.data.ShearY + y - bone.ShearY) * alpha;
 				break;
 			case MixBlend.Add:
-				bone.shearY += y * alpha;
+				bone.ShearY += y * alpha;
 				break;
 			}
 		}
@@ -1426,7 +1453,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Slot slot = skeleton.slots.Items[SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -1554,7 +1581,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Slot slot = skeleton.slots.Items[SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -1655,7 +1682,7 @@ namespace Spine {
         override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Slot slot = skeleton.slots.Items[SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -1744,7 +1771,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Slot slot = skeleton.slots.Items[SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -1916,7 +1943,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			Slot slot = skeleton.slots.Items[SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -2076,7 +2103,7 @@ namespace Spine {
 		public override void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 							MixDirection direction) {
 			Slot slot = skeleton.slots.Items[slotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 
 			if (direction == MixDirection.Out) {
 				if (blend == MixBlend.Setup) SetAttachment(skeleton, slot, slot.data.attachmentName);
@@ -2208,7 +2235,7 @@ namespace Spine {
 									MixDirection direction) {
 
 			Slot slot = skeleton.slots.Items[SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 			VertexAttachment vertexAttachment = slot.attachment as VertexAttachment;
 			if (vertexAttachment == null || vertexAttachment.TimelineAttachment != attachment) return;
 
@@ -2571,7 +2598,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			IkConstraint constraint = skeleton.ikConstraints.Items[ikConstraintIndex];
-			if (!constraint.active) return;
+			if (!constraint.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -2690,7 +2717,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			TransformConstraint constraint = skeleton.transformConstraints.Items[transformConstraintIndex];
-			if (!constraint.active) return;
+			if (!constraint.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -2806,7 +2833,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			PathConstraint constraint = skeleton.pathConstraints.Items[pathConstraintIndex];
-			if (!constraint.active) return;
+			if (!constraint.Active) return;
 
 			if (time < Frames[0]) { // Time is before first frame.
 				switch (blend) {
@@ -2852,7 +2879,7 @@ namespace Spine {
 									MixDirection direction) {
 
 			PathConstraint constraint = skeleton.pathConstraints.Items[pathConstraintIndex];
-			if (!constraint.active) return;
+			if (!constraint.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -2922,7 +2949,7 @@ namespace Spine {
 		override public void Apply (Skeleton skeleton, float lastTime, float time, ExposedList<Event> firedEvents, float alpha, MixBlend blend,
 									MixDirection direction) {
 			PathConstraint constraint = skeleton.pathConstraints.Items[pathConstraintIndex];
-			if (!constraint.active) return;
+			if (!constraint.Active) return;
 
 			float[] frames = this.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -3034,7 +3061,7 @@ namespace Spine {
 			MixDirection direction) {
 
 			Slot slot = skeleton.slots.Items[SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 			Attachment slotAttachment = slot.attachment;
 			if (slotAttachment != attachment) {
 				VertexAttachment vertexAttachment = slotAttachment as VertexAttachment;

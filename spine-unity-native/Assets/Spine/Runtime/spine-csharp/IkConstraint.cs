@@ -59,8 +59,8 @@ namespace Spine {
 
 			bones = new ExposedList<Bone>(data.bones.Count);
 			foreach (BoneData boneData in data.bones)
-				bones.Add(skeleton.bones.Items[boneData.index]);
-			target = skeleton.bones.Items[data.target.index];
+				bones.Add(skeleton.bones.Items[boneData.Index]);
+			target = skeleton.bones.Items[data.target.Index];
 		}
 
 		/// <summary>Copy constructor.</summary>
@@ -70,8 +70,8 @@ namespace Spine {
 			data = constraint.data;
 			bones = new ExposedList<Bone>(constraint.Bones.Count);
 			foreach (Bone bone in constraint.Bones)
-				bones.Add(skeleton.Bones.Items[bone.data.index]);
-			target = skeleton.Bones.Items[constraint.target.data.index];
+				bones.Add(skeleton.Bones.Items[bone.data.Index]);
+			target = skeleton.Bones.Items[constraint.target.data.Index];
 			mix = constraint.mix;
 			softness = constraint.softness;
 			bendDirection = constraint.bendDirection;
@@ -85,10 +85,10 @@ namespace Spine {
 			Bone[] bones = this.bones.Items;
 			switch (this.bones.Count) {
 			case 1:
-				Apply(bones[0], target.worldX, target.worldY, compress, stretch, data.uniform, mix);
+				Apply(bones[0], target.WorldX, target.WorldY, compress, stretch, data.uniform, mix);
 				break;
 			case 2:
-				Apply(bones[0], bones[1], target.worldX, target.worldY, bendDirection, stretch, data.uniform, softness, mix);
+				Apply(bones[0], bones[1], target.WorldX, target.WorldY, bendDirection, stretch, data.uniform, softness, mix);
 				break;
 			}
 		}
@@ -162,14 +162,14 @@ namespace Spine {
 			if (bone == null) throw new ArgumentNullException("bone", "bone cannot be null.");
 			Bone p = bone.parent;
 
-			float pa = p.a, pb = p.b, pc = p.c, pd = p.d;
-			float rotationIK = -bone.ashearX - bone.arotation;
+			float pa = p.A, pb = p.B, pc = p.C, pd = p.D;
+			float rotationIK = -bone.AShearX - bone.AppliedRotation;
 			float tx = 0, ty = 0;
 
-			switch (bone.data.transformMode) {
+			switch (bone.data.TransformMode) {
 			case TransformMode.OnlyTranslation:
-				tx = (targetX - bone.worldX) * Math.Sign(bone.skeleton.ScaleX);
-				ty = (targetY - bone.worldY) * Math.Sign(bone.skeleton.ScaleY);
+				tx = (targetX - bone.WorldX) * Math.Sign(bone.skeleton.ScaleX);
+				ty = (targetY - bone.WorldY) * Math.Sign(bone.skeleton.ScaleY);
 				break;
 			case TransformMode.NoRotationOrReflection: {
 				float s = Math.Abs(pa * pd - pb * pc) / Math.Max(0.0001f, pa * pa + pc * pc);
@@ -181,43 +181,43 @@ namespace Spine {
 				goto default; // Fall through.
 			}
 			default: {
-				float x = targetX - p.worldX, y = targetY - p.worldY;
+				float x = targetX - p.WorldX, y = targetY - p.WorldY;
 				float d = pa * pd - pb * pc;
 				if (Math.Abs(d) <= 0.0001f) {
 					tx = 0;
 					ty = 0;
 				} else {
-					tx = (x * pd - y * pb) / d - bone.ax;
-					ty = (y * pa - x * pc) / d - bone.ay;
+					tx = (x * pd - y * pb) / d - bone.AX;
+					ty = (y * pa - x * pc) / d - bone.AY;
 				}
 				break;
 			}
 			}
 
 			rotationIK += (float)Math.Atan2(ty, tx) * MathUtils.RadDeg;
-			if (bone.ascaleX < 0) rotationIK += 180;
+			if (bone.AScaleX < 0) rotationIK += 180;
 			if (rotationIK > 180)
 				rotationIK -= 360;
 			else if (rotationIK < -180) //
 				rotationIK += 360;
 
-			float sx = bone.ascaleX, sy = bone.ascaleY;
+			float sx = bone.AScaleX, sy = bone.AScaleY;
 			if (compress || stretch) {
-				switch (bone.data.transformMode) {
+				switch (bone.data.TransformMode) {
 				case TransformMode.NoScale:
 				case TransformMode.NoScaleOrReflection:
-					tx = targetX - bone.worldX;
-					ty = targetY - bone.worldY;
+					tx = targetX - bone.WorldX;
+					ty = targetY - bone.WorldY;
 					break;
 				}
-				float b = bone.data.length * sx, dd = (float)Math.Sqrt(tx * tx + ty * ty);
+				float b = bone.data.Length * sx, dd = (float)Math.Sqrt(tx * tx + ty * ty);
 				if ((compress && dd < b) || (stretch && dd > b) && b > 0.0001f) {
 					float s = (dd / b - 1) * alpha + 1;
 					sx *= s;
 					if (uniform) sy *= s;
 				}
 			}
-			bone.UpdateWorldTransform(bone.ax, bone.ay, bone.arotation + rotationIK * alpha, sx, sy, bone.ashearX, bone.ashearY);
+			bone.UpdateWorldTransform(bone.AX, bone.AY, bone.AppliedRotation + rotationIK * alpha, sx, sy, bone.AShearX, bone.AShearY);
 		}
 
 		/// <summary>Applies 2 bone IK. The target is specified in the world coordinate system.</summary>
@@ -226,7 +226,7 @@ namespace Spine {
 			float softness, float alpha) {
 			if (parent == null) throw new ArgumentNullException("parent", "parent cannot be null.");
 			if (child == null) throw new ArgumentNullException("child", "child cannot be null.");
-			float px = parent.ax, py = parent.ay, psx = parent.ascaleX, psy = parent.ascaleY, sx = psx, sy = psy, csx = child.ascaleX;
+			float px = parent.AX, py = parent.AY, psx = parent.AScaleX, psy = parent.AScaleY, sx = psx, sy = psy, csx = child.AScaleX;
 			int os1, os2, s2;
 			if (psx < 0) {
 				psx = -psx;
@@ -245,33 +245,33 @@ namespace Spine {
 				os2 = 180;
 			} else
 				os2 = 0;
-			float cx = child.ax, cy, cwx, cwy, a = parent.a, b = parent.b, c = parent.c, d = parent.d;
+			float cx = child.AX, cy, cwx, cwy, a = parent.A, b = parent.B, c = parent.C, d = parent.D;
 			bool u = Math.Abs(psx - psy) <= 0.0001f;
 			if (!u || stretch) {
 				cy = 0;
-				cwx = a * cx + parent.worldX;
-				cwy = c * cx + parent.worldY;
+				cwx = a * cx + parent.WorldX;
+				cwy = c * cx + parent.WorldY;
 			} else {
-				cy = child.ay;
-				cwx = a * cx + b * cy + parent.worldX;
-				cwy = c * cx + d * cy + parent.worldY;
+				cy = child.AY;
+				cwx = a * cx + b * cy + parent.WorldX;
+				cwy = c * cx + d * cy + parent.WorldY;
 			}
 			Bone pp = parent.parent;
-			a = pp.a;
-			b = pp.b;
-			c = pp.c;
-			d = pp.d;
-			float id = a * d - b * c, x = cwx - pp.worldX, y = cwy - pp.worldY;
+			a = pp.A;
+			b = pp.B;
+			c = pp.C;
+			d = pp.D;
+			float id = a * d - b * c, x = cwx - pp.WorldX, y = cwy - pp.WorldY;
 			id = Math.Abs(id) <= 0.0001f ? 0 : 1 / id;
 			float dx = (x * d - y * b) * id - px, dy = (y * a - x * c) * id - py;
-			float l1 = (float)Math.Sqrt(dx * dx + dy * dy), l2 = child.data.length * csx, a1, a2;
+			float l1 = (float)Math.Sqrt(dx * dx + dy * dy), l2 = child.data.Length * csx, a1, a2;
 			if (l1 < 0.0001f) {
 				Apply(parent, targetX, targetY, false, stretch, false, alpha);
-				child.UpdateWorldTransform(cx, cy, 0, child.ascaleX, child.ascaleY, child.ashearX, child.ashearY);
+				child.UpdateWorldTransform(cx, cy, 0, child.AScaleX, child.AScaleY, child.AShearX, child.AShearY);
 				return;
 			}
-			x = targetX - pp.worldX;
-			y = targetY - pp.worldY;
+			x = targetX - pp.WorldX;
+			y = targetY - pp.WorldY;
 			float tx = (x * d - y * b) * id - px, ty = (y * a - x * c) * id - py;
 			float dd = tx * tx + ty * ty;
 			if (softness != 0) {
@@ -355,20 +355,20 @@ namespace Spine {
 			}
 			break_outer:
 			float os = (float)Math.Atan2(cy, cx) * s2;
-			float rotation = parent.arotation;
+			float rotation = parent.AppliedRotation;
 			a1 = (a1 - os) * MathUtils.RadDeg + os1 - rotation;
 			if (a1 > 180)
 				a1 -= 360;
 			else if (a1 < -180)
 				a1 += 360;
 			parent.UpdateWorldTransform(px, py, rotation + a1 * alpha, sx, sy, 0, 0);
-			rotation = child.arotation;
-			a2 = ((a2 + os) * MathUtils.RadDeg - child.ashearX) * s2 + os2 - rotation;
+			rotation = child.AppliedRotation;
+			a2 = ((a2 + os) * MathUtils.RadDeg - child.AShearX) * s2 + os2 - rotation;
 			if (a2 > 180)
 				a2 -= 360;
 			else if (a2 < -180)
 				a2 += 360;
-			child.UpdateWorldTransform(cx, cy, rotation + a2 * alpha, child.ascaleX, child.ascaleY, child.ashearX, child.ashearY);
+			child.UpdateWorldTransform(cx, cy, rotation + a2 * alpha, child.AScaleX, child.AScaleY, child.AShearX, child.AShearY);
 		}
 	}
 }

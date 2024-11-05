@@ -59,7 +59,7 @@ namespace Spine {
 			this.data = data;
 			bones = new ExposedList<Bone>(data.Bones.Count);
 			foreach (BoneData boneData in data.bones)
-				bones.Add(skeleton.bones.Items[boneData.index]);
+				bones.Add(skeleton.bones.Items[boneData.Index]);
 			target = skeleton.slots.Items[data.target.index];
 			position = data.position;
 			spacing = data.spacing;
@@ -75,7 +75,7 @@ namespace Spine {
 			data = constraint.data;
 			bones = new ExposedList<Bone>(constraint.bones.Count);
 			foreach (Bone bone in constraint.bones)
-				bones.Add(skeleton.bones.Items[bone.data.index]);
+				bones.Add(skeleton.bones.Items[bone.data.Index]);
 			target = skeleton.slots.Items[constraint.target.data.index];
 			position = constraint.position;
 			spacing = constraint.spacing;
@@ -107,11 +107,11 @@ namespace Spine {
 				if (scale) {
 					for (int i = 0, n = spacesCount - 1; i < n; i++) {
 						Bone bone = bonesItems[i];
-						float setupLength = bone.data.length;
+						float setupLength = bone.data.Length;
 						if (setupLength < PathConstraint.Epsilon)
 							lengths[i] = 0;
 						else {
-							float x = setupLength * bone.a, y = setupLength * bone.c;
+							float x = setupLength * bone.A, y = setupLength * bone.C;
 							lengths[i] = (float)Math.Sqrt(x * x + y * y);
 						}
 					}
@@ -122,12 +122,12 @@ namespace Spine {
 				float sum = 0;
 				for (int i = 0, n = spacesCount - 1; i < n;) {
 					Bone bone = bonesItems[i];
-					float setupLength = bone.data.length;
+					float setupLength = bone.data.Length;
 					if (setupLength < PathConstraint.Epsilon) {
 						if (scale) lengths[i] = 0;
 						spaces[++i] = spacing;
 					} else {
-						float x = setupLength * bone.a, y = setupLength * bone.c;
+						float x = setupLength * bone.A, y = setupLength * bone.C;
 						float length = (float)Math.Sqrt(x * x + y * y);
 						if (scale) lengths[i] = length;
 						spaces[++i] = length;
@@ -145,12 +145,12 @@ namespace Spine {
 				bool lengthSpacing = data.spacingMode == SpacingMode.Length;
 				for (int i = 0, n = spacesCount - 1; i < n;) {
 					Bone bone = bonesItems[i];
-					float setupLength = bone.data.length;
+					float setupLength = bone.data.Length;
 					if (setupLength < PathConstraint.Epsilon) {
 						if (scale) lengths[i] = 0;
 						spaces[++i] = spacing;
 					} else {
-						float x = setupLength * bone.a, y = setupLength * bone.c;
+						float x = setupLength * bone.A, y = setupLength * bone.C;
 						float length = (float)Math.Sqrt(x * x + y * y);
 						if (scale) lengths[i] = length;
 						spaces[++i] = (lengthSpacing ? setupLength + spacing : spacing) * length / setupLength;
@@ -168,25 +168,25 @@ namespace Spine {
 			} else {
 				tip = false;
 				Bone p = target.bone;
-				offsetRotation *= p.a * p.d - p.b * p.c > 0 ? MathUtils.DegRad : -MathUtils.DegRad;
+				offsetRotation *= p.A * p.D - p.B * p.C > 0 ? MathUtils.DegRad : -MathUtils.DegRad;
 			}
 			for (int i = 0, p = 3; i < boneCount; i++, p += 3) {
 				Bone bone = bonesItems[i];
-				bone.worldX += (boneX - bone.worldX) * mixX;
-				bone.worldY += (boneY - bone.worldY) * mixY;
+				bone.WorldX += (boneX - bone.WorldX) * mixX;
+				bone.WorldY += (boneY - bone.WorldY) * mixY;
 				float x = positions[p], y = positions[p + 1], dx = x - boneX, dy = y - boneY;
 				if (scale) {
 					float length = lengths[i];
 					if (length >= PathConstraint.Epsilon) {
 						float s = ((float)Math.Sqrt(dx * dx + dy * dy) / length - 1) * mixRotate + 1;
-						bone.a *= s;
-						bone.c *= s;
+						bone.A *= s;
+						bone.C *= s;
 					}
 				}
 				boneX = x;
 				boneY = y;
 				if (mixRotate > 0) {
-					float a = bone.a, b = bone.b, c = bone.c, d = bone.d, r, cos, sin;
+					float a = bone.A, b = bone.B, c = bone.C, d = bone.D, r, cos, sin;
 					if (tangents)
 						r = positions[p - 1];
 					else if (spaces[i + 1] < PathConstraint.Epsilon)
@@ -197,7 +197,7 @@ namespace Spine {
 					if (tip) {
 						cos = MathUtils.Cos(r);
 						sin = MathUtils.Sin(r);
-						float length = bone.data.length;
+						float length = bone.data.Length;
 						boneX += (length * (cos * a - sin * c) - dx) * mixRotate;
 						boneY += (length * (sin * a + cos * c) - dy) * mixRotate;
 					} else
@@ -209,10 +209,10 @@ namespace Spine {
 					r *= mixRotate;
 					cos = MathUtils.Cos(r);
 					sin = MathUtils.Sin(r);
-					bone.a = cos * a - sin * c;
-					bone.b = cos * b - sin * d;
-					bone.c = sin * a + cos * c;
-					bone.d = sin * b + cos * d;
+					bone.A = cos * a - sin * c;
+					bone.B = cos * b - sin * d;
+					bone.C = sin * a + cos * c;
+					bone.D = sin * b + cos * d;
 				}
 				bone.UpdateAppliedTransform();
 			}

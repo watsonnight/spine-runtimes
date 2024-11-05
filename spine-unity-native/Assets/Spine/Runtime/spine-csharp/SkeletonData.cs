@@ -46,6 +46,7 @@ namespace Spine {
 		internal ExposedList<PathConstraintData> pathConstraints = new ExposedList<PathConstraintData>();
 		internal float x, y, width, height;
 		internal string version, hash;
+		
 
 
 		// Nonessential.
@@ -122,7 +123,7 @@ namespace Spine {
 			BoneData[] bones = this.bones.Items;
 			for (int i = 0, n = this.bones.Count; i < n; i++) {
 				BoneData bone = bones[i];
-				if (bone.name == boneName) return bone;
+				if (bone.Name == boneName) return bone;
 			}
 			return null;
 		}

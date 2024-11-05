@@ -693,7 +693,7 @@ namespace Spine {
 			bool attachments) {
 
 			Slot slot = skeleton.slots.Items[timeline.SlotIndex];
-			if (!slot.bone.active) return;
+			if (!slot.bone.Active) return;
 
 			float[] frames = timeline.Frames;
 			if (time < frames[0]) { // Time is before first frame.
@@ -725,25 +725,25 @@ namespace Spine {
 			}
 
 			Bone bone = skeleton.bones.Items[timeline.BoneIndex];
-			if (!bone.active) return;
+			if (!bone.Active) return;
 
 			float[] frames = timeline.Frames;
 			float r1, r2;
 			if (time < frames[0]) { // Time is before first frame.
 				switch (blend) {
 				case MixBlend.Setup:
-					bone.rotation = bone.data.rotation;
+					bone.Rotation = bone.data.Rotation;
 					goto default; // Fall through.
 				default:
 					return;
 				case MixBlend.First:
-					r1 = bone.rotation;
-					r2 = bone.data.rotation;
+					r1 = bone.Rotation;
+					r2 = bone.data.Rotation;
 					break;
 				}
 			} else {
-				r1 = blend == MixBlend.Setup ? bone.data.rotation : bone.rotation;
-				r2 = bone.data.rotation + timeline.GetCurveValue(time);
+				r1 = blend == MixBlend.Setup ? bone.data.Rotation : bone.Rotation;
+				r2 = bone.data.Rotation + timeline.GetCurveValue(time);
 			}
 
 			// Mix between rotations using the direction of the shortest route on the first frame.
@@ -772,7 +772,7 @@ namespace Spine {
 				timelinesRotation[i] = total;
 			}
 			timelinesRotation[i + 1] = diff;
-			bone.rotation = r1 + total * alpha;
+			bone.Rotation = r1 + total * alpha;
 		}
 
 		private void QueueEvents (TrackEntry entry, float animationTime) {

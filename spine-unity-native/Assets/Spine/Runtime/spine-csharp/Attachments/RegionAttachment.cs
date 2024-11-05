@@ -188,8 +188,8 @@ namespace Spine {
 
 			float[] vertexOffset = this.offset;
 			Bone bone = slot.Bone;
-			float bwx = bone.worldX, bwy = bone.worldY;
-			float a = bone.a, b = bone.b, c = bone.c, d = bone.d;
+			float bwx = bone.WorldX, bwy = bone.WorldY;
+			float a = bone.A, b = bone.B, c = bone.C, d = bone.D;
 			float offsetX, offsetY;
 
 			// Vertex order is different from RegionAttachment.java

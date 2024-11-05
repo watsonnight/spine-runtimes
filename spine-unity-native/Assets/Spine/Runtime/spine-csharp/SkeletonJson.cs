@@ -123,18 +123,18 @@ namespace Spine {
 							throw new Exception("Parent bone not found: " + boneMap["parent"]);
 					}
 					BoneData data = new BoneData(skeletonData.Bones.Count, (string)boneMap["name"], parent);
-					data.length = GetFloat(boneMap, "length", 0) * scale;
-					data.x = GetFloat(boneMap, "x", 0) * scale;
-					data.y = GetFloat(boneMap, "y", 0) * scale;
-					data.rotation = GetFloat(boneMap, "rotation", 0);
-					data.scaleX = GetFloat(boneMap, "scaleX", 1);
-					data.scaleY = GetFloat(boneMap, "scaleY", 1);
-					data.shearX = GetFloat(boneMap, "shearX", 0);
-					data.shearY = GetFloat(boneMap, "shearY", 0);
+					data.Length = GetFloat(boneMap, "length", 0) * scale;
+					data.X = GetFloat(boneMap, "x", 0) * scale;
+					data.Y = GetFloat(boneMap, "y", 0) * scale;
+					data.Rotation = GetFloat(boneMap, "rotation", 0);
+					data.ScaleX = GetFloat(boneMap, "scaleX", 1);
+					data.ScaleY = GetFloat(boneMap, "scaleY", 1);
+					data.ShearX = GetFloat(boneMap, "shearX", 0);
+					data.ShearY = GetFloat(boneMap, "shearY", 0);
 
 					string tm = GetString(boneMap, "transform", TransformMode.Normal.ToString());
-					data.transformMode = (TransformMode)Enum.Parse(typeof(TransformMode), tm, true);
-					data.skinRequired = GetBoolean(boneMap, "skin", false);
+					data.TransformMode = (TransformMode)Enum.Parse(typeof(TransformMode), tm, true);
+					data.SkinRequired = GetBoolean(boneMap, "skin", false);
 
 					skeletonData.bones.Add(data);
 				}
@@ -784,7 +784,7 @@ namespace Spine {
 					int boneIndex = -1;
 					BoneData[] bones = skeletonData.bones.Items;
 					for (int i = 0, n = skeletonData.bones.Count; i < n; i++) {
-						if (bones[i].name == boneName) {
+						if (bones[i].Name == boneName) {
 							boneIndex = i;
 							break;
 						}

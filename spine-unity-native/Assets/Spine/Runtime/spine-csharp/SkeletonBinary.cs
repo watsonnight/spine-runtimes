@@ -34,7 +34,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using UnityEngine;
+using Object = System.Object;
 
 #if WINDOWS_STOREAPP
 using System.Threading.Tasks;
@@ -163,24 +166,56 @@ namespace Spine {
 				o[i] = input.ReadString();
 
 			// Bones.
+			// BoneData[] bones = skeletonData.bones.Resize(n = input.ReadInt(true)).Items;
+			// for (int i = 0; i < n; i++) {
+			// 	String name = input.ReadString();
+			// 	BoneData parent = i == 0 ? null : bones[input.ReadInt(true)];
+			// 	BoneData data = new BoneData(i, name, parent);
+			// 	data.rotation = input.ReadFloat();
+			// 	data.x = input.ReadFloat() * scale;
+			// 	data.y = input.ReadFloat() * scale;
+			// 	data.scaleX = input.ReadFloat();
+			// 	data.scaleY = input.ReadFloat();
+			// 	data.shearX = input.ReadFloat();
+			// 	data.shearY = input.ReadFloat();
+			// 	data.Length = input.ReadFloat() * scale;
+			// 	data.transformMode = TransformModeValues[input.ReadInt(true)];
+			// 	data.skinRequired = input.ReadBoolean();
+			// 	if (nonessential) input.ReadInt(); // Skip bone color.
+			// 	bones[i] = data;
+			// }
+			
+			[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+			static extern IntPtr spine_bonedata_get_Handle_x_unity(IntPtr skeletondataHandle,int index);
+			
 			BoneData[] bones = skeletonData.bones.Resize(n = input.ReadInt(true)).Items;
-			for (int i = 0; i < n; i++) {
-				String name = input.ReadString();
+			for (int i = 0; i < n; i++)
+			{
+				
+				input.ReadString();
 				BoneData parent = i == 0 ? null : bones[input.ReadInt(true)];
-				BoneData data = new BoneData(i, name, parent);
-				data.rotation = input.ReadFloat();
-				data.x = input.ReadFloat() * scale;
-				data.y = input.ReadFloat() * scale;
-				data.scaleX = input.ReadFloat();
-				data.scaleY = input.ReadFloat();
-				data.shearX = input.ReadFloat();
-				data.shearY = input.ReadFloat();
-				data.Length = input.ReadFloat() * scale;
-				data.transformMode = TransformModeValues[input.ReadInt(true)];
-				data.skinRequired = input.ReadBoolean();
+				BoneData data = new BoneData(parent);
+				data.boneDataHandle = spine_bonedata_get_Handle_x_unity(sklhandle, i);
+				if(data.boneDataHandle == IntPtr.Zero) Debug.Log("get bonedatahandle fail:0");
+				
+				input.ReadFloat();
+				input.ReadFloat();
+				input.ReadFloat();
+				input.ReadFloat();
+				input.ReadFloat();
+				input.ReadFloat();
+				input.ReadFloat();
+				input.ReadFloat() ;
+				input.ReadInt(true);
+				input.ReadBoolean();
 				if (nonessential) input.ReadInt(); // Skip bone color.
 				bones[i] = data;
+				
 			}
+			
+			
+			
+			
 
 			// Slots.
 			SlotData[] slots = skeletonData.slots.Resize(n = input.ReadInt(true)).Items;

@@ -57,9 +57,9 @@ namespace Spine {
 			mixShearY = data.mixShearY;
 			bones = new ExposedList<Bone>();
 			foreach (BoneData boneData in data.bones)
-				bones.Add(skeleton.bones.Items[boneData.index]);
+				bones.Add(skeleton.bones.Items[boneData.Index]);
 
-			target = skeleton.bones.Items[data.target.index];
+			target = skeleton.bones.Items[data.target.Index];
 		}
 
 		/// <summary>Copy constructor.</summary>
@@ -69,8 +69,8 @@ namespace Spine {
 			data = constraint.data;
 			bones = new ExposedList<Bone>(constraint.Bones.Count);
 			foreach (Bone bone in constraint.Bones)
-				bones.Add(skeleton.Bones.Items[bone.data.index]);
-			target = skeleton.Bones.Items[constraint.target.data.index];
+				bones.Add(skeleton.Bones.Items[bone.data.Index]);
+			target = skeleton.Bones.Items[constraint.target.data.Index];
 			mixRotate = constraint.mixRotate;
 			mixX = constraint.mixX;
 			mixY = constraint.mixY;
@@ -100,7 +100,7 @@ namespace Spine {
 			bool translate = mixX != 0 || mixY != 0;
 
 			Bone target = this.target;
-			float ta = target.a, tb = target.b, tc = target.c, td = target.d;
+			float ta = target.A, tb = target.B, tc = target.C, td = target.D;
 			float degRadReflect = ta * td - tb * tc > 0 ? MathUtils.DegRad : -MathUtils.DegRad;
 			float offsetRotation = data.offsetRotation * degRadReflect, offsetShearY = data.offsetShearY * degRadReflect;
 
@@ -109,7 +109,7 @@ namespace Spine {
 				Bone bone = bones[i];
 
 				if (mixRotate != 0) {
-					float a = bone.a, b = bone.b, c = bone.c, d = bone.d;
+					float a = bone.A, b = bone.B, c = bone.C, d = bone.D;
 					float r = MathUtils.Atan2(tc, ta) - MathUtils.Atan2(c, a) + offsetRotation;
 					if (r > MathUtils.PI)
 						r -= MathUtils.PI2;
@@ -117,44 +117,44 @@ namespace Spine {
 						r += MathUtils.PI2;
 					r *= mixRotate;
 					float cos = MathUtils.Cos(r), sin = MathUtils.Sin(r);
-					bone.a = cos * a - sin * c;
-					bone.b = cos * b - sin * d;
-					bone.c = sin * a + cos * c;
-					bone.d = sin * b + cos * d;
+					bone.A = cos * a - sin * c;
+					bone.B = cos * b - sin * d;
+					bone.C = sin * a + cos * c;
+					bone.D = sin * b + cos * d;
 				}
 
 				if (translate) {
 					float tx, ty; //Vector2 temp = this.temp;
 					target.LocalToWorld(data.offsetX, data.offsetY, out tx, out ty); //target.localToWorld(temp.set(data.offsetX, data.offsetY));
-					bone.worldX += (tx - bone.worldX) * mixX;
-					bone.worldY += (ty - bone.worldY) * mixY;
+					bone.WorldX += (tx - bone.WorldX) * mixX;
+					bone.WorldY += (ty - bone.WorldY) * mixY;
 				}
 
 				if (mixScaleX != 0) {
-					float s = (float)Math.Sqrt(bone.a * bone.a + bone.c * bone.c);
+					float s = (float)Math.Sqrt(bone.A * bone.A + bone.C * bone.C);
 					if (s != 0) s = (s + ((float)Math.Sqrt(ta * ta + tc * tc) - s + data.offsetScaleX) * mixScaleX) / s;
-					bone.a *= s;
-					bone.c *= s;
+					bone.A *= s;
+					bone.C *= s;
 				}
 				if (mixScaleY != 0) {
-					float s = (float)Math.Sqrt(bone.b * bone.b + bone.d * bone.d);
+					float s = (float)Math.Sqrt(bone.B * bone.B + bone.D * bone.D);
 					if (s != 0) s = (s + ((float)Math.Sqrt(tb * tb + td * td) - s + data.offsetScaleY) * mixScaleY) / s;
-					bone.b *= s;
-					bone.d *= s;
+					bone.B *= s;
+					bone.D *= s;
 				}
 
 				if (mixShearY > 0) {
-					float b = bone.b, d = bone.d;
+					float b = bone.B, d = bone.D;
 					float by = MathUtils.Atan2(d, b);
-					float r = MathUtils.Atan2(td, tb) - MathUtils.Atan2(tc, ta) - (by - MathUtils.Atan2(bone.c, bone.a));
+					float r = MathUtils.Atan2(td, tb) - MathUtils.Atan2(tc, ta) - (by - MathUtils.Atan2(bone.C, bone.A));
 					if (r > MathUtils.PI)
 						r -= MathUtils.PI2;
 					else if (r < -MathUtils.PI) //
 						r += MathUtils.PI2;
 					r = by + (r + offsetShearY) * mixShearY;
 					float s = (float)Math.Sqrt(b * b + d * d);
-					bone.b = MathUtils.Cos(r) * s;
-					bone.d = MathUtils.Sin(r) * s;
+					bone.B = MathUtils.Cos(r) * s;
+					bone.D = MathUtils.Sin(r) * s;
 				}
 
 				bone.UpdateAppliedTransform();
@@ -167,7 +167,7 @@ namespace Spine {
 			bool translate = mixX != 0 || mixY != 0;
 
 			Bone target = this.target;
-			float ta = target.a, tb = target.b, tc = target.c, td = target.d;
+			float ta = target.A, tb = target.B, tc = target.C, td = target.D;
 			float degRadReflect = ta * td - tb * tc > 0 ? MathUtils.DegRad : -MathUtils.DegRad;
 			float offsetRotation = data.offsetRotation * degRadReflect, offsetShearY = data.offsetShearY * degRadReflect;
 
@@ -176,7 +176,7 @@ namespace Spine {
 				Bone bone = bones[i];
 
 				if (mixRotate != 0) {
-					float a = bone.a, b = bone.b, c = bone.c, d = bone.d;
+					float a = bone.A, b = bone.B, c = bone.C, d = bone.D;
 					float r = MathUtils.Atan2(tc, ta) + offsetRotation;
 					if (r > MathUtils.PI)
 						r -= MathUtils.PI2;
@@ -184,28 +184,28 @@ namespace Spine {
 						r += MathUtils.PI2;
 					r *= mixRotate;
 					float cos = MathUtils.Cos(r), sin = MathUtils.Sin(r);
-					bone.a = cos * a - sin * c;
-					bone.b = cos * b - sin * d;
-					bone.c = sin * a + cos * c;
-					bone.d = sin * b + cos * d;
+					bone.A = cos * a - sin * c;
+					bone.B = cos * b - sin * d;
+					bone.C = sin * a + cos * c;
+					bone.D = sin * b + cos * d;
 				}
 
 				if (translate) {
 					float tx, ty; //Vector2 temp = this.temp;
 					target.LocalToWorld(data.offsetX, data.offsetY, out tx, out ty); //target.localToWorld(temp.set(data.offsetX, data.offsetY));
-					bone.worldX += tx * mixX;
-					bone.worldY += ty * mixY;
+					bone.WorldX += tx * mixX;
+					bone.WorldY += ty * mixY;
 				}
 
 				if (mixScaleX != 0) {
 					float s = ((float)Math.Sqrt(ta * ta + tc * tc) - 1 + data.offsetScaleX) * mixScaleX + 1;
-					bone.a *= s;
-					bone.c *= s;
+					bone.A *= s;
+					bone.C *= s;
 				}
 				if (mixScaleY != 0) {
 					float s = ((float)Math.Sqrt(tb * tb + td * td) - 1 + data.offsetScaleY) * mixScaleY + 1;
-					bone.b *= s;
-					bone.d *= s;
+					bone.B *= s;
+					bone.D *= s;
 				}
 
 				if (mixShearY > 0) {
@@ -214,11 +214,11 @@ namespace Spine {
 						r -= MathUtils.PI2;
 					else if (r < -MathUtils.PI) //
 						r += MathUtils.PI2;
-					float b = bone.b, d = bone.d;
+					float b = bone.B, d = bone.D;
 					r = MathUtils.Atan2(d, b) + (r - MathUtils.PI / 2 + offsetShearY) * mixShearY;
 					float s = (float)Math.Sqrt(b * b + d * d);
-					bone.b = MathUtils.Cos(r) * s;
-					bone.d = MathUtils.Sin(r) * s;
+					bone.B = MathUtils.Cos(r) * s;
+					bone.D = MathUtils.Sin(r) * s;
 				}
 
 				bone.UpdateAppliedTransform();
@@ -235,31 +235,31 @@ namespace Spine {
 			for (int i = 0, n = this.bones.Count; i < n; i++) {
 				Bone bone = bones[i];
 
-				float rotation = bone.arotation;
+				float rotation = bone.AppliedRotation;
 				if (mixRotate != 0) {
-					float r = target.arotation - rotation + data.offsetRotation;
+					float r = target.AppliedRotation - rotation + data.offsetRotation;
 					r -= (16384 - (int)(16384.499999999996 - r / 360)) * 360;
 					rotation += r * mixRotate;
 				}
 
-				float x = bone.ax, y = bone.ay;
-				x += (target.ax - x + data.offsetX) * mixX;
-				y += (target.ay - y + data.offsetY) * mixY;
+				float x = bone.AX, y = bone.AY;
+				x += (target.AX - x + data.offsetX) * mixX;
+				y += (target.AY - y + data.offsetY) * mixY;
 
-				float scaleX = bone.ascaleX, scaleY = bone.ascaleY;
+				float scaleX = bone.AScaleX, scaleY = bone.AScaleY;
 				if (mixScaleX != 0 && scaleX != 0)
-					scaleX = (scaleX + (target.ascaleX - scaleX + data.offsetScaleX) * mixScaleX) / scaleX;
+					scaleX = (scaleX + (target.AScaleX - scaleX + data.offsetScaleX) * mixScaleX) / scaleX;
 				if (mixScaleY != 0 && scaleY != 0)
-					scaleY = (scaleY + (target.ascaleY - scaleY + data.offsetScaleY) * mixScaleY) / scaleY;
+					scaleY = (scaleY + (target.AScaleY - scaleY + data.offsetScaleY) * mixScaleY) / scaleY;
 
-				float shearY = bone.ashearY;
+				float shearY = bone.AShearY;
 				if (mixShearY != 0) {
-					float r = target.ashearY - shearY + data.offsetShearY;
+					float r = target.AShearY - shearY + data.offsetShearY;
 					r -= (16384 - (int)(16384.499999999996 - r / 360)) * 360;
 					shearY += r * mixShearY;
 				}
 
-				bone.UpdateWorldTransform(x, y, rotation, scaleX, scaleY, bone.ashearX, shearY);
+				bone.UpdateWorldTransform(x, y, rotation, scaleX, scaleY, bone.AShearX, shearY);
 			}
 		}
 
@@ -273,14 +273,14 @@ namespace Spine {
 			for (int i = 0, n = this.bones.Count; i < n; i++) {
 				Bone bone = bones[i];
 
-				float rotation = bone.arotation + (target.arotation + data.offsetRotation) * mixRotate;
-				float x = bone.ax + (target.ax + data.offsetX) * mixX;
-				float y = bone.ay + (target.ay + data.offsetY) * mixY;
-				float scaleX = bone.ascaleX * (((target.ascaleX - 1 + data.offsetScaleX) * mixScaleX) + 1);
-				float scaleY = bone.ascaleY * (((target.ascaleY - 1 + data.offsetScaleY) * mixScaleY) + 1);
-				float shearY = bone.ashearY + (target.ashearY + data.offsetShearY) * mixShearY;
+				float rotation = bone.AppliedRotation + (target.AppliedRotation + data.offsetRotation) * mixRotate;
+				float x = bone.AX + (target.AX + data.offsetX) * mixX;
+				float y = bone.AY + (target.AY + data.offsetY) * mixY;
+				float scaleX = bone.AScaleX * (((target.AScaleX - 1 + data.offsetScaleX) * mixScaleX) + 1);
+				float scaleY = bone.AScaleY * (((target.AScaleY - 1 + data.offsetScaleY) * mixScaleY) + 1);
+				float shearY = bone.AShearY + (target.AShearY + data.offsetShearY) * mixShearY;
 
-				bone.UpdateWorldTransform(x, y, rotation, scaleX, scaleY, bone.ashearX, shearY);
+				bone.UpdateWorldTransform(x, y, rotation, scaleX, scaleY, bone.AShearX, shearY);
 			}
 		}
 

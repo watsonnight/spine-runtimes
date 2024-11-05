@@ -193,6 +193,7 @@ namespace Spine.Unity {
 					IntPtr sklhandle = spine_skeleton_data_load_binary_scale_unity(atlasArray[0].atlasHandle, skeletonJSON.bytes, skeletonJSON.bytes.Length, skeletonDataScale);
                     loadedSkeletonData = SkeletonDataAsset.ReadSkeletonData(skeletonJSON.bytes, attachmentLoader, skeletonDataScale, sklhandle);
 					loadedSkeletonData.skeletonDataHandle = sklhandle;
+					//here to initialize the bone
 
                 }
                 else
@@ -263,6 +264,8 @@ namespace Spine.Unity {
 			this.skeletonData = sd;
 			this.stateData = new AnimationStateData(skeletonData);
 			this.stateData.animationStateDataHandle = spine_animation_state_data_create_unity(skeletonData.skeletonDataHandle);
+
+			this.skeletonDataHandle = sd.skeletonDataHandle;
 
 			FillStateData();
 		}

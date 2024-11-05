@@ -28,6 +28,7 @@
  *****************************************************************************/
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Spine {
 	/// <summary>
@@ -45,15 +46,71 @@ namespace Spine {
 		internal Skeleton skeleton;
 		internal Bone parent;
 		internal ExposedList<Bone> children = new ExposedList<Bone>();
-		internal float x, y, rotation, scaleX, scaleY, shearX, shearY;
-		internal float ax, ay, arotation, ascaleX, ascaleY, ashearX, ashearY;
-
-		internal float a, b, worldX;
-		internal float c, d, worldY;
-
-		internal bool sorted, active;
+		// internal float x, y, rotation, scaleX, scaleY, shearX, shearY;
+		// internal float ax, ay, arotation, ascaleX, ascaleY, ashearX, ashearY;
+		//
+		// internal float a, b, worldX;
+		// internal float c, d, worldY;
+		//
+		// internal bool sorted, active;
 
 		public IntPtr boneHandle;
+		
+		
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_x_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_y_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_a_unity(IntPtr boneHandle);
+        
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_b_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_c_unity(IntPtr boneHandle);
+        
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_d_unity(IntPtr boneHandle);
+        
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_set_a_unity(IntPtr boneHandle,float newValue);
+        
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_set_b_unity(IntPtr boneHandle,float newValue);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_set_c_unity(IntPtr boneHandle,float newValue);
+        
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_set_d_unity(IntPtr boneHandle,float newValue);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_rotation_x_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_rotation_y_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_scale_x_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_scale_y_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_scale_x_unity(IntPtr boneHandle);
+  
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_world_scale_y_unity(IntPtr boneHandle);
+
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_get_x_unity(IntPtr boneHandle);
+        
+        [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+        static extern float spine_bone_set_x_unity(IntPtr boneHandle,float newX);
+        
 
 		public BoneData Data { get { return data; } }
 		public Skeleton Skeleton { get { return skeleton; } }
@@ -61,67 +118,209 @@ namespace Spine {
 		public ExposedList<Bone> Children { get { return children; } }
 		/// <summary>Returns false when the bone has not been computed because <see cref="BoneData.SkinRequired"/> is true and the
 		/// <see cref="Skeleton.Skin">active skin</see> does not <see cref="Skin.Bones">contain</see> this bone.</summary>
-		public bool Active { get { return active; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern bool spine_bone_get_active_unity(IntPtr boneHandle);
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void  spine_bone_set_active_unity(IntPtr boneHandle,bool value);
+		public bool Active { get { return  spine_bone_get_active_unity(boneHandle); } set{spine_bone_set_active_unity(boneHandle,value);}}
+		
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern bool spine_bone_get_sorted_unity(IntPtr boneHandle);
+		
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void  spine_bone_set_sorted_unity(IntPtr boneHandle,bool value);
+		
+		public bool Sorted { get { return spine_bone_get_sorted_unity(boneHandle); }
+			set { spine_bone_set_sorted_unity(boneHandle, value); }
+		}
+		
 		/// <summary>The local X translation.</summary>
-		public float X { get { return x; } set { x = value; } }
+		public float X { get { return spine_bone_get_x_unity(boneHandle); }
+			set { spine_bone_set_x_unity(boneHandle, value); }
+		}
 		/// <summary>The local Y translation.</summary>
-		public float Y { get { return y; } set { y = value; } }
-		/// <summary>The local rotation.</summary>
-		public float Rotation { get { return rotation; } set { rotation = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_y_unity(IntPtr boneHandle);
 
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_y_unity(IntPtr boneHandle, float newY);
+
+		public float Y
+		{
+			get { return spine_bone_get_y_unity(boneHandle); }
+			set { spine_bone_set_y_unity(boneHandle, value); }
+		}
+		/// <summary>The local rotation.</summary>
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_rotation_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_rotation_unity(IntPtr boneHandle, float newRotation);
+
+		public float Rotation
+		{
+			get { return spine_bone_get_rotation_unity(boneHandle); }
+			set { spine_bone_set_rotation_unity(boneHandle, value); }
+		}
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_set_scale_x_unity(IntPtr boneHandle,float newX);
 		/// <summary>The local scaleX.</summary>
-		public float ScaleX { get { return scaleX; } set { scaleX = value; } }
+		public float ScaleX { get { return spine_bone_get_scale_x_unity(boneHandle); } set { spine_bone_set_scale_x_unity(boneHandle,value); } }
 
 		/// <summary>The local scaleY.</summary>
-		public float ScaleY { get { return scaleY; } set { scaleY = value; } }
+		 [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_set_scale_y_unity(IntPtr boneHandle,float newX);
+		public float ScaleY { get { return spine_bone_get_scale_y_unity(boneHandle); } set { spine_bone_set_scale_y_unity(boneHandle,value); } }
 
 		/// <summary>The local shearX.</summary>
-		public float ShearX { get { return shearX; } set { shearX = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_shear_x_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_shear_x_unity(IntPtr boneHandle, float newShearX);
+
+		public float ShearX
+		{
+			get { return spine_bone_get_shear_x_unity(boneHandle); }
+			set { spine_bone_set_shear_x_unity(boneHandle, value); }
+		}
 
 		/// <summary>The local shearY.</summary>
-		public float ShearY { get { return shearY; } set { shearY = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_shear_y_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_shear_y_unity(IntPtr boneHandle, float newShearY);
+
+		public float ShearY
+		{
+			get { return spine_bone_get_shear_y_unity(boneHandle); }
+			set { spine_bone_set_shear_y_unity(boneHandle, value); }
+		}
 
 		/// <summary>The rotation, as calculated by any constraints.</summary>
-		public float AppliedRotation { get { return arotation; } set { arotation = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_appliedRotation_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_appliedRotation_unity(IntPtr boneHandle, float newAppliedRotation);
+
+		public float AppliedRotation
+		{
+			get { return spine_bone_get_appliedRotation_unity(boneHandle); }
+			set { spine_bone_set_appliedRotation_unity(boneHandle, value); }
+		}
 
 		/// <summary>The applied local x translation.</summary>
-		public float AX { get { return ax; } set { ax = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_ax_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_ax_unity(IntPtr boneHandle, float newAx);
+
+		public float AX
+		{
+			get { return spine_bone_get_ax_unity(boneHandle); }
+			set { spine_bone_set_ax_unity(boneHandle, value); }
+		}
 
 		/// <summary>The applied local y translation.</summary>
-		public float AY { get { return ay; } set { ay = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_ay_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_ay_unity(IntPtr boneHandle, float newAY);
+
+		public float AY
+		{
+			get { return spine_bone_get_ay_unity(boneHandle); }
+			set { spine_bone_set_ay_unity(boneHandle, value); }
+		}
 
 		/// <summary>The applied local scaleX.</summary>
-		public float AScaleX { get { return ascaleX; } set { ascaleX = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_ascaleX_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_ascaleX_unity(IntPtr boneHandle, float newAScaleX);
+
+		public float AScaleX
+		{
+			get { return spine_bone_get_ascaleX_unity(boneHandle); }
+			set { spine_bone_set_ascaleX_unity(boneHandle, value); }
+		}
 
 		/// <summary>The applied local scaleY.</summary>
-		public float AScaleY { get { return ascaleY; } set { ascaleY = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_ascaleY_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_ascaleY_unity(IntPtr boneHandle, float newAScaleY);
+
+		public float AScaleY
+		{
+			get { return spine_bone_get_ascaleY_unity(boneHandle); }
+			set { spine_bone_set_ascaleY_unity(boneHandle, value); }
+		}
+
 
 		/// <summary>The applied local shearX.</summary>
-		public float AShearX { get { return ashearX; } set { ashearX = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_ashearX_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_ashearX_unity(IntPtr boneHandle, float newAShearX);
+
+		public float AShearX
+		{
+			get { return spine_bone_get_ashearX_unity(boneHandle); }
+			set { spine_bone_set_ashearX_unity(boneHandle, value); }
+		}
+
 
 		/// <summary>The applied local shearY.</summary>
-		public float AShearY { get { return ashearY; } set { ashearY = value; } }
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_get_ashearY_unity(IntPtr boneHandle);
+
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern void spine_bone_set_ashearY_unity(IntPtr boneHandle, float newAShearY);
+
+		public float AShearY
+		{
+			get { return spine_bone_get_ashearY_unity(boneHandle); }
+			set { spine_bone_set_ashearY_unity(boneHandle, value); }
+		}
 
 		/// <summary>Part of the world transform matrix for the X axis. If changed, <see cref="UpdateAppliedTransform()"/> should be called.</summary>
-		public float A { get { return a; } set { a = value; } }
+		public float A { 
+			get { return spine_bone_get_a_unity(boneHandle); } 
+			set { spine_bone_set_a_unity(boneHandle,value); } 
+		}
 		/// <summary>Part of the world transform matrix for the Y axis. If changed, <see cref="UpdateAppliedTransform()"/> should be called.</summary>
-		public float B { get { return b; } set { b = value; } }
+		public float B { get { return spine_bone_get_b_unity(boneHandle); } set { spine_bone_set_b_unity(boneHandle,value); } }
 		/// <summary>Part of the world transform matrix for the X axis. If changed, <see cref="UpdateAppliedTransform()"/> should be called.</summary>
-		public float C { get { return c; } set { c = value; } }
+		public float C { get { return spine_bone_get_c_unity(boneHandle); } set { spine_bone_set_c_unity(boneHandle,value); } }
 		/// <summary>Part of the world transform matrix for the Y axis. If changed, <see cref="UpdateAppliedTransform()"/> should be called.</summary>
-		public float D { get { return d; } set { d = value; } }
+		public float D { get { return spine_bone_get_d_unity(boneHandle); } set { spine_bone_set_d_unity(boneHandle,value); } }
 
 		/// <summary>The world X position. If changed, <see cref="UpdateAppliedTransform()"/> should be called.</summary>
-		public float WorldX { get { return worldX; } set { worldX = value; } }
+	
+		 [DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_set_worldx_unity(IntPtr boneHandle,float newX);
+		public float WorldX { get { return spine_bone_get_world_x_unity(boneHandle); } set { spine_bone_set_worldx_unity(boneHandle,value); } }
 		/// <summary>The world Y position. If changed, <see cref="UpdateAppliedTransform()"/> should be called.</summary>
-		public float WorldY { get { return worldY; } set { worldY = value; } }
-		public float WorldRotationX { get { return MathUtils.Atan2(c, a) * MathUtils.RadDeg; } }
-		public float WorldRotationY { get { return MathUtils.Atan2(d, b) * MathUtils.RadDeg; } }
+		
+		[DllImport(Spine.Unity.SpineUnityLibName.SpineLibName)]
+		static extern float spine_bone_set_worldy_unity(IntPtr boneHandle,float newX);
+		public float WorldY { get { return spine_bone_get_world_y_unity(boneHandle); } set { spine_bone_set_worldy_unity(boneHandle,value); } }
+		public float WorldRotationX { get { return spine_bone_get_world_rotation_x_unity(boneHandle); } }
+		public float WorldRotationY { get { return spine_bone_get_world_rotation_y_unity(boneHandle); } }
 
 		/// <summary>Returns the magnitide (always positive) of the world scale X.</summary>
-		public float WorldScaleX { get { return (float)Math.Sqrt(a * a + c * c); } }
+		public float WorldScaleX { get { return spine_bone_get_world_scale_x_unity(boneHandle); } }
 		/// <summary>Returns the magnitide (always positive) of the world scale Y.</summary>
-		public float WorldScaleY { get { return (float)Math.Sqrt(b * b + d * d); } }
+		public float WorldScaleY { get { return spine_bone_get_world_scale_y_unity(boneHandle); } }
 
 		public Bone (BoneData data, Skeleton skeleton, Bone parent) {
 			if (data == null) throw new ArgumentNullException("data", "data cannot be null.");
@@ -140,23 +339,23 @@ namespace Spine {
 			this.skeleton = skeleton;
 			this.parent = parent;
 			data = bone.data;
-			x = bone.x;
-			y = bone.y;
-			rotation = bone.rotation;
-			scaleX = bone.scaleX;
-			scaleY = bone.scaleY;
-			shearX = bone.shearX;
-			shearY = bone.shearY;
+			X = bone.X;
+			Y = bone.Y;
+			Rotation = bone.Rotation;
+			ScaleX = bone.ScaleX;
+			ScaleY = bone.ScaleY;
+			ShearX = bone.ShearX;
+			ShearY = bone.ShearY;
 		}
 
 		/// <summary>Computes the world transform using the parent bone and this bone's local applied transform.</summary>
 		public void Update () {
-			UpdateWorldTransform(ax, ay, arotation, ascaleX, ascaleY, ashearX, ashearY);
+			UpdateWorldTransform(AX, AY, AppliedRotation, AScaleX, AScaleY, AShearX, AShearY);
 		}
 
 		/// <summary>Computes the world transform using the parent bone and this bone's local transform.</summary>
 		public void UpdateWorldTransform () {
-			UpdateWorldTransform(x, y, rotation, scaleX, scaleY, shearX, shearY);
+			UpdateWorldTransform(X, Y, Rotation, ScaleX, ScaleY, ShearX, ShearY);
 		}
 
 		/// <summary>Computes the world transform using the parent bone and the specified local transform. The applied transform is set to the
@@ -165,49 +364,49 @@ namespace Spine {
 		/// See <a href="http://esotericsoftware.com/spine-runtime-skeletons#World-transforms">World transforms</a> in the Spine
 		/// Runtimes Guide.</para></summary>
 		public void UpdateWorldTransform (float x, float y, float rotation, float scaleX, float scaleY, float shearX, float shearY) {
-			ax = x;
-			ay = y;
-			arotation = rotation;
-			ascaleX = scaleX;
-			ascaleY = scaleY;
-			ashearX = shearX;
-			ashearY = shearY;
+			AX = x;
+			AY = y;
+			AppliedRotation = rotation;
+			AScaleX = scaleX;
+			AScaleY = scaleY;
+			AShearX = shearX;
+			AShearY = shearY;
 
 			Bone parent = this.parent;
 			if (parent == null) { // Root bone.
 				float rotationY = rotation + 90 + shearY, sx = skeleton.ScaleX, sy = skeleton.ScaleY;
-				a = MathUtils.CosDeg(rotation + shearX) * scaleX * sx;
-				b = MathUtils.CosDeg(rotationY) * scaleY * sx;
-				c = MathUtils.SinDeg(rotation + shearX) * scaleX * sy;
-				d = MathUtils.SinDeg(rotationY) * scaleY * sy;
-				worldX = x * sx + skeleton.x;
-				worldY = y * sy + skeleton.y;
+				A = MathUtils.CosDeg(rotation + shearX) * scaleX * sx;
+				B = MathUtils.CosDeg(rotationY) * scaleY * sx;
+				C = MathUtils.SinDeg(rotation + shearX) * scaleX * sy;
+				D = MathUtils.SinDeg(rotationY) * scaleY * sy;
+				WorldX = x * sx + skeleton.x;
+				WorldY = y * sy + skeleton.y;
 				return;
 			}
 
-			float pa = parent.a, pb = parent.b, pc = parent.c, pd = parent.d;
-			worldX = pa * x + pb * y + parent.worldX;
-			worldY = pc * x + pd * y + parent.worldY;
+			float pa = parent.A, pb = parent.B, pc = parent.C, pd = parent.D;
+			WorldX = pa * x + pb * y + parent.WorldX;
+			WorldY = pc * x + pd * y + parent.WorldY;
 
-			switch (data.transformMode) {
+			switch (data.TransformMode) {
 			case TransformMode.Normal: {
 				float rotationY = rotation + 90 + shearY;
 				float la = MathUtils.CosDeg(rotation + shearX) * scaleX;
 				float lb = MathUtils.CosDeg(rotationY) * scaleY;
 				float lc = MathUtils.SinDeg(rotation + shearX) * scaleX;
 				float ld = MathUtils.SinDeg(rotationY) * scaleY;
-				a = pa * la + pb * lc;
-				b = pa * lb + pb * ld;
-				c = pc * la + pd * lc;
-				d = pc * lb + pd * ld;
+				A = pa * la + pb * lc;
+				B = pa * lb + pb * ld;
+				C = pc * la + pd * lc;
+				D = pc * lb + pd * ld;
 				return;
 			}
 			case TransformMode.OnlyTranslation: {
 				float rotationY = rotation + 90 + shearY;
-				a = MathUtils.CosDeg(rotation + shearX) * scaleX;
-				b = MathUtils.CosDeg(rotationY) * scaleY;
-				c = MathUtils.SinDeg(rotation + shearX) * scaleX;
-				d = MathUtils.SinDeg(rotationY) * scaleY;
+				A = MathUtils.CosDeg(rotation + shearX) * scaleX;
+				B = MathUtils.CosDeg(rotationY) * scaleY;
+				C = MathUtils.SinDeg(rotation + shearX) * scaleX;
+				D = MathUtils.SinDeg(rotationY) * scaleY;
 				break;
 			}
 			case TransformMode.NoRotationOrReflection: {
@@ -230,10 +429,10 @@ namespace Spine {
 				float lb = MathUtils.CosDeg(ry) * scaleY;
 				float lc = MathUtils.SinDeg(rx) * scaleX;
 				float ld = MathUtils.SinDeg(ry) * scaleY;
-				a = pa * la - pb * lc;
-				b = pa * lb - pb * ld;
-				c = pc * la + pd * lc;
-				d = pc * lb + pd * ld;
+				A = pa * la - pb * lc;
+				B = pa * lb - pb * ld;
+				C = pc * la + pd * lc;
+				D = pc * lb + pd * ld;
 				break;
 			}
 			case TransformMode.NoScale:
@@ -246,7 +445,7 @@ namespace Spine {
 				za *= s;
 				zc *= s;
 				s = (float)Math.Sqrt(za * za + zc * zc);
-				if (data.transformMode == TransformMode.NoScale
+				if (data.TransformMode == TransformMode.NoScale
 					&& (pa * pd - pb * pc < 0) != (skeleton.ScaleX < 0 != skeleton.ScaleY < 0)) s = -s;
 
 				float r = MathUtils.PI / 2 + MathUtils.Atan2(zc, za);
@@ -256,29 +455,29 @@ namespace Spine {
 				float lb = MathUtils.CosDeg(90 + shearY) * scaleY;
 				float lc = MathUtils.SinDeg(shearX) * scaleX;
 				float ld = MathUtils.SinDeg(90 + shearY) * scaleY;
-				a = za * la + zb * lc;
-				b = za * lb + zb * ld;
-				c = zc * la + zd * lc;
-				d = zc * lb + zd * ld;
+				A = za * la + zb * lc;
+				B = za * lb + zb * ld;
+				C = zc * la + zd * lc;
+				D = zc * lb + zd * ld;
 				break;
 			}
 			}
 
-			a *= skeleton.ScaleX;
-			b *= skeleton.ScaleX;
-			c *= skeleton.ScaleY;
-			d *= skeleton.ScaleY;
+			A *= skeleton.ScaleX;
+			B *= skeleton.ScaleX;
+			C *= skeleton.ScaleY;
+			D *= skeleton.ScaleY;
 		}
 
 		public void SetToSetupPose () {
 			BoneData data = this.data;
-			x = data.x;
-			y = data.y;
-			rotation = data.rotation;
-			scaleX = data.scaleX;
-			scaleY = data.scaleY;
-			shearX = data.shearX;
-			shearY = data.shearY;
+			X = data.X;
+			Y = data.Y;
+			Rotation = data.Rotation;
+			ScaleX = data.ScaleX;
+			ScaleY = data.ScaleY;
+			ShearX = data.ShearX;
+			ShearY = data.ShearY;
 		}
 
 		/// <summary>
@@ -294,61 +493,61 @@ namespace Spine {
 		public void UpdateAppliedTransform () {
 			Bone parent = this.parent;
 			if (parent == null) {
-				ax = worldX - skeleton.x;
-				ay = worldY - skeleton.y;
-				arotation = MathUtils.Atan2(c, a) * MathUtils.RadDeg;
-				ascaleX = (float)Math.Sqrt(a * a + c * c);
-				ascaleY = (float)Math.Sqrt(b * b + d * d);
-				ashearX = 0;
-				ashearY = MathUtils.Atan2(a * b + c * d, a * d - b * c) * MathUtils.RadDeg;
+				AX = WorldX - skeleton.x;
+				AY = WorldY - skeleton.y;
+				AppliedRotation = MathUtils.Atan2(C, A) * MathUtils.RadDeg;
+				AScaleX = (float)Math.Sqrt(A * A + C * C);
+				AScaleY = (float)Math.Sqrt(B * B + D * D);
+				AShearX = 0;
+				AShearY = MathUtils.Atan2(A * B + C * D, A * D - B * C) * MathUtils.RadDeg;
 				return;
 			}
-			float pa = parent.a, pb = parent.b, pc = parent.c, pd = parent.d;
+			float pa = parent.A, pb = parent.B, pc = parent.C, pd = parent.D;
 			float pid = 1 / (pa * pd - pb * pc);
-			float dx = worldX - parent.worldX, dy = worldY - parent.worldY;
-			ax = (dx * pd * pid - dy * pb * pid);
-			ay = (dy * pa * pid - dx * pc * pid);
+			float dx = WorldX - parent.WorldX, dy = WorldY - parent.WorldY;
+			AX = (dx * pd * pid - dy * pb * pid);
+			AY = (dy * pa * pid - dx * pc * pid);
 			float ia = pid * pd;
 			float id = pid * pa;
 			float ib = pid * pb;
 			float ic = pid * pc;
-			float ra = ia * a - ib * c;
-			float rb = ia * b - ib * d;
-			float rc = id * c - ic * a;
-			float rd = id * d - ic * b;
-			ashearX = 0;
-			ascaleX = (float)Math.Sqrt(ra * ra + rc * rc);
-			if (ascaleX > 0.0001f) {
+			float ra = ia * A - ib * C;
+			float rb = ia * B - ib * D;
+			float rc = id * C - ic * A;
+			float rd = id * D - ic * B;
+			AShearX = 0;
+			AScaleX = (float)Math.Sqrt(ra * ra + rc * rc);
+			if (AScaleX > 0.0001f) {
 				float det = ra * rd - rb * rc;
-				ascaleY = det / ascaleX;
-				ashearY = MathUtils.Atan2(ra * rb + rc * rd, det) * MathUtils.RadDeg;
-				arotation = MathUtils.Atan2(rc, ra) * MathUtils.RadDeg;
+				AScaleY = det / AScaleX;
+				AShearY = MathUtils.Atan2(ra * rb + rc * rd, det) * MathUtils.RadDeg;
+				AppliedRotation = MathUtils.Atan2(rc, ra) * MathUtils.RadDeg;
 			} else {
-				ascaleX = 0;
-				ascaleY = (float)Math.Sqrt(rb * rb + rd * rd);
-				ashearY = 0;
-				arotation = 90 - MathUtils.Atan2(rd, rb) * MathUtils.RadDeg;
+				AScaleX = 0;
+				AScaleY = (float)Math.Sqrt(rb * rb + rd * rd);
+				AShearY = 0;
+				AppliedRotation = 90 - MathUtils.Atan2(rd, rb) * MathUtils.RadDeg;
 			}
 		}
 
 		public void WorldToLocal (float worldX, float worldY, out float localX, out float localY) {
-			float a = this.a, b = this.b, c = this.c, d = this.d;
+			float a = this.A, b = this.B, c = this.C, d = this.D;
 			float det = a * d - b * c;
-			float x = worldX - this.worldX, y = worldY - this.worldY;
+			float x = worldX - this.WorldX, y = worldY - this.WorldY;
 			localX = (x * d - y * b) / det;
 			localY = (y * a - x * c) / det;
 		}
 
 		public void LocalToWorld (float localX, float localY, out float worldX, out float worldY) {
-			worldX = localX * a + localY * b + this.worldX;
-			worldY = localX * c + localY * d + this.worldY;
+			worldX = localX * A + localY * B + this.WorldX;
+			worldY = localX * C + localY * D + this.WorldY;
 		}
 
 		public float WorldToLocalRotationX {
 			get {
 				Bone parent = this.parent;
-				if (parent == null) return arotation;
-				float pa = parent.a, pb = parent.b, pc = parent.c, pd = parent.d, a = this.a, c = this.c;
+				if (parent == null) return AppliedRotation;
+				float pa = parent.A, pb = parent.B, pc = parent.C, pd = parent.D, a = this.A, c = this.C;
 				return MathUtils.Atan2(pa * c - pc * a, pd * a - pb * c) * MathUtils.RadDeg;
 			}
 		}
@@ -356,21 +555,21 @@ namespace Spine {
 		public float WorldToLocalRotationY {
 			get {
 				Bone parent = this.parent;
-				if (parent == null) return arotation;
-				float pa = parent.a, pb = parent.b, pc = parent.c, pd = parent.d, b = this.b, d = this.d;
+				if (parent == null) return AppliedRotation;
+				float pa = parent.A, pb = parent.B, pc = parent.C, pd = parent.D, b = this.B, d = this.D;
 				return MathUtils.Atan2(pa * d - pc * b, pd * b - pb * d) * MathUtils.RadDeg;
 			}
 		}
 
 		public float WorldToLocalRotation (float worldRotation) {
 			float sin = MathUtils.SinDeg(worldRotation), cos = MathUtils.CosDeg(worldRotation);
-			return MathUtils.Atan2(a * sin - c * cos, d * cos - b * sin) * MathUtils.RadDeg + rotation - shearX;
+			return MathUtils.Atan2(A * sin - C * cos, D * cos - B * sin) * MathUtils.RadDeg + Rotation - ShearX;
 		}
 
 		public float LocalToWorldRotation (float localRotation) {
-			localRotation -= rotation - shearX;
+			localRotation -= Rotation - ShearX;
 			float sin = MathUtils.SinDeg(localRotation), cos = MathUtils.CosDeg(localRotation);
-			return MathUtils.Atan2(cos * c + sin * d, cos * a + sin * b) * MathUtils.RadDeg;
+			return MathUtils.Atan2(cos * C + sin * D, cos * A + sin * B) * MathUtils.RadDeg;
 		}
 
 		/// <summary>
@@ -380,16 +579,18 @@ namespace Spine {
 		/// need to be called on any child bones, recursively.
 		/// </para></summary>
 		public void RotateWorld (float degrees) {
-			float a = this.a, b = this.b, c = this.c, d = this.d;
+			float a = A, b = this.B, c = this.C, d = this.D;
 			float cos = MathUtils.CosDeg(degrees), sin = MathUtils.SinDeg(degrees);
-			this.a = cos * a - sin * c;
-			this.b = cos * b - sin * d;
-			this.c = sin * a + cos * c;
-			this.d = sin * b + cos * d;
+			A = cos * a - sin * c;
+			this.B = cos * b - sin * d;
+			this.C = sin * a + cos * c;
+			this.D = sin * b + cos * d;
 		}
 
 		override public string ToString () {
-			return data.name;
+			return data.Name;
 		}
 	}
 }
+
+
