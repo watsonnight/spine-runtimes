@@ -45,13 +45,14 @@ SPINE_CPP_LITE_EXPORT const char* spine_atlas_get_region_name_unity(intptr_t atl
 
 
 //bone
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_x_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_y_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_rotation_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT intptr_t spine_skeleton_get_bone(intptr_t skeletonHandle, int index);
+ SPINE_CPP_LITE_EXPORT float spine_bone_get_x_unity(intptr_t boneHandle);
+ SPINE_CPP_LITE_EXPORT float spine_bone_get_y_unity(intptr_t boneHandle);
+ SPINE_CPP_LITE_EXPORT float spine_bone_get_rotation_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_scale_x_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_scale_y_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_x_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_y_unity(intptr_t boneHandle);
+ SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_x_unity(intptr_t boneHandle);
+ SPINE_CPP_LITE_EXPORT float spine_bone_get_shear_y_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_world_x_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_world_y_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_a_unity(intptr_t boneHandle);
@@ -62,11 +63,43 @@ SPINE_CPP_LITE_EXPORT float spine_bone_get_world_scale_x_unity(intptr_t boneHand
 SPINE_CPP_LITE_EXPORT float spine_bone_get_world_scale_y_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT float spine_bone_get_data_length_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT const char* spine_bone_get_data_name_unity(intptr_t boneHandle);
-// SPINE_CPP_LITE_EXPORT void spine_bone_set_local_position_unity(intptr_t boneHandle, float* position);
+ SPINE_CPP_LITE_EXPORT void spine_bone_set_local_position_unity(intptr_t boneHandle, float* position);
 SPINE_CPP_LITE_EXPORT intptr_t spine_bone_get_parent_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT intptr_t spine_bone_get_skeleton_unity(intptr_t boneHandle);
 SPINE_CPP_LITE_EXPORT void spine_bone_dispose_local_unity(intptr_t boneHandle);
-
+SPINE_CPP_LITE_EXPORT void spine_bone_set_x_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_y_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_rotation_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_scale_x_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_scale_y_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_shear_x_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_shear_y_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_world_x_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_world_y_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_a_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_c_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT bool spine_bone_get_active_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_active_unity(intptr_t boneHandle,bool value);
+SPINE_CPP_LITE_EXPORT bool spine_bone_get_sorted_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void  spine_bone_set_sorted_unity(intptr_t boneHandle, bool value);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_appliedRotation_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_appliedRotation_unity(intptr_t boneHandle, float newAppliedRotation);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_ax_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_ax_unity(intptr_t  boneHandle, float newAx);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_ay_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_ay_unity(intptr_t  boneHandle, float newAy);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_ascaleX_unity(intptr_t  boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_ascaleX_unity(intptr_t  boneHandle, float newAScaleX);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_ascaleY_unity(intptr_t  boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_ascaleY_unity(intptr_t  boneHandle, float newAScaleY);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_ashearX_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_ashearX_unity(intptr_t boneHandle, float newAShearX);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_ashearY_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_ashearY_unity(intptr_t boneHandle, float newAShearY);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_b_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_b_unity(intptr_t boneHandle, float value);
+SPINE_CPP_LITE_EXPORT float spine_bone_get_d_unity(intptr_t boneHandle);
+SPINE_CPP_LITE_EXPORT void spine_bone_set_d_unity(intptr_t boneHandle, float value);
 
 
 

@@ -574,3 +574,12 @@ bool Bone::isActive() {
 void Bone::setActive(bool inValue) {
 	_active = inValue;
 }
+
+
+bool Bone::isSorted() {
+	return _sorted;
+}
+
+void Bone::setSorted(bool inValue) {
+	_sorted = inValue;
+}

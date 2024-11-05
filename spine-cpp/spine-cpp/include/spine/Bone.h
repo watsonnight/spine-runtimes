@@ -253,6 +253,10 @@ namespace spine {
 
 		void setActive(bool inValue);
 
+		bool isSorted();
+
+		void setSorted(bool inValue);
+
 	private:
 		static bool yDown;
 

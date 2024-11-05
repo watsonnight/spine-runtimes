@@ -151,32 +151,33 @@ const char* spine_atlas_get_region_name_unity(intptr_t atlasHandle, int index)
 		return val;											\
 	}		
 
-// float spine_bone_get_x_unity(intptr_t boneHandle)
-// {
-// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
-//
-// 	Bone* bone = s_local_spine_bone_map[boneHandle];
-//
-// 	return bone->getX();
-// }
 
-// float spine_bone_get_y_unity(intptr_t boneHandle)
-// {
-// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
-//
-// 	Bone* bone = s_local_spine_bone_map[boneHandle];
-//
-// 	return bone->getY();
-// }
-//
-// float spine_bone_get_rotation_unity(intptr_t boneHandle)
-// {
-// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
-//
-// 	Bone* bone = s_local_spine_bone_map[boneHandle];
-//
-// 	return bone->getRotation();
-// }
+float spine_bone_get_x_unity(intptr_t boneHandle)
+{
+	CHECK_BONE_RETURN(boneHandle, 0.0f);
+
+	Bone* bone = s_local_spine_bone_map[boneHandle];
+
+	return bone->getX();
+}
+
+float spine_bone_get_y_unity(intptr_t boneHandle)
+{
+	CHECK_BONE_RETURN(boneHandle, 0.0f);
+
+	Bone* bone = s_local_spine_bone_map[boneHandle];
+
+	return bone->getY();
+}
+
+float spine_bone_get_rotation_unity(intptr_t boneHandle)
+{
+	CHECK_BONE_RETURN(boneHandle, 0.0f);
+
+	Bone* bone = s_local_spine_bone_map[boneHandle];
+
+	return bone->getRotation();
+}
 
 float spine_bone_get_scale_x_unity(intptr_t boneHandle)
 {
@@ -195,37 +196,37 @@ float spine_bone_get_scale_y_unity(intptr_t boneHandle)
 	return bone->getScaleY();
 }
 
-// float spine_bone_get_shear_x_unity(intptr_t boneHandle)
-// {
-// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
-//
-// 	Bone* bone = s_local_spine_bone_map[boneHandle];
-//
-// 	return bone->getShearX();
-// }
-//
-// float spine_bone_get_shear_y_unity(intptr_t boneHandle)
-// {
-// 	CHECK_BONE_RETURN(boneHandle, 0.0f);
-//
-// 	Bone* bone = s_local_spine_bone_map[boneHandle];
-//
-// 	return bone->getShearY();
-// }
+float spine_bone_get_shear_x_unity(intptr_t boneHandle)
+{
+	CHECK_BONE_RETURN(boneHandle, 0.0f);
 
-// void spine_bone_set_local_position_unity(intptr_t skeletonHandle, intptr_t boneHandle, float* position)
-// {
-// 	CHECK_BONE_RETURN(boneHandle, );
-//
-// 	Bone* bone = s_local_spine_bone_map[boneHandle];
-// 	if (bone == nullptr)
-// 	{
-// 		return;
-// 	}
-//
-// 	bone->setX(position[0]);
-// 	bone->setY(position[1]);
-// }
+	Bone* bone = s_local_spine_bone_map[boneHandle];
+
+	return bone->getShearX();
+}
+
+float spine_bone_get_shear_y_unity(intptr_t boneHandle)
+{
+	CHECK_BONE_RETURN(boneHandle, 0.0f);
+
+	Bone* bone = s_local_spine_bone_map[boneHandle];
+
+	return bone->getShearY();
+}
+
+void spine_bone_set_local_position_unity(intptr_t skeletonHandle, intptr_t boneHandle, float* position)
+{
+	CHECK_BONE_RETURN(boneHandle, );
+
+	Bone* bone = s_local_spine_bone_map[boneHandle];
+	if (bone == nullptr)
+	{
+		return;
+	}
+
+	bone->setX(position[0]);
+	bone->setY(position[1]);
+}
 
 
 float spine_bone_get_world_x_unity(intptr_t boneHandle)
@@ -2057,5 +2058,250 @@ int spine_bonedata_get_index_unity(intptr_t boneDataHandle)
 	if (bonedata == nullptr) return 0;
 	return bonedata->getIndex();
 }
+
+//bone
+intptr_t spine_skeleton_get_bone(intptr_t skeletonHanle,int index)
+{
+	Skeleton* skeleton = s_global_spine_skeleton_map[skeletonHanle];
+
+	return reinterpret_cast<intptr_t>(skeleton->getBones()[index]);
+}
+
+//bone  set functions
+void spine_bone_set_x_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setX(value);
+
+}
+void spine_bone_set_y_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setY(value);
+
+}
+void spine_bone_set_rotation_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setRotation(value);
+
+}
+void spine_bone_set_scale_x_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setScaleX(value);
+
+}
+void spine_bone_set_scale_y_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setScaleY(value);
+
+}
+void spine_bone_set_shear_x_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setShearX(value);
+
+}
+void spine_bone_set_shear_y_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setShearY(value);
+
+}
+void spine_bone_set_world_x_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setWorldX(value);
+
+}
+void spine_bone_set_world_y_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setWorldY(value);
+
+}
+void spine_bone_set_a_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setA(value);
+
+}
+void spine_bone_set_c_unity(intptr_t boneHandle, float value) {
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setC(value);
+
+}
+
+//WAIT TO ADD INTO .H LIST
+bool spine_bone_get_active_unity(intptr_t boneHandle)
+{
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return false;
+	return bone->isActive();
+}
+
+void  spine_bone_set_active_unity(intptr_t boneHandle,bool value)
+{
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return ;
+	return bone->setActive(value);
+}
+
+bool spine_bone_get_sorted_unity(intptr_t boneHandle)
+{
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return false;
+	return bone->isSorted();
+}
+
+void  spine_bone_set_sorted_unity(intptr_t boneHandle, bool value)
+{
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	return bone->setSorted(value);
+}
+
+
+
+
+float spine_bone_get_appliedRotation_unity(intptr_t boneHandle)
+{
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return 0;
+	return bone->getAppliedRotation();
+
+}
+
+void spine_bone_set_appliedRotation_unity(intptr_t boneHandle, float newAppliedRotation)
+{
+	Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	if (bone == nullptr) return;
+	bone->setAppliedRotation(newAppliedRotation);
+
+}
+
+
+ float spine_bone_get_ax_unity(intptr_t boneHandle)
+{
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 bone->getAX();
+}
+
+ void spine_bone_set_ax_unity(intptr_t  boneHandle, float newAx)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return ;
+	 bone->setAX(newAx);
+ }
+
+ float spine_bone_get_ay_unity(intptr_t boneHandle)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 bone->getAY();
+ }
+
+ void spine_bone_set_ay_unity(intptr_t  boneHandle, float newAy)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return;
+	 bone->setAY(newAy);
+ }
+
+ float spine_bone_get_ascaleX_unity(intptr_t  boneHandle)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 bone->getAScaleX();
+ }
+
+
+ void spine_bone_set_ascaleX_unity(intptr_t  boneHandle, float newAScaleX)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return;
+	 bone->setAScaleX(newAScaleX);
+}
+
+ float spine_bone_get_ascaleY_unity(intptr_t  boneHandle)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 bone->getAScaleY();
+ }
+
+
+ void spine_bone_set_ascaleY_unity(intptr_t  boneHandle, float newAScaleY)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return;
+	 bone->setAScaleY(newAScaleY);
+ }
+
+
+ float spine_bone_get_ashearX_unity(intptr_t boneHandle)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 return bone->getAShearX();
+
+ }
+
+ void spine_bone_set_ashearX_unity(intptr_t boneHandle, float newAShearX)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return;
+	 bone->setAShearX(newAShearX);
+ }
+
+
+ float spine_bone_get_ashearY_unity(intptr_t boneHandle)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 return bone->getAShearY();
+
+ }
+
+ void spine_bone_set_ashearY_unity(intptr_t boneHandle, float newAShearY)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return;
+	 bone->setAShearY(newAShearY);
+ }
+
+ float spine_bone_get_b_unity(intptr_t boneHandle)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 bone->getB();
+
+ }
+
+ void spine_bone_set_b_unity(intptr_t boneHandle, float value) {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return;
+	 bone->setB(value);
+
+ }
+
+ float spine_bone_get_d_unity(intptr_t boneHandle)
+ {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return 0;
+	 bone->getD();
+
+ }
+
+ void spine_bone_set_d_unity(intptr_t boneHandle, float value) {
+	 Bone* bone = reinterpret_cast<Bone*>(boneHandle);
+	 if (bone == nullptr) return;
+	 bone->setD(value);
+
+ }
 
 
