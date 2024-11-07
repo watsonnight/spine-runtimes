@@ -1,6 +1,6 @@
 
 @REM change path to emsdk path
-cmake -DCMAKE_TOOLCHAIN_FILE=D:/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -B buildwasm -DCMAKE_BUILD_TYPE=Release -G "Ninja" ../CMakeLists.txt
+cmake -DCMAKE_TOOLCHAIN_FILE=E:/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -B buildwasm -DCMAKE_BUILD_TYPE=Release -G "Ninja" ../CMakeLists.txt
 
 cmake --build buildwasm
 

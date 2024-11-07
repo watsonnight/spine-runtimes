@@ -25,7 +25,7 @@ target_include_directories(spine-cpp PUBLIC ${SPINE_CPP_DIR}/include)
 file(GLOB NATIVE_INCLUDES "spine-cpp-lite/*.h")
 file(GLOB NATIVE_SOURCES "spine-cpp-lite/*.cpp")
 
-add_library(spine-cpp-lite SHARED ${SOURCES} ${INCLUDES} ${NATIVE_INCLUDES} ${NATIVE_SOURCES})
+add_library(spine-cpp-lite STATIC ${SOURCES} ${INCLUDES} ${NATIVE_INCLUDES} ${NATIVE_SOURCES})
 target_include_directories(spine-cpp-lite PUBLIC ${SPINE_CPP_DIR}/include)
 
 # Install target

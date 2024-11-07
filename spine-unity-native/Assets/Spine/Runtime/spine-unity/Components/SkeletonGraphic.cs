@@ -872,7 +872,7 @@ namespace Spine.Unity {
         ushort[] triangles = new ushort[6];
 
 
-        static readonly ProfilerMarker s_UpdateMarker11 = new ProfilerMarker("SkeletonGraphic.PrepareInstructionsAndRenderers");
+        static readonly ProfilerMarker s_UpdateMarker11 = new ProfilerMarker("spine_mesh_generator_generate_mesh_renderers_unity somthing weired");
 
         static readonly ProfilerMarker s_UpdateMarker12 = new ProfilerMarker("SkeletonGraphic.PrepareRendererGameObjects");
 
