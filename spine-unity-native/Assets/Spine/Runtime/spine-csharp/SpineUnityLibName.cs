@@ -38,11 +38,11 @@ namespace Spine.Unity
 
 #if UNITY_WEBGL
         public const string SpineLibName = SpineLibNameStatic;
-#if UNITY_EDITOR
+#elif UNITY_EDITOR
     #if UNITY_EDITOR_OSX
-            public const string SpineLibName = OSX_SpineLibNameDynamic;
+        public const string SpineLibName = OSX_SpineLibNameDynamic;
     #else
-            public const string SpineLibName = SpineLibNameDynamic;
+        public const string SpineLibName = SpineLibNameDynamic;
     #endif
 #else
         public const string SpineLibName = SpineLibNameDynamic;
